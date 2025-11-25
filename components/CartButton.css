@@ -1,17 +1,18 @@
 /* From Uiverse.io by prikshit_1236 */ 
 
 .cart-button {
-  background: var(--theme-button-color);
+  background: var(--theme-button-color); /* Static background */
   color: white;
-  padding: 8px 16px; /* Adjusted padding for better height/width */
+  padding: 8px 16px;
   border: none;
   border-radius: 25px;
   cursor: pointer;
   font-size: 16px;
   font-family: "Poppins", sans-serif;
-  display: flex; /* For alignment */
-  align-items: center; /* For vertical alignment */
-  justify-content: center; /* For horizontal alignment */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Restoring the original static box-shadows for the glow effect */
   box-shadow:
     0 2px 5px rgba(0, 0, 0, 0.2),
     0 5px 15px rgba(var(--theme-button-color-rgb), 0.1),
@@ -22,16 +23,17 @@
   perspective: 1000px;
   transform: translateZ(0); /* Static 3D base transform */
   border: 1px solid rgba(255, 255, 255, 0.1);
-  white-space: nowrap; /* Prevent text wrapping */
-  transition: none; /* Disable all transitions */
-  animation: none; /* Disable all animations */
+  white-space: nowrap;
+  /* Disable ALL transitions and animations for the base button */
+  transition: none;
+  animation: none;
 }
 
 .cart-button::before {
   content: "";
   position: absolute;
   top: 0;
-  left: 0;
+  left: 0; /* Static position */
   right: 0;
   height: 50%;
   background: linear-gradient(
@@ -41,6 +43,8 @@
   );
   border-radius: 25px 25px 100px 100px;
   pointer-events: none;
+  transition: none; /* Disable transitions */
+  animation: none; /* Disable animations */
 }
 
 .cart-button::after {
@@ -56,6 +60,8 @@
     rgba(255, 255, 255, 0) 
   );
   pointer-events: none;
+  transition: none; /* Disable transitions */
+  animation: none; /* Disable animations */
 }
 
 .cart-icon {
@@ -70,8 +76,10 @@
   vertical-align: middle;
   width: 20px;
   height: 20px;
+  stroke: currentColor;
 }
 
+/* Hide elements related to animations and interactive states */
 .progress-bar,
 .cart-toggle,
 .adding,
@@ -80,16 +88,62 @@
 .cart-toggle:checked + .cart-button,
 .cart-toggle:checked + .cart-button .progress-bar,
 .cart-toggle:checked + .cart-button .cart-icon {
-  display: none !important; /* Explicitly hide elements related to animations */
+  display: none !important;
 }
 
-/* Removing all hover and active states */
+/* Explicitly ensure NO visual changes on hover or active */
 .cart-button:hover,
-.cart-button:active,
+.cart-button:active {
+  /* Reset any potential changes to their base static values */
+  transform: translateZ(0) !important; /* Ensure base transform */
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.2),
+    0 5px 15px rgba(var(--theme-button-color-rgb), 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important; /* Ensure base box-shadow */
+  background: var(--theme-button-color) !important; /* Ensure base background */
+  color: white !important; /* Ensure base color */
+  opacity: 1 !important; /* Ensure full opacity */
+  letter-spacing: normal !important; /* Ensure normal letter spacing */
+  transition: none !important;
+  animation: none !important;
+}
+
 .cart-button:hover::before,
+.cart-button:active::before {
+  left: 0 !important; /* Ensure ::before remains in its static position */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.05)
+  ) !important; /* Ensure base background */
+  transition: none !important;
+  animation: none !important;
+}
+
+.cart-button:hover::after,
+.cart-button:active::after {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0) 
+  ) !important; /* Ensure base background */
+  transition: none !important;
+  animation: none !important;
+}
+
+.cart-button:hover .cart-icon,
+.cart-button:active .cart-icon {
+  transform: translateZ(5px) !important; /* Ensure base transform for icon */
+  transition: none !important;
+  animation: none !important;
+}
+
 .cart-button:hover .cart-icon svg,
 .cart-button:active .cart-icon svg {
-  all: unset !important; /* Aggressively remove any leftover styles for these states */
+  transform: none !important; /* Ensure no icon scaling */
+  stroke: currentColor !important;
+  transition: none !important;
+  animation: none !important;
 }
 
 /* Ensure basic cursor is maintained */
