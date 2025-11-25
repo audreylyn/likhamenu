@@ -63,8 +63,7 @@ const AppInner: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Login />} />
         <Route path="/create" element={<WebsiteBuilder />} />
         <Route path="/edit/:id" element={<WebsiteBuilder />} />
         <Route path="/preview/:id" element={<PreviewTemplate />} />
