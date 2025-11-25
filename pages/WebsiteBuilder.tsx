@@ -640,7 +640,7 @@ export const WebsiteBuilder: React.FC = () => {
 
               {/* Contact */}
               {website.enabledSections.contact && (
-                <ContactDetails website={website} updateContent={updateContent} />
+                <ContactDetails website={website} updateContent={updateContent} isDark={website.theme.background === 'dark'} />
               )}
 
               {/* Footer Configuration */}
