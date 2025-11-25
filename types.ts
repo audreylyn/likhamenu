@@ -1,5 +1,5 @@
 
-export type WebsiteStatus = 'active' | 'inactive';
+export type WebsiteStatus = 'active' | 'inactive' | 'draft' | 'published';
 export type ThemeMode = 'light' | 'dark';
 export type UserRole = 'admin' | 'editor';
 

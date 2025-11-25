@@ -127,7 +127,7 @@ export const WebsiteBuilder: React.FC = () => {
           baseUrl = `https://${website.subdomain}.likhasiteworks.dev`;
         }
 
-        const previewUrl = `${baseUrl}#/preview/${saved.id}`;
+        const previewUrl = `${baseUrl}/preview/${saved.id}`;
         window.open(previewUrl, '_blank');
       } catch (err) {
         console.error('Failed to save draft for preview', err);
@@ -394,17 +394,6 @@ export const WebsiteBuilder: React.FC = () => {
                       .likhasiteworks.dev
                     </span>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                  <select
-                    value={website.status || 'draft'}
-                    onChange={(e) => setWebsite({ ...website, status: e.target.value as 'draft' | 'published' })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
