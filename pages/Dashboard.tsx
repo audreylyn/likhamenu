@@ -36,6 +36,16 @@ export const Dashboard: React.FC = () => {
     setShowDeleteModal(null);
   };
 
+  const handleViewSite = (site: Website) => {
+    let targetUrl = '';
+    if (site.status === 'published' && site.subdomain) {
+      targetUrl = `https://${site.subdomain}.likhasiteworks.dev`;
+    } else {
+      targetUrl = `${window.location.origin}/preview/${site.id}`;
+    }
+    window.open(targetUrl, '_blank');
+  };
+
   const filteredWebsites = websites.filter(site => 
     site.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     site.subdomain.toLowerCase().includes(searchTerm.toLowerCase())
@@ -152,15 +162,13 @@ export const Dashboard: React.FC = () => {
                     <td className="px-6 py-4">{new Date(site.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-3">
-                        <a 
-                          href={`#/preview/${site.id}`} 
-                          target="_blank" 
-                          rel="noreferrer"
+                        <button 
+                          onClick={() => handleViewSite(site)}
                           className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium text-xs bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded transition-colors"
                         >
                           <ExternalLink className="w-3 h-3" />
-                          Preview
-                        </a>
+                          View Site
+                        </button>
                         
                         <div className="h-4 w-px bg-slate-300 mx-1"></div>
 

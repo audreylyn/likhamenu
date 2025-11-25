@@ -111,34 +111,18 @@ export const WebsiteBuilder: React.FC = () => {
     }
   };
 
-  const handlePreview = () => {
+  const handleViewSite = () => {
     if (!website) return;
-    // Save draft to Supabase as a draft record and open preview by id
-    (async () => {
-      try {
-        const draft = { ...website, status: 'draft', createdAt: website.createdAt || new Date().toISOString() } as Website;
-        const saved = await saveWebsite(draft);
 
-        // If the website has a configured subdomain, build the preview URL using it.
-        // Otherwise fall back to the current origin (localhost during development).
-        let baseUrl = window.location.origin; // Default to current origin for development
-        if (website.subdomain && website.subdomain.trim()) {
-          // For published subdomains, use the full subdomain URL
-          baseUrl = `https://${website.subdomain}.likhasiteworks.dev`;
-        }
-
-        const previewUrl = `${baseUrl}/preview/${saved.id}`;
-        window.open(previewUrl, '_blank');
-      } catch (err) {
-        console.error('Failed to save draft for preview', err);
-        alert('Failed to create preview draft: ' + ((err as any)?.message || String(err)));
-      }
-    })();
+    let targetUrl = '';
+    if (website.status === 'published' && website.subdomain) {
+      targetUrl = `https://${website.subdomain}.likhasiteworks.dev`;
+    } else {
+      // For drafts or sites without a subdomain, use the regular preview route
+      targetUrl = `${window.location.origin}/preview/${website.id}`;
+    }
+    window.open(targetUrl, '_blank');
   };
-
-  
-
-  
 
   // --- Helper functions for list management ---
 
@@ -311,23 +295,12 @@ export const WebsiteBuilder: React.FC = () => {
             )}
           </div>
           <div className="flex gap-3">
-             {website.status === 'published' && website.subdomain && (
-               <a 
-                 href={`https://${website.subdomain}.likhasiteworks.dev`} 
-                 target="_blank" 
-                 rel="noopener noreferrer"
-                 className="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-medium flex items-center gap-2"
-               >
-                 <ExternalLink className="w-4 h-4" />
-                 View Live Site
-               </a>
-             )}
              <button 
-               onClick={handlePreview}
+               onClick={handleViewSite}
                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 font-medium flex items-center gap-2"
              >
                <ExternalLink className="w-4 h-4" />
-               Preview
+               View Site
              </button>
             <button 
               onClick={handleSave}
