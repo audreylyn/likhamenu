@@ -48,8 +48,20 @@ Return the response as a JSON object with the following structure:
 
 Ensure all fields are populated with realistic and creative content.`;
 
+  if (!apiKey) {
+    console.warn("API Key is missing. Skipping AI content generation.");
+    return null;
+  }
+
   try {
-    const result = await model.generateContent(prompt);
+    const ai = new GoogleGenAI({ apiKey });
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      },
+    });
     const responseText = result.response.text();
     const parsedResponse = JSON.parse(responseText);
     return parsedResponse;
