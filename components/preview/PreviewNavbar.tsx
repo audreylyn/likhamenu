@@ -37,6 +37,12 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
         name: sectionMap[displayKey] || sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1),
         href: `#${sectionKey}`,
       };
+    })
+    .sort((a, b) => {
+      if (!website.navLinkOrder) return 0; // No custom order, maintain original order
+      const indexA = website.navLinkOrder.indexOf(a.id as keyof typeof enabledSections);
+      const indexB = website.navLinkOrder.indexOf(b.id as keyof typeof enabledSections);
+      return indexA - indexB;
     });
 
   return (

@@ -148,6 +148,7 @@ export interface Website {
     pricing: boolean;
     callToAction: boolean;
   };
+  navLinkOrder?: (keyof typeof enabledSections)[]; // New: Optional array to store the order of navlinks
   content: WebsiteContent;
   marketing: MarketingConfig;
 }

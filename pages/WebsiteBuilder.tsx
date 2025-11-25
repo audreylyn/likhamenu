@@ -29,6 +29,7 @@ import { CallToActionEditor } from '../components/website-builder/CallToActionEd
 import { ContactDetails } from '../components/website-builder/ContactDetails';
 import { FooterConfig } from '../components/website-builder/FooterConfig';
 import { AiMarketingKit } from '../components/website-builder/AiMarketingKit';
+import { NavLinkReorder } from '../components/website-builder/NavLinkReorder'; // Import NavLinkReorder
 
 export enum WebsiteType {
   Custom = 'Custom',
@@ -498,6 +499,7 @@ export const WebsiteBuilder: React.FC = () => {
                   websiteType={websiteType}
                   handlePresetChange={handlePresetChange}
                 />
+                <NavLinkReorder website={website} setWebsite={setWebsite} /> {/* Add NavLinkReorder */} 
 
               </div>
 
