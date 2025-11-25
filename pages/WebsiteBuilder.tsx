@@ -41,13 +41,20 @@ export const WebsiteBuilder: React.FC = () => {
 
   const uploadAiImage = async (imageUrl: string, fileNamePrefix: string) => {
     try {
+      console.log(`[WebsiteBuilder] Fetching AI image from: ${imageUrl}`);
       const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const blob = await response.blob();
+      console.log(`[WebsiteBuilder] Fetched blob (type: ${blob.type}, size: ${blob.size})`);
       const file = new File([blob], `${fileNamePrefix}_${Date.now()}.png`, { type: blob.type });
+      console.log(`[WebsiteBuilder] Created File object: ${file.name} (type: ${file.type}, size: ${file.size})`);
       const publicUrl = await uploadImage(file);
+      console.log(`[WebsiteBuilder] Uploaded AI image, public URL: ${publicUrl}`);
       return publicUrl;
     } catch (error) {
-      console.error(`Failed to upload AI-generated image (${fileNamePrefix}):`, error);
+      console.error(`[WebsiteBuilder] Failed to upload AI-generated image (${fileNamePrefix}):`, error);
       return null; // Return null to indicate failure
     }
   };
