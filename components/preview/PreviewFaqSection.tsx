@@ -1,6 +1,6 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
 import { Website } from '../../types';
+import './PreviewFaqSection.css';
 
 interface PreviewFaqSectionProps {
   website: Website;
@@ -11,31 +11,38 @@ interface PreviewFaqSectionProps {
 
 export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   website,
-  bgSecondary,
-  isDark,
-  textMuted,
 }) => {
   const { content, theme } = website;
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+
+  const toggleAccordion = (id: string) => {
+    setExpandedItem(expandedItem === id ? null : id);
+  };
+
+  if (content.faq.length === 0) {
+    return null; // Don't render section if no FAQ items
+  }
 
   return (
-    <section id="faq" className={`py-20 ${bgSecondary}`}>
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>Frequently Asked Questions</h2>
-        </div>
-        <div className="space-y-4">
-          {content.faq.map(f => (
-            <details key={f.id} className={`rounded-lg p-4 group ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
-              <summary className="flex justify-between items-center cursor-pointer font-medium list-none">
-                <span>{f.question}</span>
-                <span className="transition group-open:rotate-180">
-                  <ChevronDown className="w-5 h-5" />
-                </span>
-              </summary>
-              <div className={`mt-3 text-sm leading-relaxed ${textMuted}`}>
-                {f.answer}
+    <section id="faq" style={{ backgroundColor: '#fff' }}>
+      <div className="faq-container" style={{ '--theme-primary-color': theme.primary } as React.CSSProperties}>
+        <h2>Frequently Asked Questions</h2>
+        <div className="faq-accordion">
+          {content.faq.map((f) => (
+            <div key={f.id} className="accordion-item">
+              <button
+                id={`accordion-button-${f.id}`}
+                aria-expanded={expandedItem === f.id ? 'true' : 'false'}
+                onClick={() => toggleAccordion(f.id)}
+                style={expandedItem === f.id ? { borderBottom: `1px solid ${theme.primary}` } : {}}
+              >
+                <span className="accordion-title">{f.question}</span>
+                <span className="icon" aria-hidden="true"></span>
+              </button>
+              <div className="accordion-content">
+                <p>{f.answer}</p>
               </div>
-            </details>
+            </div>
           ))}
         </div>
       </div>
