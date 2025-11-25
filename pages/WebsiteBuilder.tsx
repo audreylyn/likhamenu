@@ -577,13 +577,6 @@ export const WebsiteBuilder: React.FC = () => {
                           onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, pageId: e.target.value } }) : prev)}
                           className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none"
                         />
-                        <input
-                          type="text"
-                          placeholder="Welcome Message"
-                          value={website.messenger.welcomeMessage}
-                          onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, welcomeMessage: e.target.value } }) : prev)}
-                          className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none"
-                        />
                       </div>
                     )}
                   </div>

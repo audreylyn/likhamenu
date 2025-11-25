@@ -43,7 +43,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
           if (data) {
             setWebsite(data);
           } else {
-            setError('Website not found. It may have been deleted or the link is incorrect.');
+            setError('Website not found. Please save your changes first to preview the website.');
           }
         } catch (e) {
           setError('Failed to load website configuration.');
@@ -108,7 +108,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
           <div className="bg-red-50 p-4 rounded-full mb-4">
              <AlertTriangle className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Preview Unavailable</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Preview Not Available</h2>
           <p className="text-slate-500 mb-6">{error || "Website data could not be retrieved."}</p>
           <button 
             onClick={() => window.close()}
