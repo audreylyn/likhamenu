@@ -33,23 +33,15 @@ export const getUser = () => {
 export const uploadImage = async (file: File, bucket = IMAGE_BUCKET, path?: string) => {
   try {
     const filePath = path || `${Date.now()}_${file.name}`;
-    console.log(`[SupabaseService] Attempting to upload file: ${file.name} to bucket: ${bucket} at path: ${filePath}`);
     const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, { upsert: true });
-    if (uploadError) {
-      console.error('[SupabaseService] Upload Error:', uploadError);
-      throw uploadError;
-    }
+    if (uploadError) throw uploadError;
 
     const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
     const publicUrl = (data as any)?.publicUrl;
-    if (!publicUrl) {
-      console.error('[SupabaseService] Could not obtain public URL for uploaded image');
-      throw new Error('Could not obtain public URL for uploaded image');
-    }
-    console.log('[SupabaseService] Image uploaded successfully, public URL:', publicUrl);
+    if (!publicUrl) throw new Error('Could not obtain public URL for uploaded image');
     return publicUrl;
   } catch (err) {
-    console.error('[SupabaseService] Failed to upload image (caught error):', err);
+    console.error('Failed to upload image', err);
     // Normalize error
     throw new Error((err as any)?.message || String(err));
   }
