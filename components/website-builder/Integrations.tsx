@@ -26,8 +26,8 @@ export const Integrations: React.FC<IntegrationsProps> = ({
             <div>
               <p className="font-semibold text-slate-800">Facebook Messenger</p>
               <p className="text-xs text-slate-500">Enable checkout via Messenger</p>
-              <p className="text-xs text-slate-400 mt-1">Page ID is required for Messenger-based checkout when products section is enabled.</p>
             </div>
+              <p className="text-xs text-slate-400 mt-1">Page ID is required for Messenger-based checkout when products section is enabled.</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input

@@ -44,11 +44,11 @@ const CartButton: React.FC<Props> = ({ totalItems, openCart, themeButton }) => {
             d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
           ></path>
         </svg>
-        {totalItems > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">{totalItems}</span>
-        )}
       </span>
       Cart
+      {totalItems > 0 && (
+        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full ml-2 flex items-center justify-center">{totalItems}</span>
+      )}
       <div className="progress-bar"></div>
     </label>
   );
