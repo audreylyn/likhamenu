@@ -4,9 +4,6 @@ import './PreviewFaqSection.css';
 
 interface PreviewFaqSectionProps {
   website: Website;
-  bgSecondary: string;
-  isDark: boolean;
-  textMuted: string;
 }
 
 export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
@@ -26,7 +23,7 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   return (
     <section id="faq" style={{ backgroundColor: '#fff' }}>
       <div className="faq-container" style={{ '--theme-primary-color': theme.primary } as React.CSSProperties}>
-        <h2>Frequently Asked Questions</h2>
+        <h2 style={{ fontSize: '2em', fontWeight: 'bold', marginBottom: '1.5em', color: theme.primary, textAlign: 'center' }}>Frequently Asked Questions</h2>
         <div className="faq-accordion">
           {content.faq.map((f) => (
             <div key={f.id} className="accordion-item">
