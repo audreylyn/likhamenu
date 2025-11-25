@@ -28,6 +28,7 @@ export interface Product {
   description: string;
   image: string;
   price: string;
+  category?: string;
 }
 
 export interface Benefit {

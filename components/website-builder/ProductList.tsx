@@ -24,7 +24,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-slate-800">Products / Services</h3>
         <button
-          onClick={() => addItem<Product>('products', { id: Math.random().toString(), name: 'New Product', description: 'Desc', image: 'https://placehold.co/400x300?text=Product', price: '₱0.00' })}
+          onClick={() => addItem<Product>('products', { id: Math.random().toString(), name: 'New Product', description: 'Desc', image: 'https://placehold.co/400x300?text=Product', price: '₱0.00', category: 'All' })}
           className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
@@ -52,6 +52,13 @@ export const ProductList: React.FC<ProductListProps> = ({
                 className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-indigo-400 outline-none"
               />
             </div>
+            <input
+              type="text"
+              value={p.category || 'All'}
+              placeholder="Category (e.g., Breads, Pastries, Drinks)"
+              onChange={(e) => updateItem<Product>('products', p.id, 'category', e.target.value)}
+              className="w-full bg-transparent text-sm text-slate-500 mb-2 border-b border-transparent focus:border-indigo-400 outline-none"
+            />
             <textarea
               value={p.description}
               onChange={(e) => updateItem<Product>('products', p.id, 'description', e.target.value)}

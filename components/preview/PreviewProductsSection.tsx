@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Website, Product } from '../../types';
 
@@ -20,15 +20,42 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
   addToCart,
 }) => {
   const { content, theme } = website;
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // Get unique categories from products, defaulting to 'All' if no category is set
+  const categories = ['All', ...Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')))];
+
+  // Filter products based on selected category
+  const filteredProducts = selectedCategory === 'All'
+    ? content.products
+    : content.products.filter(product => (product.category || 'All') === selectedCategory);
 
   return (
     <section id="products" className={`py-20 ${bgSecondary}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>Our Offerings</h2>
+
+          {/* Category Filter Buttons */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'text-white shadow-lg'
+                    : `${isDark ? 'text-slate-300 bg-slate-700 hover:bg-slate-600' : 'text-slate-600 bg-white hover:bg-slate-100'} border`
+                }`}
+                style={selectedCategory === category ? { backgroundColor: theme.button } : {}}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {content.products.map((product) => (
+          {filteredProducts.map((product) => (
             <div key={product.id} className={`rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
               <img
                 src={product.image}
