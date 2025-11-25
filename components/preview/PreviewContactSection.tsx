@@ -1,6 +1,7 @@
-import React from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import React, { useState } from 'react';
 import { Website } from '../../types';
+import { MapPin, Mail, Clock } from 'lucide-react'; // Using Lucide React icons
+import './PreviewContactSection.css';
 
 interface PreviewContactSectionProps {
   website: Website;
@@ -12,58 +13,171 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
   isDark,
 }) => {
   const { content, theme } = website;
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form Data Submitted:', formData);
+    // Here you would typically send the data to a backend
+    alert('Message sent! (Check console for data)');
+    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+  };
 
   return (
-    <section id="contact" className="py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl font-bold mb-6" style={{ color: theme.primary }}>Get In Touch</h2>
-            <div className="space-y-6">
-              {content.contact.phone && (
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full" style={{ backgroundColor: theme.secondary }}>
-                    <Phone className="w-6 h-6" style={{ color: theme.primary }} />
-                  </div>
-                  <span className="text-lg">{content.contact.phone}</span>
+    <section className="contact-page-sec" style={{ 
+        backgroundColor: isDark ? theme.primary : '#fff' 
+      }}>
+      <div
+        className="container"
+        style={{
+          '--primary-color': theme.primary,
+          '--secondary-color': theme.secondary,
+          '--muted-text-color': isDark ? '#d1d5db' : '#999999',
+          '--light-bg-color': isDark ? '#1f2937' : '#f9f9f9',
+        } as React.CSSProperties}
+      >
+        <div className="row">
+          {/* Contact Info Items */}
+          <div className="col-md-4">
+            <div className="contact-info">
+              <div className="contact-info-item" style={{ backgroundColor: isDark ? theme.primary : '#071c34' }}>
+                <div className="contact-info-icon">
+                  <MapPin style={{ color: theme.secondary }} />
                 </div>
-              )}
-              {content.contact.email && (
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full" style={{ backgroundColor: theme.secondary }}>
-                    <Mail className="w-6 h-6" style={{ color: theme.primary }} />
-                  </div>
-                  <span className="text-lg">{content.contact.email}</span>
+                <div className="contact-info-text">
+                  <h2>Address</h2>
+                  <span>{content.contact.address || '123 Street, City, Country'}</span>
                 </div>
-              )}
-              {content.contact.address && (
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full" style={{ backgroundColor: theme.secondary }}>
-                    <MapPin className="w-6 h-6" style={{ color: theme.primary }} />
-                  </div>
-                  <span className="text-lg">{content.contact.address}</span>
-                </div>
-              )}
+              </div>
             </div>
           </div>
-          <form className={`p-8 rounded-xl shadow-lg ${isDark ? 'bg-slate-900' : 'bg-white'}`} onSubmit={(e) => e.preventDefault()}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input type="text" className={`w-full px-4 py-2 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
+
+          <div className="col-md-4">
+            <div className="contact-info">
+              <div className="contact-info-item" style={{ backgroundColor: isDark ? theme.primary : '#071c34' }}>
+                <div className="contact-info-icon">
+                  <Mail style={{ color: theme.secondary }} />
+                </div>
+                <div className="contact-info-text">
+                  <h2>E-mail</h2>
+                  <span>{content.contact.email || 'info@example.com'}</span>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Message</label>
-                <textarea className={`w-full px-4 py-2 rounded-lg border h-32 resize-none ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}></textarea>
-              </div>
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white mt-2"
-                style={{ backgroundColor: theme.button }}
-              >
-                Send Message
-              </button>
             </div>
-          </form>
+          </div>
+
+          <div className="col-md-4">
+            <div className="contact-info">
+              <div className="contact-info-item" style={{ backgroundColor: isDark ? theme.primary : '#071c34' }}>
+                <div className="contact-info-icon">
+                  <Clock style={{ color: theme.secondary }} />
+                </div>
+                <div className="contact-info-text">
+                  <h2>Office Time</h2>
+                  <span>Mon - Thu 9:00 am - 4.00 pm</span>
+                  <span>Thu - Mon 10.00 pm - 5.00 pm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="row">
+          {/* Contact Form */}
+          <div className="col-md-8">
+            <div className="contact-page-form">
+              <h2 style={{ color: theme.primary }}>Get in Touch</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="row">
+                  <div className="col-md-6 col-sm-6 col-xs-12">
+                    <div className="single-input-field">
+                      <input
+                        type="text"
+                        placeholder="Your Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-6 col-sm-6 col-xs-12">
+                    <div className="single-input-field">
+                      <input
+                        type="email"
+                        placeholder="E-mail"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-6 col-sm-6 col-xs-12">
+                    <div className="single-input-field">
+                      <input
+                        type="text"
+                        placeholder="Phone Number"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-6 col-sm-6 col-xs-12">
+                    <div className="single-input-field">
+                      <input
+                        type="text"
+                        placeholder="Subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-12 message-input">
+                    <div className="single-input-field">
+                      <textarea
+                        placeholder="Write Your Message"
+                        name="message"
+                        value={formData.message}
+                        onChange={handleInputChange}
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div className="single-input-fieldsbtn">
+                    <input type="submit" value="Send Now" style={{ backgroundColor: theme.secondary }} />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Google Map */}
+          <div className="col-md-4">
+            <div className="contact-page-map">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d109741.02912911311!2d76.69348873658222!3d30.73506264436677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fed0be66ec96b%3A0xa5ff67f9527319fe!2sChandigarh!5e0!3m2!1sen!2sin!4v1553497921355"
+                width="100%"
+                height="450"
+                frameBorder="0"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                aria-hidden="false"
+                tabIndex={0}
+              ></iframe>
+            </div>
+          </div>
         </div>
       </div>
     </section>

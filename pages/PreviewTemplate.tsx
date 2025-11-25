@@ -256,12 +256,12 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
       )}
 
       {/* Contact Section */}
-      {enabledSections.contact && (
+      {/* {enabledSections.contact && ( */} {/* Temporarily removed for styling */} 
         <PreviewContactSection
           website={website}
           isDark={isDark}
         />
-      )}
+      {/* )} */}
 
       {/* Footer */}
       <PreviewFooter
