@@ -49,7 +49,7 @@ Return the response as a JSON object with the following structure:
 Ensure all fields are populated with realistic and creative content.`;
 
   if (!apiKey) {
-    console.warn("API Key is missing. Skipping AI content generation.");
+    console.warn("[GeminiService] API Key is missing. Skipping AI content generation.");
     return null;
   }
 
@@ -62,7 +62,12 @@ Ensure all fields are populated with realistic and creative content.`;
         responseMimeType: "application/json",
       },
     });
-    const responseText = result.response.text();
+    
+    if (!result || !result.text) {
+      return null;
+    }
+
+    const responseText = result.text;
     const parsedResponse = JSON.parse(responseText);
     return parsedResponse;
   } catch (error) {

@@ -153,7 +153,9 @@ export const WebsiteBuilder: React.FC = () => {
   // -------------------------------------------
 
   const handleAiGenerate = async () => {
-    if (!aiPrompt.name || !aiPrompt.type || !website) return;
+    if (!aiPrompt.name || !aiPrompt.type || !website) {
+      return;
+    }
     setIsGenerating(true);
     const result = await generateWebsiteContent(aiPrompt.name, aiPrompt.type);
     
