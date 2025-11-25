@@ -45,7 +45,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const doSignIn = async (email: string, password: string) => {
-    await signIn(email, password);
+    const { error } = await signIn(email, password);
+    if (error) {
+      throw error; // Propagate the error
+    }
     // auth listener will set user
   };
 
