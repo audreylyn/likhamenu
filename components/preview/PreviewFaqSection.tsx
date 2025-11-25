@@ -4,10 +4,12 @@ import './PreviewFaqSection.css';
 
 interface PreviewFaqSectionProps {
   website: Website;
+  isDark: boolean; // Re-introducing isDark prop
 }
 
 export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   website,
+  isDark,
 }) => {
   const { content, theme } = website;
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   }
 
   return (
-    <section id="faq" style={{ backgroundColor: '#fff' }}>
+    <section id="faq" className={`py-20 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="faq-container" style={{ '--theme-primary-color': theme.primary } as React.CSSProperties}>
         <h2 style={{ fontSize: '2em', fontWeight: 'bold', marginBottom: '1.5em', color: theme.primary, textAlign: 'center' }}>Frequently Asked Questions</h2>
         <div className="faq-accordion">
@@ -33,11 +35,11 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
                 onClick={() => toggleAccordion(f.id)}
                 style={expandedItem === f.id ? { borderBottom: `1px solid ${theme.primary}` } : {}}
               >
-                <span className="accordion-title">{f.question}</span>
+                <span className="accordion-title" style={{ color: isDark ? '#ffffff' : '#4d5974' }}>{f.question}</span>
                 <span className="icon" aria-hidden="true"></span>
               </button>
               <div className="accordion-content">
-                <p>{f.answer}</p>
+                <p style={{ color: isDark ? '#d1d5db' : '#4d5974' }}>{f.answer}</p>
               </div>
             </div>
           ))}

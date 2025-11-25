@@ -3,7 +3,7 @@
 .faq-container {
   margin: 0 auto;
   padding: 4rem;
-  width: 48rem;
+  width: 60rem; /* Adjusted from 48rem to 60rem */
 }
 
 .faq-accordion {
@@ -43,6 +43,7 @@
 
     .accordion-title {
       padding: 1em 1.5em 1em 0;
+      font-weight: 700; /* Made text bolder */
     }
 
     .icon {
