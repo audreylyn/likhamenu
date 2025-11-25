@@ -4,65 +4,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { ColorPicker } from '../components/ColorPicker';
 import { Website, Product, Benefit, Testimonial, FAQ, SocialLink } from '../types';
-import { saveWebsite, getWebsiteById } from '../services/storageService';
+import { saveWebsite, getWebsiteById, uploadImage } from '../services/supabaseService';
 import { generateWebsiteContent, generateTheme, generateMarketingContent } from '../services/geminiService';
 import { Save, ArrowLeft, Plus, Trash, Sparkles, Image as ImageIcon, Loader2, Lock, ExternalLink, Palette, Sun, Moon, MessageCircle, Layers, Star, HelpCircle, Heart, User, Facebook, Instagram, Twitter, Linkedin, Youtube, Link as LinkIcon, Megaphone, Copy, Check, Upload } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useWebsite } from '../hooks/useWebsite';
+import { DEFAULT_WEBSITE } from '../constants/websiteDefaults';
 
-const DEFAULT_WEBSITE: Website = {
-  id: '',
-  subdomain: '',
-  title: 'My New Website',
-  logo: '',
-  favicon: '',
-  status: 'active',
-  createdAt: '',
-  theme: {
-    primary: '#4f46e5',
-    secondary: '#e0e7ff',
-    button: '#4338ca',
-    background: 'light',
-  },
-  messenger: {
-    enabled: false,
-    pageId: '',
-    welcomeMessage: 'Hi! How can we help?',
-  },
-  enabledSections: {
-    hero: true,
-    products: true,
-    about: true,
-    contact: true,
-    benefits: true,
-    testimonials: false,
-    faq: false,
-  },
-  content: {
-    hero: { title: 'Welcome', subtext: 'We are glad you are here.', image: 'https://placehold.co/1200x600?text=Hero+Image' },
-    about: 'About our company...',
-    contact: { phone: '', email: '', address: '' },
-    products: [],
-    benefits: [],
-    testimonials: [],
-    faq: [],
-    footerText: '© 2024 All rights reserved.',
-    socialLinks: [
-      { platform: 'facebook', url: '', enabled: false },
-      { platform: 'instagram', url: '', enabled: false },
-      { platform: 'twitter', url: '', enabled: false },
-      { platform: 'linkedin', url: '', enabled: false },
-      { platform: 'youtube', url: '', enabled: false },
-    ],
-  },
-  marketing: {
-    seo: {
-      metaTitle: '',
-      metaDescription: '',
-      keywords: [],
-    },
-    socialPost: '',
-  }
-};
+
 
 export const WebsiteBuilder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -70,7 +19,8 @@ export const WebsiteBuilder: React.FC = () => {
   const { user } = useAuth();
   
   const [activeTab, setActiveTab] = useState<'settings' | 'content' | 'marketing'>('settings');
-  const [website, setWebsite] = useState<Website | null>(null);
+  const websiteManager = useWebsite(null);
+  const { website, setWebsite, updateContent, updateSocialLink, addItem, removeItem, updateItem, setTheme, setMarketing, toggleSection, fileToBase64 } = websiteManager;
   const [isNew, setIsNew] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,6 +40,14 @@ export const WebsiteBuilder: React.FC = () => {
   // File Input Refs
   const heroImageInputRef = useRef<HTMLInputElement>(null);
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // upload to Supabase storage and return the public URL to the callback
+      uploadImage(file).then((url) => callback(url)).catch(() => {});
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       if (!id && user.role === 'editor') {
@@ -99,8 +57,9 @@ export const WebsiteBuilder: React.FC = () => {
 
       if (id) {
         setIsNew(false);
-        const existing = await getWebsiteById(id);
-        if (existing) {
+        try {
+          const existing = await getWebsiteById(id);
+          if (existing) {
           // Ensure new fields exist if loading legacy data
           const merged = { ...DEFAULT_WEBSITE, ...existing };
           merged.enabledSections = { ...DEFAULT_WEBSITE.enabledSections, ...existing.enabledSections };
@@ -116,7 +75,12 @@ export const WebsiteBuilder: React.FC = () => {
           // Ensure marketing object exists
           merged.marketing = existing.marketing || DEFAULT_WEBSITE.marketing;
           setWebsite(merged);
-        } else {
+          } else {
+            navigate('/');
+          }
+        } catch (err) {
+          console.error('Failed to load website', err);
+          alert('Failed to load website: ' + ((err as any)?.message || String(err)));
           navigate('/');
         }
       } else {
@@ -137,75 +101,54 @@ export const WebsiteBuilder: React.FC = () => {
   const handleSave = async () => {
     if (!website) return;
     setIsSaving(true);
-    await saveWebsite(website);
-    setIsSaving(false);
-    navigate('/');
+    try {
+      await saveWebsite(website);
+      setIsSaving(false);
+      navigate('/');
+    } catch (err) {
+      console.error('Failed to save website', err);
+      setIsSaving(false);
+      alert('Failed to save website: ' + ((err as any)?.message || String(err)));
+    }
   };
 
   const handlePreview = () => {
     if (!website) return;
-    
-    // Save draft to localStorage so preview tab can read it even if not saved to DB
-    localStorage.setItem('webgen_draft', JSON.stringify(website));
-    
-    // Construct robust URL
-    const baseUrl = window.location.href.split('#')[0];
-    const previewUrl = `${baseUrl}#/preview/draft`;
-    
-    window.open(previewUrl, '_blank');
+    // Save draft to Supabase as a draft record and open preview by id
+    (async () => {
+      try {
+        const draft = { ...website, status: 'draft', createdAt: website.createdAt || new Date().toISOString() } as Website;
+        const saved = await saveWebsite(draft);
+
+        // If the website has a configured subdomain, build the preview URL using it.
+        // Otherwise fall back to the current origin (localhost during development).
+        let baseUrl = window.location.href.split('#')[0];
+        if (website.subdomain && website.subdomain.trim()) {
+          baseUrl = `https://${website.subdomain}.webgen.com`;
+        }
+
+        const previewUrl = `${baseUrl}#/preview/${saved.id}`;
+        window.open(previewUrl, '_blank');
+      } catch (err) {
+        console.error('Failed to save draft for preview', err);
+        alert('Failed to create preview draft: ' + ((err as any)?.message || String(err)));
+      }
+    })();
   };
 
-  const updateContent = (section: keyof typeof website.content, value: any) => {
-    if (!website) return;
-    setWebsite(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        content: { ...prev.content, [section]: value }
-      };
-    });
-  };
+  
 
-  const updateSocialLink = (platform: string, field: 'url' | 'enabled', value: any) => {
-    if (!website) return;
-    const updatedLinks = website.content.socialLinks.map(link => 
-      link.platform === platform ? { ...link, [field]: value } : link
-    );
-    updateContent('socialLinks', updatedLinks);
-  };
+  
 
   // --- Helper functions for list management ---
 
-  const addItem = <T extends { id: string }>(section: keyof typeof website.content, defaultItem: Omit<T, 'id'>) => {
-    if (!website) return;
-    const newItem = { ...defaultItem, id: Date.now().toString() } as T;
-    const list = website.content[section] as unknown as T[];
-    updateContent(section, [...list, newItem]);
-  };
+  // addItem provided by useWebsite
 
-  const removeItem = <T extends { id: string }>(section: keyof typeof website.content, id: string) => {
-    if (!website) return;
-    const list = website.content[section] as unknown as T[];
-    updateContent(section, list.filter(item => item.id !== id));
-  };
+  // removeItem provided by useWebsite
 
-  const updateItem = <T extends { id: string }>(section: keyof typeof website.content, id: string, field: keyof T, value: string) => {
-    if (!website) return;
-    const list = website.content[section] as unknown as T[];
-    const updated = list.map(item => item.id === id ? { ...item, [field]: value } : item);
-    updateContent(section, updated);
-  };
+  // updateItem provided by useWebsite
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        callback(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // file upload handled by wrapper above using fileToBase64
 
   // -------------------------------------------
 
@@ -470,22 +413,22 @@ export const WebsiteBuilder: React.FC = () => {
                     <Layers className="w-5 h-5 text-indigo-500" />
                     Page Sections
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {Object.entries(website.enabledSections).map(([key, enabled]) => (
-                      <label key={key} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-all">
-                        <input
-                          type="checkbox"
-                          checked={enabled}
-                          onChange={(e) => setWebsite({ 
-                            ...website, 
-                            enabledSections: { ...website.enabledSections, [key]: e.target.checked } 
-                          })}
-                          className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
-                        />
-                        <span className="capitalize text-sm font-medium text-slate-700">{key} Section</span>
-                      </label>
-                    ))}
-                  </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      {(Object.keys(website.enabledSections) as Array<keyof typeof website.enabledSections>).map((key) => {
+                        const enabled = website.enabledSections[key];
+                        return (
+                          <label key={String(key)} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-all">
+                            <input
+                              type="checkbox"
+                              checked={enabled}
+                              onChange={(e) => setWebsite(prev => prev ? ({ ...prev, enabledSections: { ...prev.enabledSections, [key]: e.target.checked } }) : prev)}
+                              className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                            />
+                            <span className="capitalize text-sm font-medium text-slate-700">{key} Section</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                 </div>
               </div>
 
@@ -527,7 +470,7 @@ export const WebsiteBuilder: React.FC = () => {
                       <label className="text-sm font-medium text-slate-700 block mb-3">Color Theme</label>
                       <div className="grid grid-cols-2 gap-3">
                         <button
-                          onClick={() => setWebsite({ ...website, theme: { ...website.theme, background: 'light' } })}
+                          onClick={() => website && setTheme({ ...website.theme, background: 'light' })}
                           className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                             website.theme.background === 'light' 
                               ? 'border-indigo-600 bg-white text-indigo-600' 
@@ -538,7 +481,7 @@ export const WebsiteBuilder: React.FC = () => {
                           <span className="font-medium text-sm">Light Mode</span>
                         </button>
                         <button
-                          onClick={() => setWebsite({ ...website, theme: { ...website.theme, background: 'dark' } })}
+                          onClick={() => website && setTheme({ ...website.theme, background: 'dark' })}
                           className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                             website.theme.background === 'dark' 
                               ? 'border-indigo-600 bg-slate-800 text-white' 
@@ -556,17 +499,17 @@ export const WebsiteBuilder: React.FC = () => {
                         <ColorPicker 
                           label="Primary Brand Color" 
                           value={website.theme.primary} 
-                          onChange={(v) => setWebsite({ ...website, theme: { ...website.theme, primary: v } })} 
+                          onChange={(v) => website && setTheme({ ...website.theme, primary: v })} 
                         />
                         <ColorPicker 
                           label="Secondary / Accent" 
                           value={website.theme.secondary} 
-                          onChange={(v) => setWebsite({ ...website, theme: { ...website.theme, secondary: v } })} 
+                          onChange={(v) => website && setTheme({ ...website.theme, secondary: v })} 
                         />
                         <ColorPicker 
                           label="Action Button" 
                           value={website.theme.button} 
-                          onChange={(v) => setWebsite({ ...website, theme: { ...website.theme, button: v } })} 
+                          onChange={(v) => website && setTheme({ ...website.theme, button: v })} 
                         />
                       </div>
                     </div>
@@ -595,7 +538,7 @@ export const WebsiteBuilder: React.FC = () => {
                           type="checkbox" 
                           className="sr-only peer" 
                           checked={website.messenger.enabled}
-                          onChange={(e) => setWebsite({...website, messenger: {...website.messenger, enabled: e.target.checked}})}
+                          onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, enabled: e.target.checked } }) : prev)}
                         />
                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                       </label>
@@ -606,14 +549,14 @@ export const WebsiteBuilder: React.FC = () => {
                           type="text"
                           placeholder="Page ID"
                           value={website.messenger.pageId}
-                          onChange={(e) => setWebsite({ ...website, messenger: { ...website.messenger, pageId: e.target.value } })}
+                          onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, pageId: e.target.value } }) : prev)}
                           className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none"
                         />
                         <input
                           type="text"
                           placeholder="Welcome Message"
                           value={website.messenger.welcomeMessage}
-                          onChange={(e) => setWebsite({ ...website, messenger: { ...website.messenger, welcomeMessage: e.target.value } })}
+                          onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, welcomeMessage: e.target.value } }) : prev)}
                           className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none"
                         />
                       </div>
@@ -680,13 +623,13 @@ export const WebsiteBuilder: React.FC = () => {
                       type="text"
                       placeholder="Headline"
                       value={website.content.hero.title}
-                      onChange={(e) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, hero: { ...prev.content.hero, title: e.target.value } } }))}
+                      onChange={(e) => website && updateContent('hero', { ...website.content.hero, title: e.target.value })}
                       className="w-full px-4 py-3 text-lg font-bold border border-slate-300 rounded-lg"
                     />
                     <textarea
                       placeholder="Subtext"
                       value={website.content.hero.subtext}
-                      onChange={(e) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, hero: { ...prev.content.hero, subtext: e.target.value } } }))}
+                      onChange={(e) => website && updateContent('hero', { ...website.content.hero, subtext: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg h-24 resize-none"
                     />
                     <div className="flex gap-2">
@@ -694,7 +637,7 @@ export const WebsiteBuilder: React.FC = () => {
                         type="text"
                         placeholder="Banner Image URL"
                         value={website.content.hero.image}
-                        onChange={(e) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, hero: { ...prev.content.hero, image: e.target.value } } }))}
+                        onChange={(e) => website && updateContent('hero', { ...website.content.hero, image: e.target.value })}
                         className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-500"
                       />
                        <input
@@ -702,7 +645,7 @@ export const WebsiteBuilder: React.FC = () => {
                         accept="image/*"
                         className="hidden"
                         ref={heroImageInputRef}
-                        onChange={(e) => handleFileUpload(e, (base64) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, hero: { ...prev.content.hero, image: base64 } } })))}
+                        onChange={(e) => handleFileUpload(e, (base64) => website && updateContent('hero', { ...website.content.hero, image: base64 }))}
                       />
                       <button 
                         onClick={() => heroImageInputRef.current?.click()}
@@ -947,21 +890,21 @@ export const WebsiteBuilder: React.FC = () => {
                       type="text"
                       placeholder="Phone Number"
                       value={website.content.contact.phone}
-                      onChange={(e) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, contact: { ...prev.content.contact, phone: e.target.value } } }))}
+                      onChange={(e) => website && updateContent('contact', { ...website.content.contact, phone: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg"
                     />
                     <input
                       type="email"
                       placeholder="Email Address"
                       value={website.content.contact.email}
-                      onChange={(e) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, contact: { ...prev.content.contact, email: e.target.value } } }))}
+                      onChange={(e) => website && updateContent('contact', { ...website.content.contact, email: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg"
                     />
                     <input
                       type="text"
                       placeholder="Address"
                       value={website.content.contact.address}
-                      onChange={(e) => setWebsite(prev => !prev ? null : ({ ...prev, content: { ...prev.content, contact: { ...prev.content.contact, address: e.target.value } } }))}
+                      onChange={(e) => website && updateContent('contact', { ...website.content.contact, address: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg"
                     />
                   </div>

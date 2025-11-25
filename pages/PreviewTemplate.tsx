@@ -1,10 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getWebsiteById } from '../services/storageService';
+import { getWebsiteById } from '../services/supabaseService';
 import { Website, Product } from '../types';
 // Added User to imports from lucide-react
 import { Phone, Mail, MapPin, MessageCircle, Loader2, AlertTriangle, ArrowUp, Star, ChevronDown, Check, X, Send, Plus, Minus, User, Facebook, Instagram, Twitter, Linkedin, Youtube, Link as LinkIcon } from 'lucide-react';
+import { useCart } from '../hooks/useCart';
+import CartButton from '../components/CartButton';
+import CartDrawer from '../components/CartDrawer';
 
 export const PreviewTemplate: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,53 +16,28 @@ export const PreviewTemplate: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Modal State
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [orderForm, setOrderForm] = useState({
-    name: '',
-    location: '',
-    quantity: 1,
-    message: ''
-  });
+  // Cart hook (moved to a separate module for clarity)
+  const cartHook = useCart(website);
+  const { cart, addToCart, updateQuantity, removeFromCart, cartTotal, totalItems, isCartOpen, openCart, closeCart, checkoutForm, setCheckoutForm, handleCheckout, parseCurrency, formatCurrency, clearCart } = cartHook;
 
   useEffect(() => {
     const fetchWebsite = async () => {
-      // Logic for Previewing unsaved drafts
-      if (id === 'draft') {
-        try {
-          const draftData = localStorage.getItem('webgen_draft');
-          if (draftData) {
-            setWebsite(JSON.parse(draftData));
-            setLoading(false);
-            return;
-          } else {
-            setError("No draft data found. Please return to the editor.");
-            setLoading(false);
-            return;
-          }
-        } catch (e) {
-          setError("Failed to load draft preview.");
-          setLoading(false);
-          return;
-        }
+      if (!id) {
+        setError('Invalid preview URL.');
+        setLoading(false);
+        return;
       }
 
-      // Logic for existing persisted websites
-      if (id) {
-        try {
-          const data = await getWebsiteById(id);
-          if (data) {
-            setWebsite(data);
-          } else {
-            setError("Website not found. It may have been deleted or the link is incorrect.");
-          }
-        } catch (e) {
-          setError("Failed to load website configuration.");
-        } finally {
-          setLoading(false);
+      try {
+        const data = await getWebsiteById(id);
+        if (data) {
+          setWebsite(data);
+        } else {
+          setError('Website not found. It may have been deleted or the link is incorrect.');
         }
-      } else {
-        setError("Invalid preview URL.");
+      } catch (e) {
+        setError('Failed to load website configuration.');
+      } finally {
         setLoading(false);
       }
     };
@@ -76,41 +54,7 @@ export const PreviewTemplate: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const openOrderModal = (product: Product) => {
-    setSelectedProduct(product);
-    setOrderForm({
-      name: '',
-      location: '',
-      quantity: 1,
-      message: `I would like to order ${product.name}.`
-    });
-  };
-
-  const closeOrderModal = () => {
-    setSelectedProduct(null);
-  };
-
-  const handleSendOrder = () => {
-    if (!website?.messenger.pageId || !selectedProduct) return;
-
-    const fullMessage = `New Order Request
-------------------
-Product: ${selectedProduct.name}
-Price: ${selectedProduct.price || 'N/A'}
-Quantity: ${orderForm.quantity}
-------------------
-Customer: ${orderForm.name}
-Location: ${orderForm.location}
-Note: ${orderForm.message}`;
-
-    const encodedMessage = encodeURIComponent(fullMessage);
-    // Using standard m.me link format. Note: On some devices/browsers this may just open the chat without pre-filling text.
-    // Facebook frequently changes this API.
-    const url = `https://m.me/${website.messenger.pageId}?text=${encodedMessage}`;
-    
-    window.open(url, '_blank');
-    closeOrderModal();
-  };
+  // Cart checkout is handled by the `useCart` hook (handleCheckout)
 
   const getSocialIcon = (platform: string) => {
     switch (platform) {
@@ -287,24 +231,14 @@ Note: ${orderForm.message}`;
                     </div>
                     <p className={`text-sm mb-4 ${textMuted}`}>{product.description}</p>
                     
-                    {messenger.enabled ? (
                       <button 
-                         className="w-full py-2 rounded text-white font-medium text-sm transition-opacity hover:opacity-90 flex items-center justify-center gap-2"
-                         style={{ backgroundColor: theme.button }}
-                         onClick={() => openOrderModal(product)}
+                        className="w-full py-2 rounded text-white font-medium text-sm transition-opacity hover:opacity-90 flex items-center justify-center gap-2"
+                        style={{ backgroundColor: theme.button }}
+                        onClick={() => addToCart(product)}
                       >
-                         <MessageCircle className="w-4 h-4" />
-                         Order via Messenger
+                        <Plus className="w-4 h-4" />
+                        Add to Cart
                       </button>
-                    ) : (
-                      <button 
-                         className="w-full py-2 rounded border border-current font-medium text-sm transition-colors hover:opacity-80"
-                         style={{ color: theme.button, borderColor: theme.button }}
-                         onClick={() => {}}
-                      >
-                         View Details
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
@@ -449,27 +383,7 @@ Note: ${orderForm.message}`;
         </div>
       </footer>
 
-      {/* Messenger Widget */}
-      {messenger.enabled && (
-        <div className="fixed bottom-6 right-6 z-40 animate-bounce-slow">
-          <div className="relative group">
-            {messenger.welcomeMessage && (
-               <div className="absolute bottom-full right-0 mb-2 w-64 p-4 bg-white text-slate-800 text-sm shadow-xl rounded-2xl rounded-br-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                 {messenger.welcomeMessage}
-               </div>
-            )}
-            <button 
-              className="p-4 rounded-full shadow-lg text-white transition-colors hover:bg-blue-600"
-              style={{ backgroundColor: '#0084FF' }} 
-              onClick={() => {
-                window.open(`https://m.me/${messenger.pageId}`, '_blank');
-              }}
-            >
-              <MessageCircle className="w-8 h-8" />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Chat integration removed: cart checkout will use `website.messenger.pageId` only. */}
 
       {/* Scroll To Top */}
       {showScrollTop && (
@@ -482,122 +396,26 @@ Note: ${orderForm.message}`;
         </button>
       )}
 
-      {/* Order Modal */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212] border border-gray-800 rounded-xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in text-white relative">
-            <button 
-              onClick={closeOrderModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-2">
-                 <MessageCircle className="w-6 h-6 text-[#A3E635]" />
-                 <h3 className="text-xl font-bold">Order via Messenger</h3>
-              </div>
-              <p className="text-gray-400 text-sm mb-6">Send us a message on Facebook Messenger and we'll help you complete your order!</p>
-
-              {/* Product Card */}
-              <div className="flex gap-4 p-4 bg-[#1E1E1E] rounded-lg border border-gray-800 mb-6">
-                 {selectedProduct.image && (
-                   <img 
-                      src={selectedProduct.image} 
-                      alt="" 
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = 'https://placehold.co/100x100?text=Product';
-                      }}
-                      className="w-16 h-16 rounded object-cover bg-gray-800" 
-                    />
-                 )}
-                 <div className="flex-1">
-                   <h4 className="font-bold">{selectedProduct.name}</h4>
-                   <p className="text-sm text-gray-400">{selectedProduct.description.substring(0, 40)}...</p>
-                 </div>
-                 {selectedProduct.price && (
-                   <div className="font-bold text-[#A3E635]">{selectedProduct.price}</div>
-                 )}
-              </div>
-
-              {/* Form */}
-              <div className="space-y-4">
-                <div>
-                   <label className="block text-sm font-medium mb-1 flex items-center gap-1">
-                     <User className="w-4 h-4" /> Your Name <span className="text-red-500">*</span>
-                   </label>
-                   <input 
-                    type="text"
-                    value={orderForm.name}
-                    onChange={(e) => setOrderForm({...orderForm, name: e.target.value})}
-                    placeholder="Enter your name"
-                    className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#A3E635] text-white placeholder-gray-500"
-                   />
-                </div>
-                <div>
-                   <label className="block text-sm font-medium mb-1 flex items-center gap-1">
-                     <MapPin className="w-4 h-4" /> Location <span className="text-red-500">*</span>
-                   </label>
-                   <input 
-                    type="text"
-                    value={orderForm.location}
-                    onChange={(e) => setOrderForm({...orderForm, location: e.target.value})}
-                    placeholder="Enter your location"
-                    className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#A3E635] text-white placeholder-gray-500"
-                   />
-                </div>
-                
-                <div>
-                   <label className="block text-sm font-medium mb-1 flex items-center gap-1">
-                     <Plus className="w-4 h-4" /> Quantity
-                   </label>
-                   <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => setOrderForm(prev => ({...prev, quantity: Math.max(1, prev.quantity - 1)}))}
-                        className="w-10 h-10 rounded-lg bg-[#1E1E1E] border border-gray-700 flex items-center justify-center hover:bg-gray-800"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <div className="flex-1 bg-[#1E1E1E] border border-gray-700 rounded-lg h-10 flex items-center justify-center font-bold">
-                        {orderForm.quantity}
-                      </div>
-                      <button 
-                        onClick={() => setOrderForm(prev => ({...prev, quantity: prev.quantity + 1}))}
-                        className="w-10 h-10 rounded-lg bg-[#1E1E1E] border border-gray-700 flex items-center justify-center hover:bg-gray-800"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                   </div>
-                </div>
-
-                <div>
-                   <label className="block text-sm font-medium mb-1 flex items-center gap-1">
-                     <MessageCircle className="w-4 h-4" /> Your Message (editable) <span className="text-red-500">*</span>
-                   </label>
-                   <textarea 
-                    value={orderForm.message}
-                    onChange={(e) => setOrderForm({...orderForm, message: e.target.value})}
-                    className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#A3E635] text-white placeholder-gray-500 h-24 resize-none"
-                   />
-                </div>
-
-                <button 
-                  onClick={handleSendOrder}
-                  disabled={!orderForm.name || !orderForm.location}
-                  className="w-full py-4 rounded-lg font-bold text-black flex items-center justify-center gap-2 mt-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: theme.button || '#A3E635', color: isDark ? '#000' : '#fff' }}
-                >
-                  <Send className="w-5 h-5" />
-                  Send via Messenger
-                </button>
-                <p className="text-center text-xs text-gray-500 mt-2">This will open Facebook Messenger in a new tab</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CartButton totalItems={totalItems()} openCart={openCart} themeButton={theme.button} />
+      <CartDrawer
+        isOpen={isCartOpen}
+        cart={cart}
+        closeCart={closeCart}
+        setCartEmpty={clearCart}
+        updateQuantity={updateQuantity}
+        removeFromCart={removeFromCart}
+        cartTotal={cartTotal}
+        totalItems={totalItems}
+        checkoutForm={checkoutForm}
+        setCheckoutForm={setCheckoutForm}
+        handleCheckout={handleCheckout}
+        parseCurrency={parseCurrency}
+        formatCurrency={formatCurrency}
+        theme={theme}
+        isDark={isDark}
+        handleImageError={handleImageError}
+        website={website}
+      />
     </div>
   );
 };

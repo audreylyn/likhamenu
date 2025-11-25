@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
-import { getWebsites, deleteWebsite } from '../services/storageService';
+import { getWebsites, deleteWebsite } from '../services/supabaseService';
 import { Website } from '../types';
 import { Plus, Search, Edit2, Trash2, Globe, CheckCircle, XCircle, Lock, Loader2, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
