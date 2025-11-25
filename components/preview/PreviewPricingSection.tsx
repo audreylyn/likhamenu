@@ -22,16 +22,19 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
   return (
     <section id="pricing">
       <center><h1 style={{ fontSize: '2.5em', fontFamily: 'Open Sans, sans-serif', color: 'white' }}>Maintenance Websites Price List</h1></center>
+      <div className="text-center mb-16">
+        <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>Our Pricing Plans</h2>
+      </div>
       <div className="pricing pricing-palden">
         {content.pricing.map((plan, index) => (
           <div key={plan.id} className={`pricing-item features-item ${index === 1 ? 'pricing__item--featured' : ''}`} style={{ minHeight: '497px' }}>
             <div className="pricing-deco" style={{ 
               background: 
                 index === 0
-                  ? `linear-gradient(135deg,#4097f9,#0af0c7)` // Basic plan gradient
+                  ? `linear-gradient(135deg, #4097f9, #0af0c7)` // Blueish gradient for first card
                   : index === 1
-                  ? `linear-gradient(135deg,${theme.secondary},${theme.primary})` // Premium plan gradient
-                  : `linear-gradient(135deg,#4097f9,#0af0c7)` // Standard plan gradient
+                  ? `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})` // Brownish gradient for featured card
+                  : `linear-gradient(135deg, #40e4f9, #0ae8c7)` // Blueish-green gradient for third card (adjusted slightly from previous to match image)
             }}>
               <svg className="pricing-deco-img" enableBackground="new 0 0 300 100" height="100px" id="Layer_1" preserveAspectRatio="none" version="1.1" viewBox="0 0 300 100" width="300px" x="0px" y="0px">
                 <path className="deco-layer deco-layer--1" d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" fill="#FFFFFF" opacity="0.6"></path>
@@ -39,8 +42,8 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 <path className="deco-layer deco-layer--3" d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716H42.401L43.415,98.342z" fill="#FFFFFF" opacity="0.7"></path>
                 <path className="deco-layer deco-layer--4" d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#FFFFFF"></path>
               </svg>
-              <div className="pricing-price"><span className="pricing-currency">$TWD</span>{plan.price.replace('₱', '').split('/')[0].trim()}
-                <span className="pricing-period">{index === 0 ? '/ day' : index === 1 ? '/ month' : '/ week'}</span>
+              <div className="pricing-price"><span className="pricing-currency">₱</span>{plan.price.replace('₱', '').split('/')[0].trim()}
+                <span className="pricing-period"></span>
               </div>
               <h3 className="pricing-title">{plan.name}</h3>
             </div>
@@ -58,10 +61,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 backgroundColor: theme.button,
                 background: 
                   index === 0
-                    ? `linear-gradient(135deg, #a93bfe, #584efd)` // Basic plan button
+                    ? `linear-gradient(135deg, #a93bfe, #584efd)` // Blueish button gradient for first card
                     : index === 1
-                    ? `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})` // Premium plan button
-                    : `linear-gradient(135deg, #4097f9, #0af0c7)` // Standard plan button
+                    ? `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})` // Brownish button gradient for featured card
+                    : `linear-gradient(135deg, #40e4f9, #0ae8c7)` // Blueish-green button gradient for third card
               }}
             >
               {plan.buttonText}
