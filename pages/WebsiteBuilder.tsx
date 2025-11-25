@@ -30,7 +30,7 @@ import { ContactDetails } from '../components/website-builder/ContactDetails';
 import { FooterConfig } from '../components/website-builder/FooterConfig';
 import { AiMarketingKit } from '../components/website-builder/AiMarketingKit';
 
-enum WebsiteType {
+export enum WebsiteType {
   Custom = 'Custom',
   Portfolio = 'Portfolio',
   Ecommerce = 'E-commerce/Store',

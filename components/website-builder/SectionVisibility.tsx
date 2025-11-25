@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layers } from 'lucide-react';
 import { Website } from '../../types';
-import { WebsiteType } from '../pages/WebsiteBuilder'; // Import WebsiteType enum
+import { WebsiteType } from '@/pages/WebsiteBuilder'; // Import WebsiteType enum
 
 interface SectionVisibilityProps {
   website: Website;
