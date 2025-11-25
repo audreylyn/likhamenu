@@ -16,6 +16,7 @@ interface ImportMeta {
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export const generateWebsiteContent = async (businessName: string, businessType: string): Promise<AISuggestionResponse | null> => {
+  console.log(`[GeminiService] Generating website content for: ${businessName} (${businessType})`);
   if (!apiKey) {
     console.warn("API Key is missing. Skipping AI generation.");
     return null;
@@ -24,16 +25,37 @@ export const generateWebsiteContent = async (businessName: string, businessType:
   try {
     const ai = new GoogleGenAI({ apiKey });
     
-    const prompt = `Generate comprehensive website content for a business named "${businessName}" which is a "${businessType}".
-    
-    Include:
-    1. A catchy Hero Title and Subtext.
-    2. A short visual description (prompt) for the Hero background image (e.g. "modern bakery interior with golden light").
-    3. A professional 'About Us' paragraph (approx 50 words).
-    4. 3 representative Products or Services with names, short descriptions, prices (in Philippine Peso ₱), and a visual description (prompt) for each product image.
-    5. 3 key Benefits of choosing this business, suggesting a suitable icon name (like 'Star', 'Heart', 'Shield', 'Zap', 'Clock', 'Leaf') for each.
-    6. 2 glowing Testimonials from happy customers.
-    7. 3 Frequently Asked Questions (FAQ) relevant to this business type.`;
+    const prompt = `Generate comprehensive website content for a business. The business name is "${businessName}" and it is a "${businessType}". Provide the following:
+
+- A compelling hero section title and subtext.
+- A vivid image prompt for the hero section banner.
+- A detailed "About Us" text (around 100-150 words).
+- Three diverse product/service offerings, each with a name, description, price (use PHP currency symbol if applicable), and an image prompt.
+- Three key benefits, each with a title, description, and an icon name (from lucide-react, e.g., Star, Check, Heart).
+- Three customer testimonials, each with a customer name, role, and a brief content snippet.
+- Three frequently asked questions (FAQ), each with a question and a concise answer.
+
+Return the response as a JSON object with the following structure:
+{
+  "heroTitle": "",
+  "heroSubtext": "",
+  "heroImagePrompt": "",
+  "aboutText": "",
+  "products": [
+    { "name": "", "description": "", "price": "", "imagePrompt": "" }
+  ],
+  "benefits": [
+    { "title": "", "description": "", "icon": "" }
+  ],
+  "testimonials": [
+    { "name": "", "role": "", "content": "" }
+  ],
+  "faq": [
+    { "question": "", "answer": "" }
+  ]
+}
+
+Ensure all fields are populated with realistic and creative content.`;
 
     const responseSchema: Schema = {
       type: Type.OBJECT,
@@ -104,9 +126,12 @@ export const generateWebsiteContent = async (businessName: string, businessType:
     });
 
     const text = response.text;
+    console.log('[GeminiService] Raw AI Response Text:', text);
     if (!text) return null;
     
-    return JSON.parse(text) as AISuggestionResponse;
+    const parsedResponse = JSON.parse(text) as AISuggestionResponse;
+    console.log('[GeminiService] Parsed AI Response:', parsedResponse);
+    return parsedResponse;
 
   } catch (error) {
     console.error("Gemini API Error:", error);
