@@ -2,8 +2,8 @@
 
 .faq-container {
   margin: 0 auto;
-  padding: 4rem;
-  width: 60rem; /* Adjusted from 48rem to 60rem */
+  padding: 2rem 1rem;
+  max-width: 60rem; /* Adjusted from 48rem to 60rem */
 }
 
 .faq-accordion {

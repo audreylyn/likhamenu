@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Website } from '../../types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -7,6 +7,8 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+
+import { X } from 'lucide-react';
 
 import './PreviewGallerySection.css'; // Custom styles
 
@@ -20,12 +22,24 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
   isDark,
 }) => {
   const { content, theme } = website;
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const openImage = (imageSrc: string) => {
+    setSelectedImage(imageSrc);
+  };
+
+  const closeImage = () => {
+    setSelectedImage(null);
+  };
 
   return (
     <section className="base-template" style={{
       backgroundColor: isDark ? theme.primary : '#f9fafb',
       color: isDark ? 'white' : '#1f2937'
     }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-3xl font-bold mb-4" style={{ color: isDark ? 'white' : theme.primary }}>Our Gallery</h2>
+      </div>
       <div className="base-template__wrapper wrapper">
         <h1 className="base-template__title" style={{ color: isDark ? 'white' : theme.primary }}>
           Gallery
@@ -92,7 +106,7 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
                     {item.price && (
                       <div className="booking-slider-item__badge">Popular</div>
                     )}
-                    <a title={item.caption || "Gallery Item"} href="/" className="booking-slider-item__image" onClick={(e) => e.preventDefault()}>
+                    <a title={item.caption || "Gallery Item"} href="#" className="booking-slider-item__image" onClick={(e) => { e.preventDefault(); openImage(item.image); }}>
                       <img src={item.image} alt={item.caption || "Gallery Item"} />
                     </a>
                     <div className="booking-slider-item__content">
@@ -162,6 +176,24 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
             <div className="booking-slider__pagination slider-pagination"></div>
           </div>
         </div>
+
+        {selectedImage && (
+            <div
+                className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[100] p-4"
+                onClick={closeImage}
+            >
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        className="absolute top-2 right-2 text-white text-3xl p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75"
+                        onClick={closeImage}
+                    >
+                        <X size={24} />
+                    </button>
+                    <img src={selectedImage} alt="Enlarged gallery item" className="max-w-full max-h-[90vh] object-contain" />
+                </div>
+            </div>
+        )}
+
       </div>
     </section>
   );
