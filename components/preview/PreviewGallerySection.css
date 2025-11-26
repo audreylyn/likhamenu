@@ -125,7 +125,7 @@
 	}
 }
 .booking-slider-item {
-	background: var(--color-gray-dark);
+	background: var(--swiper-theme-secondary, var(--color-gray-dark));
 	position: relative;
 	display: flex;
 	flex-direction: column;
