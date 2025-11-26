@@ -19,7 +19,7 @@
 	--color-gray-dark: #1e222a;
 	--color-gray-bright: #d0d4d4;
 	--color-gray-light: #bbbcbf;
-	padding-inline: 98px;
+	padding-inline: 0;
 	position: relative;
 }
 .booking-slider__slide {
@@ -30,7 +30,7 @@
 @media screen and (max-width: 991.9px) {
 	.booking-slider {
 		padding: 0;
-		margin-inline: -20px;
+		margin-inline: 0;
 	}
 }
 /**
@@ -126,11 +126,11 @@
 .booking-slider-item {
 	background: var(--color-gray-dark);
 	position: relative;
-	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	height: 500px;
-	width: 350px;
+	min-height: 450px; /* Adjusted to allow content to dictate height */
+	width: 100%; /* Ensure it takes full width within its container */
+	margin: 0 auto; /* Center the item */
 }
 .booking-slider-item__badge {
 	display: flex;
@@ -145,6 +145,7 @@
 	left: 4px;
 	top: 4px;
 	z-index: 1;
+	color: white; /* Ensure badge text is visible */
 }
 .booking-slider-item__badge::before {
 	content: "";
@@ -158,7 +159,7 @@
 }
 .booking-slider-item__image {
 	display: block;
-	height: 244px;
+	height: 200px; /* Adjusted for flexibility */
 	transition: height 0.6s ease-out;
 	overflow: hidden;
 }
@@ -202,7 +203,7 @@
 }
 .booking-slider-item__title a {
 	display: block;
-	color: white;
+	color: inherit; /* Use inherit to adapt to parent color */
 	text-decoration: none;
 	transition: opacity 0.3s ease-out;
 }
@@ -217,7 +218,7 @@
 	gap: 8px;
 	font-weight: 500;
 	font-size: 14px;
-	color: var(--color-gray);
+	color: inherit; /* Use inherit to adapt to parent color */
 	margin-bottom: 16px;
 }
 .booking-slider-item__address-icon {
@@ -233,7 +234,7 @@
 	font-size: 14px;
 	font-weight: 300;
 	line-height: 1.35;
-	color: var(--color-gray-bright);
+	color: inherit; /* Use inherit to adapt to parent color */
 }
 .booking-slider-item__footer {
 	max-height: 150px;
@@ -261,7 +262,7 @@
 	font-weight: 500;
 	font-size: 14px;
 	line-height: 1.4;
-	color: var(--color-gray-light);
+	color: inherit; /* Use inherit to adapt to parent color */
 }
 .booking-slider-item__amenity-icon {
 	flex-shrink: 0;
@@ -293,7 +294,7 @@
 	gap: 4px;
 	font-weight: 500;
 	font-size: 18px;
-	color: #fff;
+	color: inherit; /* Use inherit to adapt to parent color */
 	text-decoration: none;
 }
 .booking-slider-item__btn-icon {

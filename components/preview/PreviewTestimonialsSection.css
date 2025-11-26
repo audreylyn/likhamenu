@@ -1,17 +1,17 @@
-.swiper-button-prev,
-.swiper-button-next {
+.mySwiper .swiper-button-prev,
+.mySwiper .swiper-button-next {
   color: #a0aec0; /* Default gray color */
 }
 
-.swiper-button-prev:hover,
-.swiper-button-next:hover {
+.mySwiper .swiper-button-prev:hover,
+.mySwiper .swiper-button-next:hover {
   color: #6366f1; /* Primary color on hover */
 }
 
-.swiper-pagination-bullet {
+.mySwiper .swiper-pagination-bullet {
   background-color: #cbd5e0; /* Default gray for inactive dots */
 }
 
-.swiper-pagination-bullet-active {
+.mySwiper .swiper-pagination-bullet-active {
   background-color: #6366f1; /* Primary color for active dot */
 }
