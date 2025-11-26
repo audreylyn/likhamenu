@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
 import { ImageIcon, Upload, Loader2 } from 'lucide-react';
 import { Website, HeroContent as HeroContentType, HeroType } from '../../types';
+import { WebsiteBuilderInput } from './WebsiteBuilderInput';
+import { WebsiteBuilderTextArea } from './WebsiteBuilderTextArea';
+import { WebsiteBuilderImageUpload } from './WebsiteBuilderImageUpload';
 
 interface HeroContentProps {
   website: Website;
@@ -37,50 +40,30 @@ export const HeroContent: React.FC<HeroContentProps> = ({
             <option value="imageLeft">Image Left</option>
           </select>
         </div>
-        <input
-          type="text"
+        <WebsiteBuilderInput
+          label="Headline"
           placeholder="Headline"
           value={website.content.hero.title}
           onChange={(e) => website && updateContent('hero', { ...website.content.hero, title: e.target.value })}
-          className="w-full px-4 py-3 text-lg font-bold border border-slate-300 rounded-lg"
         />
-        <textarea
+        <WebsiteBuilderTextArea
+          label="Subtext"
           placeholder="Subtext"
           value={website.content.hero.subtext}
           onChange={(e) => website && updateContent('hero', { ...website.content.hero, subtext: e.target.value })}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg h-24 resize-none"
         />
-        <input
-          type="text"
+        <WebsiteBuilderInput
+          label="Get Started Button Link"
           placeholder="Get Started Button Link (e.g., #products or /contact)"
           value={website.content.hero.buttonLink || ''}
           onChange={(e) => website && updateContent('hero', { ...website.content.hero, buttonLink: e.target.value })}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg"
         />
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Banner Image URL"
-            value={website.content.hero.image}
-            onChange={(e) => website && updateContent('hero', { ...website.content.hero, image: e.target.value })}
-            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-500"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={heroImageInputRef}
-            onChange={(e) => handleFileUpload(e, (base64) => website && updateContent('hero', { ...website.content.hero, image: base64 }))}
-          />
-          <button
-            onClick={() => heroImageInputRef.current?.click()}
-            className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Upload Image"
-            disabled={isUploadingImage}
-          >
-            {isUploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          </button>
-        </div>
+        <WebsiteBuilderImageUpload
+          label="Banner Image"
+          imageUrl={website.content.hero.image}
+          onFileUpload={(base64) => updateContent('hero', { ...website.content.hero, image: base64 })}
+          isUploading={isUploadingImage}
+        />
       </div>
     </section>
   );
