@@ -8,7 +8,7 @@ import { WebsiteBuilderImageUpload } from './WebsiteBuilderImageUpload';
 interface HeroContentProps {
   website: Website;
   updateContent: (section: 'hero', data: HeroContentType) => void;
-  handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => void;
+  handleFileUpload: (file: File, callback: (url: string) => void) => void;
   isUploadingImage: boolean; // New prop
 }
 
@@ -61,7 +61,7 @@ export const HeroContent: React.FC<HeroContentProps> = ({
         <WebsiteBuilderImageUpload
           label="Banner Image"
           imageUrl={website.content.hero.image}
-          onFileUpload={(base64) => updateContent('hero', { ...website.content.hero, image: base64 })}
+          onFileUpload={(file) => handleFileUpload(file, (url) => updateContent('hero', { ...website.content.hero, image: url }))}
           isUploading={isUploadingImage}
         />
       </div>
