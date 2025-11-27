@@ -127,8 +127,7 @@ export const WebsiteBuilder: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = (file: File, callback: (url: string) => void) => {
     if (file) {
       setIsUploadingImage(true); // Set loading state
       uploadImage(file)

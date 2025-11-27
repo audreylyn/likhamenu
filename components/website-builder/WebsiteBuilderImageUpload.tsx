@@ -4,7 +4,7 @@ import { Upload, Loader2 } from 'lucide-react';
 interface WebsiteBuilderImageUploadProps {
   label: string;
   imageUrl: string | undefined;
-  onFileUpload: (base64: string) => void;
+  onFileUpload: (file: File) => void;
   isUploading: boolean;
 }
 
@@ -19,11 +19,7 @@ export const WebsiteBuilderImageUpload: React.FC<WebsiteBuilderImageUploadProps>
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onFileUpload(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      onFileUpload(file);
     }
   };
 
