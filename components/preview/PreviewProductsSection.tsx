@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
+import { Plus, ShoppingCart, ShoppingBag, X, Eye } from 'lucide-react';
 import { Website, Product } from '../../types';
 
 interface PreviewProductsSectionProps {
@@ -21,6 +21,7 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
 }) => {
   const { content, theme } = website;
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   // Get unique categories from products, defaulting to 'All' if no category is set
   const categories = ['All', ...Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')))];
@@ -64,9 +65,21 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
+          cursor: pointer;
         }
         .product-card:hover .product-overlay {
           opacity: 1;
+        }
+        .quick-view-modal {
+          animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .quick-view-content {
+          max-height: 90vh;
+          overflow-y: auto;
         }
         .category-btn {
           transition: all 0.3s ease;
@@ -168,9 +181,15 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                   onError={handleImageError}
                   className="product-image w-full h-full object-cover"
                 />
-                <div className="product-overlay">
+                <div 
+                  className="product-overlay"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQuickViewProduct(product);
+                  }}
+                >
                   <div className="text-white text-center px-4">
-                    <ShoppingCart className="w-8 h-8 mx-auto mb-2" />
+                    <Eye className="w-8 h-8 mx-auto mb-2" />
                     <p className="text-sm font-medium">Quick View</p>
                   </div>
                 </div>
@@ -219,6 +238,97 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
           </div>
         )}
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 quick-view-modal"
+          onClick={() => setQuickViewProduct(null)}
+        >
+          <div
+            className={`quick-view-content ${isDark ? 'bg-slate-800' : 'bg-white'} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative">
+              {/* Close Button */}
+              <button
+                onClick={() => setQuickViewProduct(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white bg-black bg-opacity-50 hover:bg-opacity-75 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Product Image */}
+                <div className="relative h-64 md:h-auto bg-slate-100">
+                  <img
+                    src={quickViewProduct.image}
+                    alt={quickViewProduct.name}
+                    onError={handleImageError}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Product Details */}
+                <div className="p-8 flex flex-col">
+                  <div className="mb-4">
+                    {quickViewProduct.price && (
+                      <div 
+                        className="inline-block px-4 py-2 rounded-full text-white font-bold text-sm mb-4"
+                        style={{ 
+                          background: `linear-gradient(135deg, ${theme.primary}, ${theme.button})`,
+                        }}
+                      >
+                        {quickViewProduct.price}
+                      </div>
+                    )}
+                    <h3 className={`text-2xl md:text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                      {quickViewProduct.name}
+                    </h3>
+                    {quickViewProduct.category && (
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-4 ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
+                        {quickViewProduct.category}
+                      </span>
+                    )}
+                  </div>
+
+                  <p className={`text-base leading-relaxed mb-6 flex-1 ${textMuted}`}>
+                    {quickViewProduct.description}
+                  </p>
+
+                  <div className="flex gap-3">
+                    <button
+                      className="flex-1 py-3.5 rounded-xl text-white font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2"
+                      style={{ 
+                        backgroundColor: theme.button,
+                        boxShadow: `0 4px 15px ${theme.button}30`
+                      }}
+                      onClick={() => {
+                        addToCart(quickViewProduct);
+                        setQuickViewProduct(null);
+                      }}
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Add to Cart</span>
+                    </button>
+                    <button
+                      className="px-6 py-3.5 rounded-xl font-semibold text-sm transition-all border-2"
+                      style={{ 
+                        borderColor: theme.primary,
+                        color: theme.primary,
+                        backgroundColor: 'transparent'
+                      }}
+                      onClick={() => setQuickViewProduct(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
