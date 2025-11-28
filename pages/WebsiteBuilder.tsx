@@ -168,10 +168,22 @@ export const WebsiteBuilder: React.FC = () => {
             };
           }
 
+          // Handle legacy footerText (string) vs new structure (object)
+          let footerData = (existing.content as any).footer;
+          if (!footerData && (existing.content as any).footerText) {
+            footerData = {
+              tagline: DEFAULT_WEBSITE.content.footer.tagline,
+              exploreLinks: DEFAULT_WEBSITE.content.footer.exploreLinks,
+              hours: DEFAULT_WEBSITE.content.footer.hours,
+              copyright: (existing.content as any).footerText || DEFAULT_WEBSITE.content.footer.copyright,
+            };
+          }
+
           merged.content = { 
             ...DEFAULT_WEBSITE.content, 
             ...existing.content,
             about: aboutData || DEFAULT_WEBSITE.content.about,
+            footer: footerData || DEFAULT_WEBSITE.content.footer,
             products: existing.content.products.map(p => ({...p, price: p.price || ''})),
             benefits: existing.content.benefits || [],
             testimonials: existing.content.testimonials || [],

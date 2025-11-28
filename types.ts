@@ -122,7 +122,12 @@ export interface WebsiteContent {
   team: TeamMember[];
   pricing: PricingPlan[];
   callToAction: CallToAction;
-  footerText: string;
+  footer: {
+    tagline: string;
+    exploreLinks: { label: string; href: string }[];
+    hours: { day: string; time: string }[];
+    copyright: string;
+  };
   socialLinks: SocialLink[];
   navLinkOrder?: (keyof Website['enabledSections'])[]; // Navigation link order stored in content
 }
