@@ -116,12 +116,9 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
       `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: theme.primary }}>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>
             Our Offerings
           </h2>
-          <p className={`text-lg ${textMuted} max-w-2xl mx-auto mb-8`}>
-            Discover our carefully curated selection of premium products
-          </p>
 
           {/* Category Filter Buttons */}
           {categories.length > 1 && (

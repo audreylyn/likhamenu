@@ -21,7 +21,6 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
 
   return (
     <section id="pricing">
-      <center><h1 style={{ fontSize: '2.5em', fontFamily: 'Open Sans, sans-serif', color: 'white' }}>Maintenance Websites Price List</h1></center>
       <div className="text-center mb-16">
         <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>Our Pricing Plans</h2>
       </div>

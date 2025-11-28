@@ -155,7 +155,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
 
   return (
-    <div className={`min-h-screen font-sans ${bgMain}`}>
+    <div className={`min-h-screen ${bgMain}`} style={{ fontFamily: "'Poppins', sans-serif" }}>
       
       {/* Navigation */}
       <PreviewNavbar website={website} isDark={isDark} totalItems={totalItems} openCart={openCart} />

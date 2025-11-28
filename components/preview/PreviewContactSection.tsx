@@ -42,12 +42,9 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
       <div className="max-w-6xl mx-auto">
         {/* Title Section */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-extrabold mb-4 text-gray-900 dark:text-white">
+          <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>
             Get in Touch
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            We'd love to hear from you. Send us a message or find us using the details below.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

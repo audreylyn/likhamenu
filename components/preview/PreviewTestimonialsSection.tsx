@@ -90,19 +90,9 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
-            backgroundColor: theme.primary + '15',
-            border: `1px solid ${theme.primary}30`
-          }}>
-            <Star className="w-4 h-4" style={{ color: theme.primary }} />
-            <span className="text-sm font-semibold" style={{ color: theme.primary }}>Testimonials</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6" style={{ color: theme.primary }}>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>
             What People Say
           </h2>
-          <p className={`text-lg md:text-xl ${textMuted} max-w-2xl mx-auto`}>
-            Real feedback from real customers who love our service
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 testimonial-grid">
