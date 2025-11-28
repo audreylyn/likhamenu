@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ShoppingCart } from 'lucide-react';
+import { Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
 import { Website, Product } from '../../types';
 
 interface PreviewProductsSectionProps {
@@ -116,9 +116,19 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
       `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
+            backgroundColor: theme.primary + '15',
+            border: `1px solid ${theme.primary}30`
+          }}>
+            <ShoppingBag className="w-4 h-4" style={{ color: theme.primary }} />
+            <span className="text-sm font-semibold" style={{ color: theme.primary }}>Products</span>
+          </div>
           <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>
             Our Offerings
           </h2>
+          <p className={`text-lg ${textMuted} max-w-2xl mx-auto mb-8`}>
+            Discover our carefully curated selection of premium products
+          </p>
 
           {/* Category Filter Buttons */}
           {categories.length > 1 && (

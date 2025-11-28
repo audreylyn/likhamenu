@@ -1,4 +1,5 @@
 import React from 'react';
+import { DollarSign } from 'lucide-react';
 import { Website, PricingPlan } from '../../types';
 import './PreviewPricingSection.css';
 
@@ -22,7 +23,17 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
   return (
     <section id="pricing">
       <div className="text-center mb-16">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
+          backgroundColor: theme.primary + '15',
+          border: `1px solid ${theme.primary}30`
+        }}>
+          <DollarSign className="w-4 h-4" style={{ color: theme.primary }} />
+          <span className="text-sm font-semibold" style={{ color: theme.primary }}>Pricing</span>
+        </div>
         <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>Our Pricing Plans</h2>
+        <p className={`text-lg ${isDark ? 'text-slate-400' : 'text-slate-600'} max-w-2xl mx-auto`}>
+          Choose the perfect plan that fits your needs and budget
+        </p>
       </div>
       <div className="pricing pricing-palden">
         {content.pricing.map((plan, index) => (

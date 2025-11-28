@@ -1,4 +1,5 @@
 import React from 'react';
+import { Sparkles } from 'lucide-react';
 import { Website } from '../../types';
 
 interface PreviewBenefitsSectionProps {
@@ -83,7 +84,17 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
       `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
+            backgroundColor: theme.primary + '15',
+            border: `1px solid ${theme.primary}30`
+          }}>
+            <Sparkles className="w-4 h-4" style={{ color: theme.primary }} />
+            <span className="text-sm font-semibold" style={{ color: theme.primary }}>Benefits</span>
+          </div>
           <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>Why Choose Us</h2>
+          <p className={`text-lg ${textMuted} max-w-2xl mx-auto`}>
+            Discover what makes us the perfect choice for you
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
           {content.benefits.map(b => (

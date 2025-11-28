@@ -7,7 +7,7 @@ import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-import { X } from 'lucide-react';
+import { X, Image } from 'lucide-react';
 
 import './PreviewGallerySection.css'; // Custom styles
 
@@ -36,8 +36,18 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
       backgroundColor: isDark ? theme.primary : '#f9fafb',
       color: isDark ? 'white' : '#1f2937'
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
+          backgroundColor: theme.primary + '15',
+          border: `1px solid ${theme.primary}30`
+        }}>
+          <Image className="w-4 h-4" style={{ color: theme.primary }} />
+          <span className="text-sm font-semibold" style={{ color: theme.primary }}>Gallery</span>
+        </div>
         <h2 className="text-3xl font-bold mb-4" style={{ color: isDark ? 'white' : theme.primary }}>Our Gallery</h2>
+        <p className={`text-lg ${isDark ? 'text-slate-300' : 'text-slate-600'} max-w-2xl mx-auto`}>
+          Explore our collection of work and achievements
+        </p>
       </div>
       <div className="base-template__wrapper wrapper">
         <div className="base-template__content">

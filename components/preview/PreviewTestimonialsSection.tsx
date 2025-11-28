@@ -18,8 +18,14 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
   const { content, theme } = website;
 
   return (
-    <section id="testimonials" className={`py-20 relative ${isDark ? 'bg-slate-900' : 'bg-gradient-to-b from-white to-slate-50'}`}>
+    <section id="testimonials" className={`py-20 relative ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
       <style>{`
+        :root {
+          --tw-ring-color: transparent !important;
+        }
+        * {
+          --tw-ring-color: transparent !important;
+        }
         .testimonial-grid-item {
           position: relative;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -37,11 +43,8 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
         }
         .quote-decoration {
           position: absolute;
-          top: -10px;
-          left: 20px;
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
+          top: 20px;
+          left: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -90,9 +93,19 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
+            backgroundColor: theme.primary + '15',
+            border: `1px solid ${theme.primary}30`
+          }}>
+            <Star className="w-4 h-4" style={{ color: theme.primary }} />
+            <span className="text-sm font-semibold" style={{ color: theme.primary }}>Testimonials</span>
+          </div>
           <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>
             What People Say
           </h2>
+          <p className={`text-lg ${textMuted} max-w-2xl mx-auto`}>
+            Real feedback from real customers who love our service
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 testimonial-grid">
@@ -105,13 +118,8 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
                 }}
               >
                 {/* Quote decoration */}
-                <div 
-                  className="quote-decoration"
-                  style={{ 
-                    backgroundColor: theme.primary + '15',
-                  }}
-                >
-                  <Quote className="w-6 h-6" style={{ color: theme.primary }} />
+                <div className="quote-decoration">
+                  <Quote className="w-8 h-8" style={{ color: theme.primary, opacity: 0.2 }} />
                 </div>
 
                 {/* Testimonial content */}
