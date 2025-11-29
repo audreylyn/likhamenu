@@ -49,11 +49,24 @@ export const NavLinkReorder: React.FC<NavLinkReorderProps> = ({
 
   // Use navLinkOrder from content field, otherwise use default order
   const navLinkOrder = (website.content as any)?.navLinkOrder;
-  const orderedLinks = navLinkOrder
-    ? navLinkOrder
-        .map(id => navLinks.find(link => link.id === id))
-        .filter((link): link is { id: string; name: string } => link !== undefined)
-    : navLinks;
+  
+  // Build ordered links: use navLinkOrder if available, but add any new enabled sections at the end
+  let orderedLinks: { id: string; name: string }[];
+  if (navLinkOrder && navLinkOrder.length > 0) {
+    // Start with sections from navLinkOrder that are still enabled
+    const orderedFromConfig = navLinkOrder
+      .map(id => navLinks.find(link => link.id === id))
+      .filter((link): link is { id: string; name: string } => link !== undefined);
+    
+    // Add any newly enabled sections that aren't in the order yet
+    const orderedIds = new Set(orderedFromConfig.map(link => link.id));
+    const newSections = navLinks.filter(link => !orderedIds.has(link.id));
+    
+    orderedLinks = [...orderedFromConfig, ...newSections];
+  } else {
+    // No order set yet, use current navLinks order
+    orderedLinks = navLinks;
+  }
 
   const moveUp = (index: number) => {
     if (index === 0) return;
