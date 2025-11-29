@@ -53,6 +53,9 @@ function doPost(e) {
     // Add the order to the spreadsheet
     addOrderToSheet(sheet, orderData);
     
+    // Create or update Dashboard sheet with formulas and charts
+    createOrUpdateDashboardSheet(spreadsheet, sheet);
+    
     // Return success response with CORS headers
     return ContentService.createTextOutput(
       JSON.stringify({ 
@@ -139,6 +142,11 @@ function doGet(e) {
     // Get the Orders sheet
     const sheet = spreadsheet.getSheetByName("Orders");
     if (!sheet) {
+      // Create Orders sheet if it doesn't exist
+      const ordersSheet = getOrCreateOrdersSheet(spreadsheet);
+      // Also create Dashboard sheet
+      createOrUpdateDashboardSheet(spreadsheet, ordersSheet);
+      
       return ContentService.createTextOutput(
         JSON.stringify({ 
           result: "success",
@@ -524,6 +532,132 @@ function addOrderToSheet(sheet, orderData) {
  */
 function formatCurrency(amount) {
   return "₱" + amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/**
+ * Create or update Dashboard sheet with formulas and charts
+ */
+function createOrUpdateDashboardSheet(spreadsheet, ordersSheet) {
+  let dashboardSheet = spreadsheet.getSheetByName("Dashboard");
+  
+  if (!dashboardSheet) {
+    // Create new Dashboard sheet
+    dashboardSheet = spreadsheet.insertSheet("Dashboard");
+    dashboardSheet.setTabColor("#34a853"); // Green color for dashboard tab
+  } else {
+    // Clear existing content (keep structure)
+    dashboardSheet.clear();
+  }
+  
+  // Set up header
+  dashboardSheet.getRange(1, 1).setValue("ORDER DASHBOARD").setFontSize(18).setFontWeight("bold");
+  dashboardSheet.getRange(1, 1, 1, 4).merge();
+  
+  // Key Metrics Section
+  dashboardSheet.getRange(3, 1).setValue("KEY METRICS").setFontWeight("bold").setFontSize(12);
+  dashboardSheet.getRange(3, 1, 1, 2).merge();
+  
+  // Metric labels and formulas
+  const metrics = [
+    ["Total Orders:", "=COUNTA(Orders!A2:A)"],
+    ["Pending Orders:", "=COUNTIF(Orders!I2:I,\"Pending\")"],
+    ["Processing Orders:", "=COUNTIF(Orders!I2:I,\"Processing\")"],
+    ["Ready Orders:", "=COUNTIF(Orders!I2:I,\"Ready\")"],
+    ["Delivered Orders:", "=COUNTIF(Orders!I2:I,\"Delivered\")"],
+    ["Cancelled Orders:", "=COUNTIF(Orders!I2:I,\"Cancelled\")"],
+    ["", ""], // Spacer
+    ["Total Revenue:", "=SUM(ARRAYFORMULA(IF(ISBLANK(Orders!G2:G),0,VALUE(SUBSTITUTE(SUBSTITUTE(Orders!G2:G,\"₱\",\"\"),\",\",\"\")))))"],
+    ["Average Order Value:", "=IF(B4=0,0,B11/B4)"],
+    ["Today's Orders:", "=COUNTIF(Orders!B2:B,\">=\"&TODAY())"],
+    ["Today's Revenue:", "=SUM(ARRAYFORMULA(IF((ISBLANK(Orders!G2:G))+(Orders!B2:B<TODAY()),0,VALUE(SUBSTITUTE(SUBSTITUTE(Orders!G2:G,\"₱\",\"\"),\",\",\"\")))))"]
+  ];
+  
+  let row = 4;
+  metrics.forEach(metric => {
+    dashboardSheet.getRange(row, 1).setValue(metric[0]);
+    if (metric[1]) {
+      dashboardSheet.getRange(row, 2).setFormula(metric[1]).setNumberFormat("#,##0.00");
+    }
+    row++;
+  });
+  
+  // Format metric values
+  dashboardSheet.getRange(4, 2, metrics.length, 1).setFontWeight("bold").setFontSize(11);
+  
+  // Status Breakdown Section
+  row += 2;
+  dashboardSheet.getRange(row, 1).setValue("STATUS BREAKDOWN").setFontWeight("bold").setFontSize(12);
+  dashboardSheet.getRange(row, 1, 1, 2).merge();
+  row++;
+  
+  const statusBreakdownStartRow = row;
+  const statusBreakdown = [
+    ["Status", "Count", "Percentage"],
+    ["Pending", "=COUNTIF(Orders!I2:I,\"Pending\")", "=IF($B$4=0,0,B" + (row + 1) + "/$B$4)"],
+    ["Processing", "=COUNTIF(Orders!I2:I,\"Processing\")", "=IF($B$4=0,0,B" + (row + 2) + "/$B$4)"],
+    ["Preparing", "=COUNTIF(Orders!I2:I,\"Preparing\")", "=IF($B$4=0,0,B" + (row + 3) + "/$B$4)"],
+    ["Ready", "=COUNTIF(Orders!I2:I,\"Ready\")", "=IF($B$4=0,0,B" + (row + 4) + "/$B$4)"],
+    ["Out for Delivery", "=COUNTIF(Orders!I2:I,\"Out for Delivery\")", "=IF($B$4=0,0,B" + (row + 5) + "/$B$4)"],
+    ["Delivered", "=COUNTIF(Orders!I2:I,\"Delivered\")", "=IF($B$4=0,0,B" + (row + 6) + "/$B$4)"],
+    ["Cancelled", "=COUNTIF(Orders!I2:I,\"Cancelled\")", "=IF($B$4=0,0,B" + (row + 7) + "/$B$4)"]
+  ];
+  
+  statusBreakdown.forEach((rowData, idx) => {
+    dashboardSheet.getRange(row, 1, 1, 3).setValues([rowData]);
+    if (idx === 0) {
+      // Header row
+      dashboardSheet.getRange(row, 1, 1, 3).setFontWeight("bold").setBackground("#4285f4").setFontColor("#ffffff");
+    } else {
+      // Data rows - set percentage format
+      dashboardSheet.getRange(row, 3).setNumberFormat("0.00%");
+    }
+    row++;
+  });
+  
+  // Format columns
+  dashboardSheet.setColumnWidth(1, 180);
+  dashboardSheet.setColumnWidth(2, 120);
+  dashboardSheet.setColumnWidth(3, 100);
+  
+  // Create Pie Chart for Status Breakdown
+  const chartRange = dashboardSheet.getRange(statusBreakdownStartRow + 1, 1, statusBreakdown.length - 1, 2);
+  const chartBuilder = dashboardSheet.newChart()
+    .setChartType(Charts.ChartType.PIE)
+    .addRange(chartRange)
+    .setPosition(row + 2, 1, 0, 0)
+    .setOption('title', 'Order Status Distribution')
+    .setOption('legend.position', 'right')
+    .setOption('pieHole', 0.4)
+    .build();
+  
+  dashboardSheet.insertChart(chartBuilder);
+  
+  // Revenue Trends Section (if there are dates)
+  row += 12;
+  dashboardSheet.getRange(row, 1).setValue("RECENT ORDERS SUMMARY").setFontWeight("bold").setFontSize(12);
+  dashboardSheet.getRange(row, 1, 1, 4).merge();
+  row++;
+  
+  // Show last 10 orders summary
+  dashboardSheet.getRange(row, 1, 1, 4).setValues([["Order ID", "Date", "Customer", "Amount", "Status"]]);
+  dashboardSheet.getRange(row, 1, 1, 4).setFontWeight("bold").setBackground("#4285f4").setFontColor("#ffffff");
+  row++;
+  
+  // Formula to get last 10 orders
+  for (let i = 0; i < 10; i++) {
+    const orderRow = 2 + i; // Orders start at row 2
+    dashboardSheet.getRange(row + i, 1).setFormula("=IF(ROW(Orders!A" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!A" + orderRow + ")");
+    dashboardSheet.getRange(row + i, 2).setFormula("=IF(ROW(Orders!B" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!B" + orderRow + ")");
+    dashboardSheet.getRange(row + i, 3).setFormula("=IF(ROW(Orders!C" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!C" + orderRow + ")");
+    dashboardSheet.getRange(row + i, 4).setFormula("=IF(ROW(Orders!G" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!G" + orderRow + ")");
+    dashboardSheet.getRange(row + i, 5).setFormula("=IF(ROW(Orders!I" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!I" + orderRow + ")");
+  }
+  
+  dashboardSheet.setColumnWidth(4, 120);
+  dashboardSheet.setColumnWidth(5, 120);
+  
+  // Freeze header rows
+  dashboardSheet.setFrozenRows(3);
 }
 
 /**

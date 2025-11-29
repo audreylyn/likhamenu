@@ -43,6 +43,13 @@ export const Dashboard: React.FC = () => {
     loadWebsites();
   }, []);
 
+  // Redirect editors to edit page after websites load
+  useEffect(() => {
+    if (user?.role === 'editor' && !isLoading && websites.length > 0) {
+      navigate(`/edit/${websites[0].id}`);
+    }
+  }, [user?.role, isLoading, websites, navigate]);
+
   const handleDelete = async (id: string) => {
     await deleteWebsite(id);
     await loadWebsites();
