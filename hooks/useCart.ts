@@ -113,13 +113,12 @@ export function useCart(website?: Website | null) {
 
     // Send to Google Spreadsheet in background (fire and forget)
     // Don't wait for it - open Messenger immediately for better UX
+    // NO HEADERS - Google Apps Script blocks requests with custom headers (triggers preflight)
     if (website.messenger.googleScriptUrl) {
       fetch(website.messenger.googleScriptUrl, {
         method: 'POST',
         mode: 'no-cors', // Important: prevents CORS errors with Google Scripts
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        // NO headers object - sending as text/plain to avoid preflight
         body: JSON.stringify(orderData),
       }).catch((error) => {
         console.error('Error saving order to spreadsheet:', error);

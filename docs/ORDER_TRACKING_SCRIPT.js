@@ -53,14 +53,15 @@ function doPost(e) {
     // Add the order to the spreadsheet
     addOrderToSheet(sheet, orderData);
     
-    // Return success response
+    // Return success response with CORS headers
     return ContentService.createTextOutput(
       JSON.stringify({ 
         result: "success",
         message: "Order saved successfully",
         spreadsheetUrl: spreadsheet.getUrl()
       })
-    ).setMimeType(ContentService.MimeType.JSON);
+    ).setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({ "Access-Control-Allow-Origin": "*" });
 
   } catch (error) {
     // Log error for debugging
@@ -82,7 +83,8 @@ function doPost(e) {
         result: "error", 
         error: error.toString() 
       })
-    ).setMimeType(ContentService.MimeType.JSON);
+    ).setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({ "Access-Control-Allow-Origin": "*" });
   } finally {
     lock.releaseLock();
   }
@@ -233,7 +235,8 @@ function doOptions(e) {
     .setHeaders({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Max-Age": "3600"
     });
 }
 

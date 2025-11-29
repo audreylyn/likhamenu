@@ -16,7 +16,8 @@ create table if not exists public.websites (
   contactformconfig jsonb,
   enabledSections jsonb,
   content jsonb,
-  marketing jsonb
+  marketing jsonb,
+  assignededitors jsonb
 );
 
 -- Add any missing columns if table already existed but lacked fields
