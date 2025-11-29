@@ -104,7 +104,10 @@ function doGet(e) {
           result: "error", 
           error: "websiteId or websiteTitle parameter required" 
         })
-      ).setMimeType(ContentService.MimeType.JSON);
+      ).setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        "Access-Control-Allow-Origin": "*"
+      });
     }
 
     // Get the Drive folder
@@ -127,7 +130,10 @@ function doGet(e) {
           result: "error", 
           error: "Spreadsheet not found for this website" 
         })
-      ).setMimeType(ContentService.MimeType.JSON);
+      ).setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        "Access-Control-Allow-Origin": "*"
+      });
     }
 
     // Get the Orders sheet
@@ -147,7 +153,10 @@ function doGet(e) {
             totalRevenue: 0
           }
         })
-      ).setMimeType(ContentService.MimeType.JSON);
+      ).setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        "Access-Control-Allow-Origin": "*"
+      });
     }
 
     // Read all order data (skip header row)
@@ -167,7 +176,10 @@ function doGet(e) {
             totalRevenue: 0
           }
         })
-      ).setMimeType(ContentService.MimeType.JSON);
+      ).setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        "Access-Control-Allow-Origin": "*"
+      });
     }
 
     const dataRange = sheet.getRange(2, 1, lastRow - 1, 9); // All data rows, all columns

@@ -38,18 +38,37 @@ export const fetchOrdersFromSheets = async (
   websiteTitle: string
 ): Promise<OrdersResponse | null> => {
   try {
+    // Validate inputs
+    if (!googleScriptUrl) {
+      throw new Error('Google Script URL is required');
+    }
+    
+    const cleanWebsiteId = String(websiteId || '').trim();
+    const cleanWebsiteTitle = String(websiteTitle || '').trim();
+    
+    if (!cleanWebsiteId && !cleanWebsiteTitle) {
+      throw new Error('Either websiteId or websiteTitle must be provided');
+    }
+    
     // 1. Prepare the URL
     // We add a timestamp parameter (&_t=) to prevent browser caching.
     // This allows us to remove 'cache: no-cache' from the fetch options,
     // which prevents the browser from triggering a CORS Preflight check.
     const baseUrl = googleScriptUrl.replace(/\/exec$/, '/exec');
     const queryParams = new URLSearchParams({
-      websiteId: websiteId,
-      websiteTitle: websiteTitle,
+      ...(cleanWebsiteId && { websiteId: cleanWebsiteId }),
+      ...(cleanWebsiteTitle && { websiteTitle: cleanWebsiteTitle }),
       _t: Date.now().toString() // Cache buster
     });
     
     const getUrl = `${baseUrl}?${queryParams.toString()}`;
+    
+    // Debug: Log the URL (remove in production if needed)
+    console.log('[Google Sheets] Fetching orders:', {
+      websiteId: cleanWebsiteId || '(empty)',
+      websiteTitle: cleanWebsiteTitle || '(empty)',
+      url: getUrl.substring(0, 100) + '...'
+    });
     
     // 2. Direct Fetch (Simple Request)
     // IMPORTANT: Do NOT add 'headers' object or 'cache: no-cache'.

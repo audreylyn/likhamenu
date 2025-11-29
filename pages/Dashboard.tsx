@@ -3,17 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { getWebsites, deleteWebsite, saveWebsite } from '../services/supabaseService';
 import { Website } from '../types';
-import { Plus, Search, Edit2, Trash2, Globe, CheckCircle, XCircle, Lock, Loader2, ExternalLink, User, ShoppingBag } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Globe, CheckCircle, XCircle, Lock, Loader2, ExternalLink, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { EditorAssignment } from '../components/website-builder/EditorAssignment';
-import { ClientOrderDashboard } from '../components/ClientOrderDashboard';
 
 export const Dashboard: React.FC = () => {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedWebsite, setSelectedWebsite] = useState<Website | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -68,91 +66,6 @@ export const Dashboard: React.FC = () => {
 
   const draftCount = websites.filter(w => w.status === 'draft').length;
   const publishedCount = websites.filter(w => w.status === 'published').length;
-
-  // Update selectedWebsite when websites load
-  useEffect(() => {
-    if (user?.role === 'editor' && websites.length === 1 && !selectedWebsite) {
-      setSelectedWebsite(websites[0]);
-    }
-  }, [websites, user?.role, selectedWebsite]);
-
-  // For editors (clients), show order dashboard
-  if (user?.role === 'editor') {
-
-    return (
-      <Layout>
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-slate-800 mb-6">Order Dashboard</h2>
-          
-          {websites.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-              <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-              <p className="text-slate-600 mb-2">No websites assigned to you yet.</p>
-              <p className="text-sm text-slate-500">Contact an admin to get access to your website.</p>
-            </div>
-          ) : websites.length === 1 ? (
-            <>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-800">{websites[0].title}</h3>
-                  <p className="text-slate-600 mt-1">Track and manage your orders from Google Sheets</p>
-                </div>
-                <button
-                  onClick={() => navigate(`/edit/${websites[0].id}`)}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  Edit Website
-                </button>
-              </div>
-              <ClientOrderDashboard website={websites[0]} />
-            </>
-          ) : (
-            <>
-              {/* Multiple websites - show selector */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-2">Select Website</label>
-                <select
-                  value={selectedWebsite?.id || ''}
-                  onChange={(e) => {
-                    const site = websites.find(w => w.id === e.target.value);
-                    setSelectedWebsite(site || null);
-                  }}
-                  className="w-full md:w-64 px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none"
-                >
-                  <option value="">Select a website...</option>
-                  {websites.map(site => (
-                    <option key={site.id} value={site.id}>{site.title}</option>
-                  ))}
-                </select>
-              </div>
-              
-              {selectedWebsite ? (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-slate-800">{selectedWebsite.title}</h3>
-                    <button
-                      onClick={() => navigate(`/edit/${selectedWebsite.id}`)}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      Edit Website
-                    </button>
-                  </div>
-                  <ClientOrderDashboard website={selectedWebsite} />
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-                  <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-                  <p className="text-slate-600">Select a website above to view orders</p>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
