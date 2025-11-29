@@ -28,9 +28,12 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
   // Get Instagram link if available
   const instagramLink = content.socialLinks?.find(link => link.platform === 'instagram' && link.enabled)?.url || '#';
 
+  // Use wheat/cream background for Gallery section
+  const wheatBg = theme.colors?.brand50 || theme.secondary || '#fbf8f3';
+  
   return (
     <section id="gallery" className="py-20 relative" style={{
-      backgroundColor: isDark ? 'rgb(15 23 42)' : '#faf9f6',
+      backgroundColor: wheatBg,
     }}>
       <style>{`
         .gallery-grid-4 {

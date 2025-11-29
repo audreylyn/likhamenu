@@ -20,8 +20,9 @@ export const PreviewAboutSection: React.FC<PreviewAboutSectionProps> = ({
     ? { image: '', subtitle: '', title: 'About Us', paragraphs: [content.about] }
     : content.about;
 
+  // Use white background for About section
   return (
-    <section id="about" className={`py-20 relative ${bgSecondary}`}>
+    <section id="about" className="py-20 relative bg-white">
       <style>{`
         .about-image {
           border-radius: 16px;

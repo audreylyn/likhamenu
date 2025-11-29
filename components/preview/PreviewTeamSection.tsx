@@ -21,8 +21,11 @@ export const PreviewTeamSection: React.FC<PreviewTeamSectionProps> = ({
     return null; // Don't render section if no team members
   }
 
+  // Use wheat/cream background for Team section
+  const wheatBg = theme.colors?.brand50 || theme.secondary || '#fbf8f3';
+  
   return (
-    <section id="team" className={`py-20 relative ${bgSecondary}`}>
+    <section id="team" className="py-20 relative" style={{ backgroundColor: wheatBg }}>
       <style>{`
         .team-card {
           position: relative;

@@ -129,8 +129,11 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
   const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
 
+  // Use wheat/cream background for Benefits (WhyChooseUs) section
+  const wheatBg = theme.colors?.brand50 || theme.secondary || '#fbf8f3';
+  
   return (
-    <section id="benefits" className={`py-20 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+    <section id="benefits" className="py-20" style={{ backgroundColor: wheatBg }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with title and divider line */}
         <div className="text-center mb-16">

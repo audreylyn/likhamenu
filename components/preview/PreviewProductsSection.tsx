@@ -31,8 +31,9 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
     ? content.products
     : content.products.filter(product => (product.category || 'All') === selectedCategory);
 
+  // Use white background for Products (Menu) section
   return (
-    <section id="products" className={`py-20 ${bgSecondary}`}>
+    <section id="products" className="py-20 bg-white">
       <style>{`
         .product-card {
           position: relative;

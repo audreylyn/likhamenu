@@ -47,6 +47,7 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
   const lightBeige = isDark ? 'rgba(245, 245, 240, 0.1)' : 'rgba(250, 250, 245, 0.8)';
   const cardBg = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)';
   
+  // Use white background for Pricing section
   // Button colors: light brown for regular, darker brown for popular
   const lightBrown = isDark ? 'rgba(180, 130, 80, 0.8)' : 'rgba(180, 130, 80, 0.9)';
   const darkerBrown = isDark ? 'rgba(120, 80, 50, 0.9)' : 'rgba(120, 80, 50, 1)';
@@ -62,7 +63,7 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
   };
 
   return (
-    <section id="pricing" className={`py-20 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+    <section id="pricing" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">

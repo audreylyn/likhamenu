@@ -60,8 +60,9 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
     setFormData({ name: '', email: '', inquiryType: contact.inquiryTypes?.[0] || 'General Question', message: '' });
   };
 
+  // Use white background for Contact section
   return (
-    <section id="contact" className={`py-20 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+    <section id="contact" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">

@@ -51,8 +51,9 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   const lightBeigeBorder = isDark ? 'rgba(200, 180, 150, 0.3)' : 'rgba(200, 180, 150, 0.5)';
   const darkerBeigeBorder = isDark ? 'rgba(180, 150, 120, 0.5)' : 'rgba(180, 150, 120, 0.7)';
 
+  // Use white background for FAQ section
   return (
-    <section id="faq" className={`py-20 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+    <section id="faq" className="py-20 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
