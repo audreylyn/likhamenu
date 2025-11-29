@@ -78,25 +78,33 @@ export const fetchOrdersFromSheets = async (
       
       return data;
 
-    } catch (corsError) {
-      // If the direct fetch still fails (e.g. strict firewall), fall back to proxy
-      console.warn('Direct fetch failed, trying CORS proxy:', corsError);
-      
-      // Use a public CORS proxy as fallback
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(getUrl)}`;
-      
-      const proxyResponse = await fetch(proxyUrl, {
-        method: 'GET',
-        mode: 'cors',
-      });
-
-      if (!proxyResponse.ok) {
-        throw new Error(`Proxy HTTP error! status: ${proxyResponse.status}`);
+      } catch (corsError) {
+        // If the direct fetch still fails, the Apps Script likely isn't deployed correctly
+        // or doesn't have CORS headers set. We'll provide a helpful error message.
+        console.error('Direct fetch failed:', corsError);
+        
+        // Check if the error is specifically about CORS
+        const isCorsError = corsError instanceof TypeError && 
+          (corsError.message.includes('Failed to fetch') || 
+           corsError.message.includes('CORS') ||
+           corsError.message.includes('Access-Control'));
+        
+        if (isCorsError) {
+          throw new Error(
+            'CORS Error: Your Google Apps Script needs to be properly deployed. ' +
+            'Please:\n' +
+            '1. Open your Apps Script project\n' +
+            '2. Go to Deploy → New deployment\n' +
+            '3. Select "Web app" as type\n' +
+            '4. Set "Who has access" to "Anyone"\n' +
+            '5. Deploy and use the NEW URL\n' +
+            '6. Update the URL in your website settings\n\n' +
+            'See docs/ORDER_TRACKING_QUICK_START.md for detailed instructions.'
+          );
+        }
+        
+        throw corsError;
       }
-
-      const proxyText = await proxyResponse.text();
-      return JSON.parse(proxyText);
-    }
   } catch (error) {
     console.error('Error fetching orders from Google Sheets:', error);
     return {
