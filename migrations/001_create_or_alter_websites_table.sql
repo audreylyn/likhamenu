@@ -13,6 +13,7 @@ create table if not exists public.websites (
   createdAt timestamptz,
   theme jsonb,
   messenger jsonb,
+  contactformconfig jsonb,
   enabledSections jsonb,
   content jsonb,
   marketing jsonb
@@ -24,6 +25,7 @@ alter table public.websites
   add column if not exists titlefont text,
   add column if not exists theme jsonb,
   add column if not exists messenger jsonb,
+  add column if not exists contactformconfig jsonb,
   add column if not exists enabledSections jsonb,
   add column if not exists content jsonb,
   add column if not exists marketing jsonb;

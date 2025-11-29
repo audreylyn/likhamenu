@@ -197,6 +197,12 @@ export interface MarketingConfig {
   socialPost: string;
 }
 
+export interface ContactFormConfig {
+  googleScriptUrl?: string; // Google Apps Script Web App URL
+  clientId?: string; // Client ID for routing emails (e.g., 'rose', 'bakery')
+  enabled: boolean; // Whether to use Google Script or just log to console
+}
+
 export interface Website {
   id: string;
   subdomain: string;
@@ -208,6 +214,7 @@ export interface Website {
   createdAt: string;
   theme: ThemeConfig;
   messenger: MessengerConfig;
+  contactFormConfig?: ContactFormConfig; // Contact form backend configuration
   enabledSections: {
     hero: boolean;
     products: boolean;

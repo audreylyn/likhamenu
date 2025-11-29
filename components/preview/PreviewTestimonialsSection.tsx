@@ -83,25 +83,6 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
           font-weight: 300;
           z-index: 1;
         }
-        .quote-mark-small {
-          position: absolute;
-          bottom: -6px;
-          right: -6px;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background-color: ${lightCream};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 20px;
-          color: ${warmBrown};
-          font-family: serif;
-          font-weight: 300;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-          z-index: 10;
-          border: 2px solid white;
-        }
         .swiper-button-custom {
           width: 48px;
           height: 48px;
@@ -228,8 +209,6 @@ export const PreviewTestimonialsSection: React.FC<PreviewTestimonialsSectionProp
                         {t.name.charAt(0)}
                       </div>
                     )}
-                    {/* Small closing quote icon on avatar */}
-                    <div className="quote-mark-small">"</div>
                   </div>
                   <div>
                     <p 

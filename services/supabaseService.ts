@@ -69,6 +69,7 @@ export const getWebsites = async () => {
       if ('enabledsections' in copy) { copy.enabledSections = copy.enabledsections; delete copy.enabledsections; }
       if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
       if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
+      if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
       return copy;
     });
     return normalized;
@@ -91,6 +92,7 @@ export const getWebsiteById = async (id: string) => {
     if ('enabledsections' in copy) { copy.enabledSections = copy.enabledsections; delete copy.enabledsections; }
     if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
+    if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
     return copy as Website;
   } catch (err) {
     console.error('getWebsiteById error', err);
@@ -117,6 +119,7 @@ export const getWebsiteBySubdomain = async (subdomain: string) => {
     if ('enabledsections' in copy) { copy.enabledSections = copy.enabledsections; delete copy.enabledsections; }
     if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
+    if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
     return copy as Website;
   } catch (err) {
     console.error('getWebsiteBySubdomain error', err);
@@ -167,6 +170,7 @@ export const saveWebsite = async (website: Website) => {
     if ('enabledsections' in copy) { copy.enabledSections = copy.enabledsections; delete copy.enabledsections; }
     if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
+    if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
     return copy as Website;
     } catch (err) {
     console.error('saveWebsite error', err);

@@ -32,6 +32,11 @@ export const DEFAULT_WEBSITE: Website = {
     pageId: '',
     welcomeMessage: '',
   },
+  contactFormConfig: {
+    googleScriptUrl: '',
+    clientId: '',
+    enabled: false,
+  },
   enabledSections: {
     hero: true,
     products: true,

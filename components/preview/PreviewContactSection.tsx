@@ -29,16 +29,67 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
     message: '',
   });
 
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Data Submitted:', formData);
-    alert('Message sent! (Check console for data)');
-    setFormData({ name: '', email: '', inquiryType: contact.inquiryTypes?.[0] || 'General Question', message: '' });
+    
+    const formConfig = website.contactFormConfig;
+    
+    // If Google Script is configured and enabled, use it
+    if (formConfig?.enabled && formConfig.googleScriptUrl && formConfig.clientId) {
+      setStatus('submitting');
+      
+      try {
+        // Send to Google Apps Script
+        await fetch(formConfig.googleScriptUrl, {
+          method: 'POST',
+          mode: 'no-cors', // Important: prevents CORS errors with Google Scripts
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            clientId: formConfig.clientId,
+            name: formData.name,
+            email: formData.email,
+            type: formData.inquiryType,
+            message: formData.message,
+          }),
+        });
+
+        // Since we use 'no-cors', we can't read the response
+        // But if no error is thrown, assume success
+        setStatus('success');
+        setFormData({ 
+          name: '', 
+          email: '', 
+          inquiryType: contact.inquiryTypes?.[0] || 'General Question', 
+          message: '' 
+        });
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => setStatus('idle'), 5000);
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        setStatus('error');
+        setTimeout(() => setStatus('idle'), 5000);
+      }
+    } else {
+      // Fallback: Just log to console (for development/testing)
+      console.log('Form Data Submitted:', formData);
+      alert('Message sent! (Check console for data)\n\nNote: Configure Google Apps Script in Contact Form Configuration to enable email delivery.');
+      setFormData({ 
+        name: '', 
+        email: '', 
+        inquiryType: contact.inquiryTypes?.[0] || 'General Question', 
+        message: '' 
+      });
+    }
   };
 
   // Use white background for Contact section
@@ -345,10 +396,28 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
               {/* Submit Button */}
               <button
                 type="submit"
-                className="btn-primary w-full py-3 px-6 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
+                disabled={status === 'submitting'}
+                className="btn-primary w-full py-3 px-6 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ fontFamily: 'var(--body-font)' }}
               >
-                Send Message
+                {status === 'submitting' ? 'Sending...' : 'Send Message'}
               </button>
+
+              {/* Status Messages */}
+              {status === 'success' && (
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-800" style={{ fontFamily: 'var(--body-font)' }}>
+                    ✓ Message sent successfully! We'll get back to you soon.
+                  </p>
+                </div>
+              )}
+              {status === 'error' && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800" style={{ fontFamily: 'var(--body-font)' }}>
+                    ✗ Something went wrong. Please try again or contact us directly.
+                  </p>
+                </div>
+              )}
             </form>
           </div>
         </div>

@@ -28,6 +28,7 @@ import { TeamList } from '../components/website-builder/TeamList';
 import { PricingList } from '../components/website-builder/PricingList';
 import { CallToActionEditor } from '../components/website-builder/CallToActionEditor';
 import { ContactDetails } from '../components/website-builder/ContactDetails';
+import { ContactFormConfig } from '../components/website-builder/ContactFormConfig';
 import { FooterConfig } from '../components/website-builder/FooterConfig';
 import { AiMarketingKit } from '../components/website-builder/AiMarketingKit';
 import { NavLinkReorder } from '../components/website-builder/NavLinkReorder'; // Import NavLinkReorder
@@ -718,12 +719,18 @@ export const WebsiteBuilder: React.FC = () => {
 
               {/* Contact */}
               {website.enabledSections.contact && (
-                <ContactDetails
-                  content={website.content.contact}
-                  onContentChange={(newContent) => updateContent('contact', newContent)}
-                  isDark={website.theme.background === 'dark'}
-                  theme={website.theme}
-                />
+                <>
+                  <ContactDetails
+                    content={website.content.contact}
+                    onContentChange={(newContent) => updateContent('contact', newContent)}
+                    isDark={website.theme.background === 'dark'}
+                    theme={website.theme}
+                  />
+                  <ContactFormConfig
+                    website={website}
+                    setWebsite={setWebsite}
+                  />
+                </>
               )}
 
               {/* Footer Configuration */}
