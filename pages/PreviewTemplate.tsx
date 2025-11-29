@@ -255,13 +255,6 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
         />
       )}
 
-      {/* CTA Section */}
-      {enabledSections.callToAction && content.callToAction && (
-        <PreviewCallToActionSection
-          website={website}
-        />
-      )}
-
       {/* Testimonials Section */}
       {enabledSections.testimonials && content.testimonials.length > 0 && (
         <PreviewTestimonialsSection
@@ -279,6 +272,13 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
           bgSecondary={bgSecondary}
           isDark={isDark}
           textMuted={textMuted}
+        />
+      )}
+
+      {/* CTA Section */}
+      {enabledSections.callToAction && content.callToAction && (
+        <PreviewCallToActionSection
+          website={website}
         />
       )}
 
