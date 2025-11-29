@@ -215,7 +215,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
             type="text"
             value={footer.copyright}
             onChange={(e) => handleFooterChange('copyright', e.target.value)}
-            placeholder="© 2024 All rights reserved."
+            placeholder="All rights reserved."
             className="w-full px-4 py-2 border border-slate-300 rounded-lg"
           />
         </div>

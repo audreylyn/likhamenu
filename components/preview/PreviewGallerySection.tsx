@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Website } from '../../types';
-import { X, Instagram } from 'lucide-react';
+import { X, Instagram, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface PreviewGallerySectionProps {
   website: Website;
@@ -12,115 +12,249 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
   isDark,
 }) => {
   const { content, theme } = website;
-  const [selectedImage, setSelectedImage] = useState<{ src: string; caption: string } | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Get only first 4 gallery items
-  const displayItems = content.gallery.slice(0, 4);
+  // Get all gallery items (not just first 4)
+  const galleryItems = content.gallery;
 
-  const openImage = (imageSrc: string, caption?: string) => {
-    setSelectedImage({ src: imageSrc, caption: caption || '' });
+  const openImage = (index: number) => {
+    setSelectedImageIndex(index);
   };
 
   const closeImage = () => {
-    setSelectedImage(null);
+    setSelectedImageIndex(null);
   };
+
+  const nextImage = () => {
+    if (selectedImageIndex !== null && galleryItems.length > 0) {
+      setSelectedImageIndex((selectedImageIndex + 1) % galleryItems.length);
+    }
+  };
+
+  const previousImage = () => {
+    if (selectedImageIndex !== null && galleryItems.length > 0) {
+      setSelectedImageIndex((selectedImageIndex - 1 + galleryItems.length) % galleryItems.length);
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (selectedImageIndex === null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeImage();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        nextImage();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        previousImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImageIndex, galleryItems.length]);
 
   // Get Instagram link if available
   const instagramLink = content.socialLinks?.find(link => link.platform === 'instagram' && link.enabled)?.url || '#';
 
   // Use wheat/cream background for Gallery section
   const wheatBg = theme.colors?.brand50 || theme.secondary || '#fbf8f3';
+  const darkBrown = theme.colors?.brand900 || '#67392b';
+  const warmBrown = theme.colors?.brand500 || '#c58550';
   
   return (
-    <section id="gallery" className="py-20 relative" style={{
-      backgroundColor: wheatBg,
-    }}>
+    <section id="gallery" className="py-20 relative" style={{ backgroundColor: wheatBg }}>
       <style>{`
-        .gallery-grid-4 {
+        .bento-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          grid-template-rows: auto auto;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
           gap: 16px;
-          max-width: 1200px;
-          margin: 0 auto;
+          grid-auto-rows: 250px;
         }
-        .gallery-item-1 {
-          grid-column: 1;
-          grid-row: 1;
-        }
-        .gallery-item-2 {
-          grid-column: 2;
-          grid-row: 1;
-        }
-        .gallery-item-3 {
-          grid-column: 3;
-          grid-row: 1;
-        }
-        .gallery-item-4 {
-          grid-column: 2 / 4;
-          grid-row: 2;
-        }
-        .gallery-item {
+        .bento-item {
           position: relative;
           overflow: hidden;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: transform 0.3s ease, opacity 0.3s ease;
-          aspect-ratio: auto;
+          border-radius: 16px;
+          cursor: zoom-in;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%);
         }
-        .gallery-item:hover {
-          transform: scale(1.02);
-          opacity: 0.9;
+        .bento-item:hover {
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
-        .gallery-item img {
+        .bento-item:hover .bento-overlay {
+          opacity: 1;
+        }
+        .bento-item img {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          display: block;
+          transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .gallery-item-1 img,
-        .gallery-item-2 img,
-        .gallery-item-3 img {
-          min-height: 300px;
+        .bento-item:hover img {
+          transform: scale(1.1);
         }
-        .gallery-item-4 img {
-          min-height: 400px;
+        .bento-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.3s ease;
         }
-        .gallery-modal {
+        .bento-maximize-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: ${darkBrown};
+          transform: scale(0.8);
+          transition: transform 0.3s ease;
+        }
+        .bento-item:hover .bento-maximize-icon {
+          transform: scale(1);
+        }
+        .lightbox-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.95);
+          backdrop-filter: blur(10px);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           animation: fadeIn 0.3s ease;
+        }
+        .lightbox-content {
+          position: relative;
+          max-width: 95vw;
+          max-height: 95vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: zoomIn 0.3s ease;
+        }
+        .lightbox-image {
+          max-width: 100%;
+          max-height: 95vh;
+          object-fit: contain;
+          border-radius: 8px;
+        }
+        .lightbox-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          z-index: 10;
+        }
+        .lightbox-nav:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-50%) scale(1.1);
+        }
+        .lightbox-nav.prev {
+          left: 20px;
+        }
+        .lightbox-nav.next {
+          right: 20px;
+        }
+        .lightbox-close {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          z-index: 10;
+        }
+        .lightbox-close:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: scale(1.1);
+        }
+        .lightbox-caption {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(10px);
+          color: white;
+          padding: 12px 24px;
+          border-radius: 24px;
+          font-size: 14px;
+          max-width: 80%;
+          text-align: center;
+        }
+        .lightbox-counter {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          z-index: 10;
         }
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        .gallery-modal-content {
-          animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp {
+        @keyframes zoomIn {
           from {
-            transform: translateY(20px);
+            transform: scale(0.9);
             opacity: 0;
           }
           to {
-            transform: translateY(0);
+            transform: scale(1);
             opacity: 1;
           }
         }
         @media (max-width: 768px) {
-          .gallery-grid-4 {
+          .bento-grid {
             grid-template-columns: 1fr;
-            grid-template-rows: repeat(4, auto);
+            grid-auto-rows: 200px;
           }
-          .gallery-item-1,
-          .gallery-item-2,
-          .gallery-item-3,
-          .gallery-item-4 {
-            grid-column: 1;
+          .lightbox-nav {
+            width: 40px;
+            height: 40px;
           }
-          .gallery-item-1 { grid-row: 1; }
-          .gallery-item-2 { grid-row: 2; }
-          .gallery-item-3 { grid-row: 3; }
-          .gallery-item-4 { grid-row: 4; }
+          .lightbox-nav.prev {
+            left: 10px;
+          }
+          .lightbox-nav.next {
+            right: 10px;
+          }
         }
       `}</style>
 
@@ -129,14 +263,17 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
         <div className="mb-12">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
-              <p className="text-sm font-medium mb-2" style={{ color: theme.colors?.brand900 || '#67392b' }}>
+              <p 
+                className="text-sm font-semibold uppercase tracking-wider mb-2" 
+                style={{ color: darkBrown }}
+              >
                 LIFE AT LIKIIA
               </p>
               <h2 
                 className="text-4xl md:text-5xl font-bold" 
                 style={{ 
-                  color: theme.colors?.brand900 || '#67392b',
-                  fontFamily: 'serif'
+                  color: darkBrown,
+                  fontFamily: 'var(--heading-font)'
                 }}
               >
                 A Glimpse Inside
@@ -148,7 +285,7 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-opacity"
-                style={{ color: theme.colors?.brand900 || '#67392b' }}
+                style={{ color: darkBrown }}
               >
                 <Instagram className="w-5 h-5" />
                 <span>Follow us on Instagram</span>
@@ -157,68 +294,103 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
           </div>
         </div>
 
-        {/* Gallery Grid - 4 Images Only */}
-        {displayItems.length > 0 ? (
-          <div className="gallery-grid-4">
-            {displayItems.map((item, index) => (
+        {/* Bento Grid Gallery */}
+        {galleryItems.length > 0 ? (
+          <div className="bento-grid">
+            {galleryItems.map((item, index) => (
               <div
                 key={item.id}
-                className={`gallery-item gallery-item-${index + 1}`}
-                onClick={() => openImage(item.image, item.caption)}
+                className="bento-item"
+                onClick={() => openImage(index)}
               >
                 <img
                   src={item.image}
-                  alt={item.caption || "Gallery Item"}
+                  alt={item.caption || `Gallery Image ${index + 1}`}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
+                    target.src = 'https://placehold.co/400x300?text=Image+Not+Found';
                   }}
                 />
+                <div className="bento-overlay">
+                  <div className="bento-maximize-icon">
+                    <Maximize2 className="w-6 h-6" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className={`text-lg ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-              No gallery items to display. Add up to 4 images in the Gallery Configuration.
+            <p className="text-lg" style={{ color: darkBrown }}>
+              No gallery items to display. Add images in the Gallery Configuration.
             </p>
           </div>
         )}
       </div>
 
-      {/* Full-size Image Modal - Stays Open Until Closed */}
-      {selectedImage && (
+      {/* Lightbox Modal with Carousel */}
+      {selectedImageIndex !== null && galleryItems[selectedImageIndex] && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-[100] p-4 gallery-modal"
+          className="lightbox-overlay"
           onClick={closeImage}
         >
           <div 
-            className="relative max-w-7xl w-full max-h-[90vh] gallery-modal-content" 
+            className="lightbox-content" 
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Counter */}
+            <div className="lightbox-counter">
+              {selectedImageIndex + 1} / {galleryItems.length}
+            </div>
+
+            {/* Close Button */}
             <button
-              className="absolute top-4 right-4 text-white p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 z-20 transition-all backdrop-blur-sm"
+              className="lightbox-close"
               onClick={closeImage}
               aria-label="Close"
             >
               <X size={24} />
             </button>
-            <div className="relative">
-              <img
-                src={selectedImage.src}
-                alt={selectedImage.caption || "Gallery Item"}
-                className="max-w-full max-h-[90vh] object-contain rounded-lg mx-auto"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found';
-                }}
-              />
-              {selectedImage.caption && (
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg">
-                  <h3 className="text-white text-xl font-semibold">{selectedImage.caption}</h3>
-                </div>
-              )}
-            </div>
+
+            {/* Previous Button */}
+            {galleryItems.length > 1 && (
+              <button
+                className="lightbox-nav prev"
+                onClick={previousImage}
+                aria-label="Previous"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            {/* Image */}
+            <img
+              src={galleryItems[selectedImageIndex].image}
+              alt={galleryItems[selectedImageIndex].caption || `Gallery Image ${selectedImageIndex + 1}`}
+              className="lightbox-image"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://placehold.co/800x600?text=Image+Not+Found';
+              }}
+            />
+
+            {/* Next Button */}
+            {galleryItems.length > 1 && (
+              <button
+                className="lightbox-nav next"
+                onClick={nextImage}
+                aria-label="Next"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+
+            {/* Caption */}
+            {galleryItems[selectedImageIndex].caption && (
+              <div className="lightbox-caption">
+                {galleryItems[selectedImageIndex].caption}
+              </div>
+            )}
           </div>
         </div>
       )}
