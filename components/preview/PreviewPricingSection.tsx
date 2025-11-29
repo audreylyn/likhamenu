@@ -71,14 +71,17 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
             className="text-4xl md:text-5xl font-bold mb-4" 
             style={{ 
               color: darkBrown,
-              fontFamily: 'serif'
+              fontFamily: 'var(--heading-font)'
             }}
           >
             Our Pricing Plans
           </h2>
           <p 
             className={`text-lg max-w-2xl mx-auto`}
-            style={{ color: darkGray }}
+            style={{ 
+              color: darkGray,
+              fontFamily: 'var(--body-font)'
+            }}
           >
             Choose the perfect plan that fits your needs and budget
           </p>
