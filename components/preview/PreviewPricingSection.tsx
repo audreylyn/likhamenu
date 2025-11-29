@@ -46,6 +46,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
   const lightBeige = isDark ? 'rgba(245, 245, 240, 0.1)' : 'rgba(250, 250, 245, 0.8)';
   const cardBg = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)';
+  
+  // Button colors: light brown for regular, darker brown for popular
+  const lightBrown = isDark ? 'rgba(180, 130, 80, 0.8)' : 'rgba(180, 130, 80, 0.9)';
+  const darkerBrown = isDark ? 'rgba(120, 80, 50, 0.9)' : 'rgba(120, 80, 50, 1)';
 
   // Parse price to extract number and period
   const parsePrice = (priceStr: string) => {
@@ -98,7 +102,7 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 {/* Most Popular Badge */}
                 {isPopular && (
                   <div
-                    className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+                    className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
                     style={{
                       backgroundColor: warmBrown,
                       color: 'white'
@@ -168,9 +172,8 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                   rel="noopener noreferrer"
                   className="block w-full py-3 px-6 rounded-lg text-center font-semibold transition-all hover:opacity-90"
                   style={{
-                    backgroundColor: isPopular ? warmBrown : lightBeige,
-                    color: isPopular ? 'white' : darkBrown,
-                    border: isPopular ? 'none' : `1px solid ${warmBrown}40`
+                    backgroundColor: isPopular ? darkerBrown : lightBrown,
+                    color: 'white',
                   }}
                 >
                   {plan.buttonText}
