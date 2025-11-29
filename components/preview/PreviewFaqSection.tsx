@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { Website } from '../../types';
 
 interface PreviewFaqSectionProps {
@@ -7,171 +7,158 @@ interface PreviewFaqSectionProps {
   isDark: boolean;
 }
 
+// Helper function to convert hex to RGB
+const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 139, g: 90, b: 43 }; // Default warm brown
+};
+
+// Helper function to get warm brown color from theme
+const getWarmBrown = (theme: { primary: string }): string => {
+  const rgb = hexToRgb(theme.primary);
+  // Create a warm brown tone from the primary color
+  const brown = {
+    r: Math.max(100, Math.min(180, rgb.r + 20)),
+    g: Math.max(70, Math.min(150, rgb.g - 10)),
+    b: Math.max(40, Math.min(100, rgb.b - 30))
+  };
+  return `rgb(${brown.r}, ${brown.g}, ${brown.b})`;
+};
+
 export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   website,
   isDark,
 }) => {
   const { content, theme } = website;
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [expandedItem, setExpandedItem] = useState<string | null>(content.faq.length > 0 ? content.faq[0].id : null);
 
   const toggleAccordion = (id: string) => {
     setExpandedItem(expandedItem === id ? null : id);
   };
 
   if (content.faq.length === 0) {
-    return null; // Don't render section if no FAQ items
+    return null;
   }
 
+  const warmBrown = getWarmBrown(theme);
+  const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
+  const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
+  const lightBeige = isDark ? 'rgba(245, 245, 240, 0.15)' : 'rgba(245, 245, 240, 0.8)';
+  const lightBeigeBorder = isDark ? 'rgba(200, 180, 150, 0.3)' : 'rgba(200, 180, 150, 0.5)';
+  const darkerBeigeBorder = isDark ? 'rgba(180, 150, 120, 0.5)' : 'rgba(180, 150, 120, 0.7)';
+
   return (
-    <section id="faq" className={`py-20 relative ${isDark ? 'bg-slate-900' : 'bg-gradient-to-b from-slate-50 to-white'}`}>
-      <style>{`
-        .faq-item {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-        }
-        .faq-item::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 4px;
-          background: ${theme.primary};
-          transform: scaleY(0);
-          transition: transform 0.3s ease;
-          transform-origin: bottom;
-        }
-        .faq-item[aria-expanded="true"]::before {
-          transform: scaleY(1);
-        }
-        .faq-item:hover {
-          transform: translateX(8px);
-        }
-        .faq-button {
-          transition: all 0.3s ease;
-          position: relative;
-        }
-        .faq-button:hover {
-          background: ${isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)'};
-        }
-        .faq-icon-wrapper {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          flex-shrink: 0;
-        }
-        .faq-item[aria-expanded="true"] .faq-icon-wrapper {
-          transform: rotate(180deg);
-          background: ${theme.primary};
-        }
-        .faq-item[aria-expanded="true"] .faq-icon-wrapper svg {
-          color: white;
-        }
-        .faq-content {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .faq-number {
-          transition: all 0.3s ease;
-        }
-        .faq-item[aria-expanded="true"] .faq-number {
-          background: ${theme.primary};
-          color: white;
-        }
-      `}</style>
-
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
-          className="absolute top-10 right-20 w-64 h-64 rounded-full blur-3xl opacity-10"
-          style={{ backgroundColor: theme.primary }}
-        />
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="faq" className={`py-20 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ 
-            backgroundColor: theme.primary + '15',
-            border: `1px solid ${theme.primary}30`
-          }}>
-            <HelpCircle className="w-4 h-4" style={{ color: theme.primary }} />
-            <span className="text-sm font-semibold" style={{ color: theme.primary }}>FAQ</span>
-          </div>
-          <h2 className="text-3xl font-bold mb-4" style={{ color: theme.primary }}>
+          <h2 
+            className="text-4xl md:text-5xl font-bold mb-4" 
+            style={{ 
+              color: darkBrown,
+              fontFamily: 'serif'
+            }}
+          >
             Frequently Asked Questions
           </h2>
-          <p className={`text-lg ${isDark ? 'text-slate-400' : 'text-slate-600'} max-w-2xl mx-auto`}>
-            Everything you need to know about our services
+          <p 
+            className="text-lg max-w-2xl mx-auto"
+            style={{ color: darkGray }}
+          >
+            Everything you need to know about our bakery.
           </p>
         </div>
         
+        {/* FAQ Items */}
         <div className="space-y-4">
-          {content.faq.map((f, index) => {
+          {content.faq.map((f) => {
             const isExpanded = expandedItem === f.id;
             return (
               <div
                 key={f.id}
-                className={`faq-item rounded-2xl overflow-hidden ${isDark ? 'bg-slate-800/80 border-slate-700/50' : 'bg-white border-slate-200/50'} border shadow-lg backdrop-blur-sm`}
-                aria-expanded={isExpanded}
+                className="rounded-xl overflow-hidden transition-all"
+                style={{
+                  backgroundColor: lightBeige,
+                  border: `1px solid ${isExpanded ? darkerBeigeBorder : lightBeigeBorder}`,
+                }}
               >
                 <button
-                  className="faq-button w-full px-6 py-6 flex items-center justify-between gap-4 text-left focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-2xl"
-                  style={{ 
-                    focusRingColor: theme.primary,
-                  }}
+                  className="w-full px-6 py-5 flex items-center justify-between gap-4 text-left focus:outline-none transition-colors hover:opacity-90"
                   onClick={() => toggleAccordion(f.id)}
                   aria-expanded={isExpanded}
                 >
-                  <div className="flex items-center gap-4 flex-1">
-                    {/* Question number */}
-                    <div 
-                      className="faq-number w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm border-2"
-                      style={{
-                        borderColor: isExpanded ? theme.primary : (isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'),
-                        backgroundColor: isExpanded ? theme.primary : 'transparent',
-                        color: isExpanded ? 'white' : (isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'),
-                      }}
-                    >
-                      {String(index + 1).padStart(2, '0')}
-                    </div>
-                    
-                    <span className={`flex-1 font-semibold text-lg md:text-xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                      {f.question}
-                    </span>
-                  </div>
-                  
-                  <div
-                    className="faq-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center border-2 transition-all"
-                    style={{
-                      borderColor: isExpanded ? theme.primary : (isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'),
-                      backgroundColor: isExpanded ? theme.primary : 'transparent',
+                  {/* Question */}
+                  <span 
+                    className="flex-1 font-semibold text-lg md:text-xl"
+                    style={{ 
+                      color: darkBrown,
+                      fontFamily: 'serif'
                     }}
                   >
-                    <ChevronDown 
-                      className="w-5 h-5 transition-colors" 
-                      style={{ color: isExpanded ? 'white' : theme.primary }} 
-                    />
+                    {f.question}
+                  </span>
+                  
+                  {/* Plus/Minus Icon */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                    style={{
+                      backgroundColor: lightBeige,
+                    }}
+                  >
+                    {isExpanded ? (
+                      <Minus 
+                        className="w-5 h-5" 
+                        style={{ color: darkBrown }} 
+                      />
+                    ) : (
+                      <Plus 
+                        className="w-5 h-5" 
+                        style={{ color: darkBrown }} 
+                      />
+                    )}
                   </div>
                 </button>
                 
-                <div
-                  className="faq-content overflow-hidden"
-                  style={{
-                    maxHeight: isExpanded ? '500px' : '0',
-                    opacity: isExpanded ? 1 : 0,
-                    paddingLeft: isExpanded ? '0' : '0',
-                    paddingRight: isExpanded ? '0' : '0',
-                  }}
-                >
-                  <div className="px-6 pb-6 pl-20">
-                    <p className={`text-base md:text-lg leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                {/* Answer */}
+                {isExpanded && (
+                  <div 
+                    className="px-6 pb-5 transition-all"
+                    style={{
+                      animation: 'fadeIn 0.3s ease-in'
+                    }}
+                  >
+                    <p 
+                      className="text-base leading-relaxed"
+                      style={{ 
+                        color: darkGray
+                      }}
+                    >
                       {f.answer}
                     </p>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}
         </div>
       </div>
+      
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </section>
   );
 };
