@@ -79,7 +79,7 @@ const renderIcon = (icon: string, theme: { primary: string }) => {
   
   if (!icon || icon.trim() === '') {
     const IconComponent = iconMap['Star'] || Star;
-    return <IconComponent className="w-8 h-8" style={{ color: warmBrown }} />;
+    return <IconComponent className="w-8 h-8 benefit-icon transition-colors duration-300" style={{ color: warmBrown }} />;
   }
   
   if (isImageUrl(icon)) {
@@ -87,7 +87,7 @@ const renderIcon = (icon: string, theme: { primary: string }) => {
       <img 
         src={icon} 
         alt="Benefit icon" 
-        className="w-8 h-8 object-contain"
+        className="w-8 h-8 object-contain benefit-icon-image transition-all duration-300"
         style={{ 
           maxWidth: '2rem',
           maxHeight: '2rem',
@@ -115,7 +115,7 @@ const renderIcon = (icon: string, theme: { primary: string }) => {
   if (!IconComponent) {
     IconComponent = Star;
   }
-  return <IconComponent className="w-8 h-8" style={{ color: warmBrown }} />;
+  return <IconComponent className="w-8 h-8 benefit-icon transition-colors duration-300" style={{ color: warmBrown }} />;
 };
 
 export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
@@ -125,15 +125,34 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
 }) => {
   const { content, theme } = website;
   const warmBrown = getWarmBrown(theme);
-  const lightBeige = isDark ? 'rgba(245, 245, 240, 0.15)' : 'rgba(245, 245, 240, 0.8)';
   const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
+  
+  // Icon background colors
+  const iconBgDefault = theme.colors?.brand100 || '#f5efe4'; // Slightly darker than brand50
+  const iconBgHover = theme.colors?.brand600 || theme.primary || '#b96b40'; // Primary/dark color
+  const iconColorDefault = warmBrown;
+  const iconColorHover = '#ffffff'; // White on hover
 
   // Use wheat/cream background for Benefits (WhyChooseUs) section
   const wheatBg = theme.colors?.brand50 || theme.secondary || '#fbf8f3';
   
   return (
     <section id="benefits" className="py-20" style={{ backgroundColor: wheatBg }}>
+      <style>{`
+        .benefit-icon-wrapper {
+          transition: all 0.3s ease;
+        }
+        .benefit-icon-wrapper:hover {
+          background-color: ${iconBgHover} !important;
+        }
+        .benefit-icon-wrapper:hover .benefit-icon {
+          color: ${iconColorHover} !important;
+        }
+        .benefit-icon-wrapper:hover .benefit-icon-image {
+          filter: brightness(0) invert(1);
+        }
+      `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with title and divider line */}
         <div className="text-center mb-16">
@@ -141,7 +160,7 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
             className="text-4xl md:text-5xl font-bold mb-6" 
             style={{ 
               color: darkBrown,
-              fontFamily: 'serif'
+              fontFamily: 'var(--heading-font)'
             }}
           >
             Why Choose Us
@@ -164,9 +183,9 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
             >
               {/* Icon in circular background */}
               <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                className="benefit-icon-wrapper w-20 h-20 rounded-full flex items-center justify-center mb-6 cursor-pointer"
                 style={{
-                  backgroundColor: lightBeige,
+                  backgroundColor: iconBgDefault,
                 }}
               >
                 {renderIcon(b.icon || 'Star', theme)}
@@ -177,6 +196,7 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
                 className="text-xl font-bold mb-4"
                 style={{ 
                   color: darkBrown,
+                  fontFamily: 'var(--heading-font)',
                   lineHeight: '1.3'
                 }}
               >
@@ -188,6 +208,7 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
                 className="text-base leading-relaxed"
                 style={{ 
                   color: darkGray,
+                  fontFamily: 'var(--body-font)',
                   lineHeight: '1.6'
                 }}
               >
