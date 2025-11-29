@@ -16,38 +16,6 @@ interface ImportMeta {
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export const generateWebsiteContent = async (businessName: string, businessType: string): Promise<AISuggestionResponse | null> => {
-  const prompt = `Generate comprehensive website content for a business. The business name is "${businessName}" and it is a "${businessType}". Provide the following:
-
-- A compelling hero section title and subtext.
-- A vivid image prompt for the hero section banner.
-- A detailed "About Us" text (around 100-150 words).
-- Three diverse product/service offerings, each with a name, description, price (use PHP currency symbol if applicable), and an image prompt.
-- Three key benefits, each with a title, description, and an icon name (from lucide-react, e.g., Star, Check, Heart).
-- Three customer testimonials, each with a customer name, role, and a brief content snippet.
-- Three frequently asked questions (FAQ), each with a question and a concise answer.
-
-Return the response as a JSON object with the following structure:
-{
-  "heroTitle": "",
-  "heroSubtext": "",
-  "heroImagePrompt": "",
-  "aboutText": "",
-  "products": [
-    { "name": "", "description": "", "price": "", "imagePrompt": "" }
-  ],
-  "benefits": [
-    { "title": "", "description": "", "icon": "" }
-  ],
-  "testimonials": [
-    { "name": "", "role": "", "content": "" }
-  ],
-  "faq": [
-    { "question": "", "answer": "" }
-  ]
-}
-
-Ensure all fields are populated with realistic and creative content.`;
-
   if (!apiKey) {
     console.warn("[GeminiService] API Key is missing. Skipping AI content generation.");
     return null;
@@ -55,11 +23,82 @@ Ensure all fields are populated with realistic and creative content.`;
 
   try {
     const ai = new GoogleGenAI({ apiKey });
+
+    const prompt = `Generate comprehensive website content for a business. The business name is "${businessName}" and it is a "${businessType}". Provide the following:
+
+- A compelling hero section title and subtext.
+- A vivid image prompt for the hero section banner.
+- A detailed "About Us" text (around 100-150 words).
+- Three diverse product/service offerings, each with a name, description, price (use PHP currency symbol if applicable), and an image prompt.
+- Three key benefits, each with a title, description, and an icon name (from lucide-react, e.g., Star, Check, Heart).
+- Three customer testimonials, each with a customer name, role, and a brief content snippet.
+- Three frequently asked questions (FAQ), each with a question and a concise answer.`;
+
+    const responseSchema: Schema = {
+      type: Type.OBJECT,
+      properties: {
+        heroTitle: { type: Type.STRING },
+        heroSubtext: { type: Type.STRING },
+        heroImagePrompt: { type: Type.STRING },
+        aboutText: { type: Type.STRING },
+        products: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              description: { type: Type.STRING },
+              price: { type: Type.STRING },
+              imagePrompt: { type: Type.STRING }
+            },
+            required: ["name", "description", "price", "imagePrompt"]
+          }
+        },
+        benefits: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              description: { type: Type.STRING },
+              icon: { type: Type.STRING }
+            },
+            required: ["title", "description", "icon"]
+          }
+        },
+        testimonials: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              role: { type: Type.STRING },
+              content: { type: Type.STRING }
+            },
+            required: ["name", "role", "content"]
+          }
+        },
+        faq: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              question: { type: Type.STRING },
+              answer: { type: Type.STRING }
+            },
+            required: ["question", "answer"]
+          }
+        }
+      },
+      required: ["heroTitle", "heroSubtext", "heroImagePrompt", "aboutText", "products", "benefits", "testimonials", "faq"]
+    };
+
     const result = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
+        responseSchema: responseSchema,
       },
     });
     
@@ -67,11 +106,23 @@ Ensure all fields are populated with realistic and creative content.`;
       return null;
     }
 
-    const responseText = result.text;
-    const parsedResponse = JSON.parse(responseText);
-    return parsedResponse;
+    const responseText = result.text.trim();
+    
+    // Clean up the response text (remove markdown code blocks if present)
+    let cleanedText = responseText;
+    if (cleanedText.startsWith('```json')) {
+      cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (cleanedText.startsWith('```')) {
+      cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+    
+    const parsedResponse = JSON.parse(cleanedText);
+    return parsedResponse as AISuggestionResponse;
   } catch (error) {
     console.error('[GeminiService] Error generating website content:', error);
+    if (error instanceof SyntaxError) {
+      console.error('[GeminiService] JSON parsing error. Response might be malformed.');
+    }
     return null;
   }
 };

@@ -138,15 +138,17 @@ function getOrCreateFolder(folderName) {
  * Get or create a spreadsheet for a specific website
  */
 function getOrCreateSpreadsheet(folder, websiteId, websiteTitle) {
-  // Search for existing spreadsheet by name
-  const files = folder.getFilesByName(websiteId);
+  // Search for existing spreadsheet by the expected name pattern
+  const expectedName = websiteTitle + " - Orders";
+  const files = folder.getFilesByName(expectedName);
   
   if (files.hasNext()) {
+    // Found existing spreadsheet - return it
     const file = files.next();
     return SpreadsheetApp.openById(file.getId());
   } else {
-    // Create new spreadsheet
-    const spreadsheet = SpreadsheetApp.create(websiteTitle + " - Orders");
+    // Create new spreadsheet with the expected name
+    const spreadsheet = SpreadsheetApp.create(expectedName);
     const file = DriveApp.getFileById(spreadsheet.getId());
     
     // Move to the folder
@@ -164,8 +166,24 @@ function getOrCreateOrdersSheet(spreadsheet) {
   let sheet = spreadsheet.getSheetByName("Orders");
   
   if (!sheet) {
-    // Create new sheet
-    sheet = spreadsheet.insertSheet("Orders");
+    // Check if Sheet1 exists and handle it
+    const sheet1 = spreadsheet.getSheetByName("Sheet1");
+    if (sheet1) {
+      // Check if Sheet1 is empty (only has default content or is empty)
+      const lastRow = sheet1.getLastRow();
+      if (lastRow <= 1) {
+        // Sheet1 is empty or only has headers - rename it to Orders
+        sheet1.setName("Orders");
+        sheet = sheet1;
+      } else {
+        // Sheet1 has data - delete it and create new Orders sheet
+        spreadsheet.deleteSheet(sheet1);
+        sheet = spreadsheet.insertSheet("Orders");
+      }
+    } else {
+      // No Sheet1, create new Orders sheet
+      sheet = spreadsheet.insertSheet("Orders");
+    }
     
     // Set up headers
     const headers = [
@@ -199,9 +217,6 @@ function getOrCreateOrdersSheet(spreadsheet) {
       .build();
     statusRange.setDataValidation(rule);
     
-    // Set default status for new orders
-    statusRange.setValue("Pending");
-    
     // Format columns
     sheet.setColumnWidth(1, 120); // Order ID
     sheet.setColumnWidth(2, 150); // Date/Time
@@ -216,19 +231,78 @@ function getOrCreateOrdersSheet(spreadsheet) {
     // Freeze header row
     sheet.setFrozenRows(1);
     
-    // Apply alternating row colors for better readability
-    const dataRange = sheet.getRange(2, 1, 1000, headers.length);
-    const conditionalFormatRules = [
-      SpreadsheetApp.newConditionalFormatRule()
-        .setRanges([dataRange])
-        .whenFormulaSatisfied('=MOD(ROW(),2)=0')
-        .setBackground("#f8f9fa")
-        .build()
-    ];
-    sheet.setConditionalFormatRules(conditionalFormatRules);
+    // Set up status-based color coding (conditional formatting)
+    setupStatusColorCoding(sheet);
+  } else {
+    // Sheet exists, but ensure color coding is set up
+    setupStatusColorCoding(sheet);
   }
   
   return sheet;
+}
+
+/**
+ * Set up conditional formatting based on order status
+ */
+function setupStatusColorCoding(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return; // No data rows yet
+  
+  const dataRange = sheet.getRange(2, 1, lastRow - 1, 9); // All data rows, all columns
+  
+  // Status-based color rules
+  const conditionalFormatRules = [
+    // Pending - White
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Pending"')
+      .setBackground("#ffffff") // White
+      .build(),
+    
+    // Processing - Light blue
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Processing"')
+      .setBackground("#e3f2fd") // Light blue
+      .build(),
+    
+    // Preparing - Light orange
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Preparing"')
+      .setBackground("#ffe0b2") // Light orange
+      .build(),
+    
+    // Ready - Light green
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Ready"')
+      .setBackground("#c8e6c9") // Light green
+      .build(),
+    
+    // Out for Delivery - Light purple
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Out for Delivery"')
+      .setBackground("#e1bee7") // Light purple
+      .build(),
+    
+    // Delivered - Green
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Delivered"')
+      .setBackground("#a5d6a7") // Green
+      .build(),
+    
+    // Cancelled - Light red
+    SpreadsheetApp.newConditionalFormatRule()
+      .setRanges([dataRange])
+      .whenFormulaSatisfied('=$I2="Cancelled"')
+      .setBackground("#ffcdd2") // Light red
+      .build()
+  ];
+  
+  sheet.setConditionalFormatRules(conditionalFormatRules);
 }
 
 /**
@@ -270,12 +344,14 @@ function addOrderToSheet(sheet, orderData) {
     "Pending" // Default status
   ];
   
-  // Append row to sheet
-  sheet.appendRow(rowData);
+  // Insert new row at row 2 (right after header) instead of appending
+  // This makes the latest order appear at the top
+  sheet.insertRowBefore(2);
+  const newRowRange = sheet.getRange(2, 1, 1, rowData.length);
+  newRowRange.setValues([rowData]);
   
-  // Apply data validation to the new Status cell
-  const lastRow = sheet.getLastRow();
-  const statusCell = sheet.getRange(lastRow, 9); // Column I
+  // Apply data validation to the new Status cell (column I, row 2)
+  const statusCell = sheet.getRange(2, 9); // Column I, Row 2
   const rule = SpreadsheetApp.newDataValidation()
     .requireValueInList(ORDER_STATUS_OPTIONS, true)
     .setAllowInvalid(false)
@@ -283,10 +359,8 @@ function addOrderToSheet(sheet, orderData) {
     .build();
   statusCell.setDataValidation(rule);
   
-  // Highlight new order row (optional - can be removed if not needed)
-  const newRowRange = sheet.getRange(lastRow, 1, 1, 9);
-  newRowRange.setBackground("#fff3cd"); // Light yellow
-  newRowRange.setBorder(true, true, true, true, true, true);
+  // Update status-based color coding to include the new row
+  setupStatusColorCoding(sheet);
   
   // Auto-resize columns if needed
   sheet.autoResizeColumns(1, 9);

@@ -23,7 +23,7 @@ export const AiContentWizard: React.FC<AiContentWizardProps> = ({
         <div className="flex-1">
           <h4 className="font-bold text-indigo-900">AI Content Wizard</h4>
           <p className="text-sm text-indigo-700 mb-4">
-            Enter your business name and type, and we will generate the full website content including products, benefits, and testimonials for you.
+            Enter your business name and type, and we will generate content for all <strong>enabled sections</strong> (Hero, About, Products, Benefits, Testimonials, FAQ, etc.). You can also generate individual sections using the AI buttons in each section.
           </p>
           <div className="flex gap-3 flex-wrap md:flex-nowrap">
             <input

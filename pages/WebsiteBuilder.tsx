@@ -344,47 +344,65 @@ export const WebsiteBuilder: React.FC = () => {
           }
 
           // Process other content that doesn't involve images
+          // Only update sections that are currently enabled
           newWebsite.title = aiPrompt.name;
-          newWebsite.content.hero.title = result.heroTitle;
-          newWebsite.content.hero.subtext = result.heroSubtext;
-          newWebsite.content.about = {
-            image: generateImageUrl('about section image'),
-            subtitle: 'OUR PHILOSOPHY',
-            title: result.aboutText?.split('.')[0] || 'About Us',
-            paragraphs: result.aboutText ? result.aboutText.split('.').filter(p => p.trim()).map(p => p.trim() + '.') : ['Tell your story here...']
-          };
-          newWebsite.content.benefits = result.benefits?.map((b) => ({
-            id: generateId(),
-            title: b.title,
-            description: b.description,
-            icon: b.icon || 'Star'
-          })) || [];
-          newWebsite.content.testimonials = result.testimonials?.map((t, i) => ({
-            id: generateId(),
-            name: t.name,
-            role: t.role,
-            content: t.content,
-            avatar: `https://placehold.co/150x150?text=${t.name.charAt(0)}`
-          })) || [];
-          newWebsite.content.faq = result.faq?.map((f) => ({
-            id: generateId(),
-            question: f.question,
-            answer: f.answer
-          })) || [];
-          newWebsite.enabledSections = {
-            ...prev.enabledSections,
-            products: (result.products?.length ?? 0) > 0,
-            benefits: (result.benefits?.length ?? 0) > 0,
-            testimonials: (result.testimonials?.length ?? 0) > 0,
-            faq: (result.faq?.length ?? 0) > 0,
-            gallery: (result.gallery?.length ?? 0) > 0,
-            team: (result.team?.length ?? 0) > 0,
-            pricing: (result.pricing?.length ?? 0) > 0,
-            callToAction: !!(result.callToAction?.text && result.callToAction?.buttons && result.callToAction.buttons.length > 0),
-          };
+          
+          // Hero section - always update if enabled (hero is always enabled by default)
+          if (prev.enabledSections.hero) {
+            newWebsite.content.hero.title = result.heroTitle;
+            newWebsite.content.hero.subtext = result.heroSubtext;
+          }
+          
+          // About section - only if enabled
+          if (prev.enabledSections.about) {
+            newWebsite.content.about = {
+              image: generateImageUrl('about section image'),
+              subtitle: 'OUR PHILOSOPHY',
+              title: result.aboutText?.split('.')[0] || 'About Us',
+              paragraphs: result.aboutText ? result.aboutText.split('.').filter(p => p.trim()).map(p => p.trim() + '.') : ['Tell your story here...']
+            };
+          }
+          
+          // Benefits - only if enabled
+          if (prev.enabledSections.benefits) {
+            newWebsite.content.benefits = result.benefits?.map((b) => ({
+              id: generateId(),
+              title: b.title,
+              description: b.description,
+              icon: b.icon || 'Star'
+            })) || [];
+          }
+          
+          // Testimonials - only if enabled
+          if (prev.enabledSections.testimonials) {
+            newWebsite.content.testimonials = result.testimonials?.map((t, i) => ({
+              id: generateId(),
+              name: t.name,
+              role: t.role,
+              content: t.content,
+              avatar: `https://placehold.co/150x150?text=${t.name.charAt(0)}`
+            })) || [];
+          }
+          
+          // FAQ - only if enabled
+          if (prev.enabledSections.faq) {
+            newWebsite.content.faq = result.faq?.map((f) => ({
+              id: generateId(),
+              question: f.question,
+              answer: f.answer
+            })) || [];
+          }
+          
+          // Products - only if enabled (already handled above, but ensure we respect enabled state)
+          if (!prev.enabledSections.products) {
+            newWebsite.content.products = prev.content.products; // Keep existing products
+          }
+          
+          // Don't auto-enable sections - respect user's current enabled sections
+          newWebsite.enabledSections = { ...prev.enabledSections };
 
-          // Process Gallery Images
-          if (result.gallery && result.gallery.length > 0) {
+          // Process Gallery Images - only if enabled
+          if (prev.enabledSections.gallery && result.gallery && result.gallery.length > 0) {
             newWebsite.content.gallery = await Promise.all(result.gallery.map(async (item, i) => {
               const galleryImageUrl = item.imagePrompt
                 ? generateImageUrl(item.imagePrompt, 800, 600)
@@ -396,12 +414,12 @@ export const WebsiteBuilder: React.FC = () => {
                 caption: item.caption
               };
             }));
-          } else {
-            newWebsite.content.gallery = [];
+          } else if (!prev.enabledSections.gallery) {
+            newWebsite.content.gallery = prev.content.gallery; // Keep existing gallery
           }
 
-          // Process Team Images
-          if (result.team && result.team.length > 0) {
+          // Process Team Images - only if enabled
+          if (prev.enabledSections.team && result.team && result.team.length > 0) {
             newWebsite.content.team = await Promise.all(result.team.map(async (member, i) => {
               const teamImageUrl = member.imagePrompt
                 ? generateImageUrl(member.imagePrompt, 150, 150)
@@ -414,12 +432,12 @@ export const WebsiteBuilder: React.FC = () => {
                 image: uploadedTeamUrl || `https://placehold.co/150x150?text=${encodeURIComponent(member.name.charAt(0))}`
               };
             }));
-          } else {
-            newWebsite.content.team = [];
+          } else if (!prev.enabledSections.team) {
+            newWebsite.content.team = prev.content.team; // Keep existing team
           }
 
-          // Process Pricing Plans
-          if (result.pricing && result.pricing.length > 0) {
+          // Process Pricing Plans - only if enabled
+          if (prev.enabledSections.pricing && result.pricing && result.pricing.length > 0) {
             newWebsite.content.pricing = result.pricing.map((plan) => ({
               id: generateId(),
               name: plan.name,
@@ -428,12 +446,12 @@ export const WebsiteBuilder: React.FC = () => {
               buttonText: plan.buttonText || 'Learn More',
               buttonLink: plan.buttonLink || '#'
             }));
-          } else {
-            newWebsite.content.pricing = [];
+          } else if (!prev.enabledSections.pricing) {
+            newWebsite.content.pricing = prev.content.pricing; // Keep existing pricing
           }
 
-          // Process Call to Action
-          if (result.callToAction) {
+          // Process Call to Action - only if enabled
+          if (prev.enabledSections.callToAction && result.callToAction) {
             newWebsite.content.callToAction = {
               text: result.callToAction.text || DEFAULT_WEBSITE.content.callToAction.text,
               description: result.callToAction.description || DEFAULT_WEBSITE.content.callToAction.description,
@@ -445,8 +463,8 @@ export const WebsiteBuilder: React.FC = () => {
                 style: 'solid' as const
               }] : DEFAULT_WEBSITE.content.callToAction.buttons
             };
-          } else {
-            newWebsite.content.callToAction = DEFAULT_WEBSITE.content.callToAction;
+          } else if (!prev.enabledSections.callToAction) {
+            newWebsite.content.callToAction = prev.content.callToAction; // Keep existing CTA
           }
 
           setWebsite(newWebsite);
