@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Website } from '../../types';
-import CartButton from '../CartButton';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingBag } from 'lucide-react';
 
 interface PreviewNavbarProps {
   website: Website;
@@ -18,80 +17,143 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
 }) => {
   const { theme, enabledSections } = website;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const cartItemCount = totalItems();
+  const hasCartItems = cartItemCount > 0;
 
-  const sectionMap: { [key in keyof typeof enabledSections]?: string } = {
-    hero: 'Home',
-    about: 'About',
-    products: 'Products',
-    featured: 'Featured',
-    benefits: 'Benefits',
-    testimonials: 'Testimonials',
-    faq: 'FAQ',
-    gallery: 'Gallery',
-    team: 'Team',
-    pricing: 'Pricing',
-    callToAction: 'Call to Action',
-    contact: 'Contact',
+  // Scroll to section helper
+  const scrollToSection = (sectionId: string) => {
+    const element = document.querySelector(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setMobileMenuOpen(false); // Close mobile menu on click
   };
 
-  const excludedSections = ['hero', 'callToAction'];
+  // Handle Order Online button click
+  const handleOrderOnline = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (hasCartItems) {
+      // If cart has items, open cart drawer
+      openCart();
+    } else {
+      // If cart is empty, scroll to products/menu section
+      scrollToSection('#products');
+    }
+    setMobileMenuOpen(false);
+  };
 
-  const navLinks = Object.entries(enabledSections)
-    .filter(([sectionKey, isEnabled]) => isEnabled && !excludedSections.includes(sectionKey))
-    .map(([sectionKey]) => {
-      const displayKey = sectionKey as keyof typeof enabledSections;
-      const sectionName = sectionMap[displayKey];
-      const safeKey = sectionKey || '';
-      return {
-        id: sectionKey,
-        name: sectionName || (safeKey ? safeKey.charAt(0).toUpperCase() + safeKey.slice(1) : 'Section'),
-        href: `#${sectionKey}`,
-      };
-    })
-    .sort((a, b) => {
-      const navLinkOrder = (website.content as any)?.navLinkOrder;
-      if (!navLinkOrder) return 0; // No custom order, maintain original order
-      const indexA = navLinkOrder.indexOf(a.id as keyof typeof enabledSections);
-      const indexB = navLinkOrder.indexOf(b.id as keyof typeof enabledSections);
-      return indexA - indexB;
-    });
+  // Define specific navigation links
+  const navLinks = [
+    { id: 'hero', name: 'HOME', href: '#hero' },
+    { id: 'about', name: 'ABOUT', href: '#about' },
+    { id: 'products', name: 'MENU', href: '#products' },
+    { id: 'gallery', name: 'GALLERY', href: '#gallery' },
+    { id: 'contact', name: 'VISIT US', href: '#contact' },
+  ].filter(link => {
+    // Only show links for enabled sections
+    if (link.id === 'hero') return true; // Always show Home
+    if (link.id === 'contact') return true; // Always show Visit Us
+    return enabledSections[link.id as keyof typeof enabledSections];
+  });
+
+  const darkBrown = theme.colors?.brand900 || '#67392b';
+  const brand600 = theme.colors?.brand600 || theme.primary || '#b96b40';
 
   return (
-    <nav className={`${isDark ? 'bg-slate-900/90' : 'bg-white/90'} fixed w-full z-50 backdrop-blur-md border-b ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+    <nav 
+      className="fixed w-full z-50 backdrop-blur-md border-b border-white/20"
+      style={{ 
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="text-2xl font-bold" style={{ color: theme.primary }}>
-            {website.title}
+          {/* Logo */}
+          <div 
+            className="text-2xl font-bold uppercase"
+            style={{ 
+              color: 'white',
+              fontFamily: 'var(--heading-font)'
+            }}
+          >
+            {website.title || 'LIKHA'}
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8 items-center">
+          <div className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <a 
                 key={link.id} 
                 href={link.href} 
-                className="hover:text-opacity-80 transition-opacity"
+                className="text-white text-sm font-medium uppercase tracking-wide hover:opacity-80 transition-opacity"
+                style={{ fontFamily: 'var(--body-font)' }}
                 onClick={(e) => {
                   e.preventDefault();
-                  const element = document.querySelector(link.href);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
+                  scrollToSection(link.href);
                 }}
               >
                 {link.name}
               </a>
             ))}
+            
+            {/* Cart Icon */}
             {enabledSections.products && (
-              <CartButton totalItems={totalItems()} openCart={openCart} themeButton={theme.button} />
+              <button
+                onClick={openCart}
+                className="relative text-white hover:opacity-80 transition-opacity p-2"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {cartItemCount > 0 && (
+                  <span 
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center text-white"
+                    style={{ backgroundColor: brand600 }}
+                  >
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Order Online Button */}
+            {enabledSections.products && (
+              <button
+                onClick={handleOrderOnline}
+                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 hover:opacity-90"
+                style={{ 
+                  backgroundColor: 'white',
+                  color: darkBrown,
+                  fontFamily: 'var(--body-font)'
+                }}
+              >
+                Order Online
+              </button>
             )}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-3">
+            {/* Cart Icon - Mobile */}
+            {enabledSections.products && (
+              <button
+                onClick={openCart}
+                className="relative text-white p-2"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {cartItemCount > 0 && (
+                  <span 
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center text-white"
+                    style={{ backgroundColor: brand600 }}
+                  >
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="text-white p-2"
             >
               <span className="sr-only">Open main menu</span>
               {mobileMenuOpen ? (
@@ -106,28 +168,38 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden" id="mobile-menu">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div 
+          className="md:hidden border-t border-white/20"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
+        >
+          <div className="px-4 pt-2 pb-4 space-y-1">
             {navLinks.map((link) => (
               <a
                 key={link.id}
                 href={link.href}
-                className="text-slate-600 hover:bg-slate-50 hover:text-slate-800 block px-3 py-2 rounded-md text-base font-medium"
+                className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium uppercase tracking-wide transition-colors"
+                style={{ fontFamily: 'var(--body-font)' }}
                 onClick={(e) => {
                   e.preventDefault();
-                  setMobileMenuOpen(false); // Close menu on link click
-                  const element = document.querySelector(link.href);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
+                  scrollToSection(link.href);
                 }}
               >
                 {link.name}
               </a>
             ))}
             {enabledSections.products && (
-              <div className="pt-2 border-t border-slate-200">
-                <CartButton totalItems={totalItems()} openCart={openCart} themeButton={theme.button} />
+              <div className="pt-4 border-t border-white/20">
+                <button
+                  onClick={handleOrderOnline}
+                  className="w-full px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300"
+                  style={{ 
+                    backgroundColor: 'white',
+                    color: darkBrown,
+                    fontFamily: 'var(--body-font)'
+                  }}
+                >
+                  Order Online
+                </button>
               </div>
             )}
           </div>
