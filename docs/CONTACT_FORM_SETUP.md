@@ -59,10 +59,17 @@ This integration allows your website's contact form to:
 | **ClientID** | **OwnerEmail** | **BusinessName** |
 
 5. **Add your first client:**
-   - In Row 2, add your client's information:
-     - `A2`: `rose` (or any unique identifier)
-     - `B2`: `rose@likhasiteworks.studio` (client's email)
-     - `C2`: `Rose Flowers` (business name)
+   - **First, ask your client for:**
+     - Their email address (where they want to receive inquiries)
+     - Their business name
+   - **Then, create a ClientID** (you choose this - keep it simple):
+     - Use their subdomain, business name, or a short identifier
+     - Examples: `salon`, `rose`, `bakery`, `mike`
+     - Keep it lowercase, no spaces
+   - **In Row 2, add the client's information:**
+     - `A2`: `salon` (the ClientID you created)
+     - `B2`: `orders@salon.com` (the email the client provided)
+     - `C2`: `Salon Beauty` (the business name the client provided)
 
 6. **Create the "Inquiries" tab:**
    - This will be auto-created by the script, but you can create it manually:
@@ -73,10 +80,16 @@ This integration allows your website's contact form to:
 ```
 | ClientID | OwnerEmail              | BusinessName      |
 |----------|-------------------------|-------------------|
+| salon    | orders@salon.com        | Salon Beauty      |
 | rose     | rose@likhasiteworks.studio | Rose Flowers    |
 | bakery   | orders@goldencrumb.com     | The Golden Crumb |
 | mike     | mike@autoshop.com          | Mike's Auto      |
 ```
+
+**Who provides what:**
+- **ClientID**: You (developer) create this - keep it simple and unique
+- **OwnerEmail**: Client provides this - their business email
+- **BusinessName**: Client provides this - their business name
 
 ---
 
@@ -90,7 +103,7 @@ This integration allows your website's contact form to:
 // ============================================
 // CONFIGURATION
 // ============================================
-const ADMIN_EMAIL = "your-email@gmail.com"; // YOUR email (backup/always receives copy)
+const ADMIN_EMAIL = "likhasiteworks@gmail.com"; // YOUR email (backup/always receives copy)
 const SHEET_NAME = "Inquiries"; // Sheet name for storing submissions
 
 // ============================================
@@ -121,12 +134,21 @@ function doPost(e) {
     let businessName = "Unknown Business";
     
     // Loop through rows to find the matching ClientID (skip header row)
+    // Make sure to trim whitespace and compare as strings
     for (let i = 1; i < clientData.length; i++) {
-      if (clientData[i][0] == clientId) {
-        ownerEmail = clientData[i][1];
-        businessName = clientData[i][2] || clientId;
+      const rowClientId = String(clientData[i][0] || '').trim().toLowerCase();
+      const searchClientId = String(clientId || '').trim().toLowerCase();
+      
+      if (rowClientId === searchClientId) {
+        ownerEmail = String(clientData[i][1] || '').trim();
+        businessName = String(clientData[i][2] || clientId || 'Unknown Business').trim();
         break;
       }
+    }
+    
+    // If client not found, log warning but still send to admin
+    if (ownerEmail === ADMIN_EMAIL && businessName === "Unknown Business") {
+      console.warn("ClientID not found: " + clientId + ". Sending to admin email.");
     }
 
     // ============================================
@@ -159,19 +181,120 @@ function doPost(e) {
     // ============================================
     const emailSubject = `New Inquiry for ${businessName}: ${data.type || "General Inquiry"}`;
     const emailBody = `
-      <h3>New Lead for ${businessName}</h3>
-      <p><strong>From:</strong> ${data.name} (${data.email})</p>
-      <p><strong>Inquiry Type:</strong> ${data.type || "General Inquiry"}</p>
-      <hr/>
-      <p><strong>Message:</strong></p>
-      <p>${data.message.replace(/\n/g, '<br>')}</p>
-      <hr/>
-      <p style="color: #666; font-size: 12px;">This inquiry was submitted through your website contact form.</p>
+<!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            /* Mobile resets */
+            body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+            img { border: 0; outline: none; text-decoration: none; }
+          </style>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6;">
+          
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px;">
+            <tr>
+              <td align="center">
+                
+                <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; margin-top: 20px; margin-bottom: 20px;">
+                  
+                  <tr>
+                    <td style="background-color: #FCD34D; padding: 32px 40px; text-align: center;">
+                      <h1 style="margin: 0; color: #111827; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2;">
+                        New Website Inquiry
+                      </h1>
+                      <p style="margin: 8px 0 0 0; color: #374151; font-size: 15px; font-weight: 600;">
+                        for ${businessName}
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td style="padding: 40px 30px;">
+                      
+                      <table role="presentation" style="width: 100%; border-collapse: separate; border-spacing: 0 12px;">
+                        
+                        <tr>
+                          <td style="width: 1%; white-space: nowrap; padding-right: 16px; color: #6b7280; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top; padding-top: 2px;">
+                            Name
+                          </td>
+                          <td style="color: #111827; font-size: 16px; font-weight: 500; vertical-align: top;">
+                            ${data.name}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td style="width: 1%; white-space: nowrap; padding-right: 16px; color: #6b7280; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top; padding-top: 2px;">
+                            Email
+                          </td>
+                          <td style="vertical-align: top; word-break: break-all;">
+                            <a href="mailto:${data.email}" style="color: #2563eb; text-decoration: none; font-size: 16px; font-weight: 500;">
+                              ${data.email}
+                            </a>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td style="width: 1%; white-space: nowrap; padding-right: 16px; color: #6b7280; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle;">
+                            Type
+                          </td>
+                          <td style="vertical-align: middle;">
+                            <span style="background-color: #FFFBEB; color: #B45309; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid #FCD34D; display: inline-block;">
+                              ${data.type || "General Inquiry"}
+                            </span>
+                          </td>
+                        </tr>
+
+                      </table>
+
+                      <div style="margin-top: 28px;">
+                        <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Message</p>
+                        <div style="background-color: #F9FAFB; border-left: 4px solid #FCD34D; padding: 20px; border-radius: 4px;">
+                          <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${data.message.replace(/\n/g, '<br>')}</p>
+                        </div>
+                      </div>
+
+                      <div style="margin-top: 32px; text-align: center;">
+                        <a href="mailto:${data.email}?subject=Re: Your Inquiry - ${businessName}" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                          Reply to Customer
+                        </a>
+                      </div>
+
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+                      <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.5;">
+                        Powered by <strong style="color: #4b5563;">LikhaSiteWorks</strong>
+                        <br>
+                        <span style="font-size: 11px; color: #d1d5db;">Secure Agency Notification System</span>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
     `;
 
+    // Send email to the client (OwnerEmail)
+    // If client was found, send to ownerEmail; otherwise send to admin
+    const recipientEmail = (ownerEmail !== ADMIN_EMAIL || businessName !== "Unknown Business") 
+      ? ownerEmail 
+      : ADMIN_EMAIL;
+    
+    // Only BCC admin if email is going to client (not if already going to admin)
+    const bccEmail = (recipientEmail !== ADMIN_EMAIL) ? ADMIN_EMAIL : null;
+
     MailApp.sendEmail({
-      to: ownerEmail,
-      bcc: ADMIN_EMAIL, // You always get a backup copy
+      to: recipientEmail,
+      bcc: bccEmail, // You get a backup copy only if email goes to client
       subject: emailSubject,
       htmlBody: emailBody,
       name: `${businessName} Bot`,
@@ -249,7 +372,7 @@ This is the **most important step**. Follow these instructions carefully:
 7. **Copy the Web App URL:**
    - After deployment, you'll see a URL like:
      ```
-     https://script.google.com/macros/s/AKfycby.../exec
+     https://script.google.com/macros/s/AKfycbylxEq7z1-_8hx37kIfhb6cMw8JM-w-tnd3GgFMKWtQMvuLMAWJ4Zt0w0le-b7VIOhdZg/exec
      ```
    - **Copy this entire URL** - you'll need it in the next step
 
@@ -263,19 +386,51 @@ This is the **most important step**. Follow these instructions carefully:
 
 ## Step 4: Configure in Website Builder
 
+### Where to Find Contact Form Configuration
+
 1. **Open your website in the Website Builder**
-2. **Go to "Content Management" tab**
-3. **Scroll down to "Contact" section**
-4. **Find "Contact Form Configuration"** (below Contact Details)
-5. **Enable Email Submissions:**
+2. **Click the "Content Management" tab** (not Settings)
+3. **Scroll down to find the "Contact" section**
+4. **Look for "Contact Form Configuration"** - it appears **directly below** the "Contact Details" section
+   - If you don't see it, make sure the "Contact" section is enabled in Settings → Section Visibility
+
+### Understanding ClientID, OwnerEmail, and BusinessName
+
+**Important:** These are set up by **YOU (the developer/admin)**, not the website owner.
+
+- **ClientID**: A unique identifier you create for each client (e.g., `salon`, `rose`, `bakery`)
+  - You create this when adding the client to your Google Sheet
+  - Keep it simple: lowercase, no spaces, easy to remember
+  
+- **OwnerEmail**: The email address where the client wants to receive inquiries
+  - **Ask the client for this** - it's their business email
+  - Example: `orders@salon.com` or `info@salon.com`
+  
+- **BusinessName**: The client's business name (for email subject lines)
+  - **Ask the client for this** - it's their business name
+  - Example: `Salon Beauty`, `Rose Flowers`, `The Golden Crumb`
+
+**Workflow:**
+1. Client provides you with: **Email** and **Business Name**
+2. You create a **ClientID** (e.g., use their subdomain or business name)
+3. You add all three to your Google Sheet "Clients" tab
+4. You enter the **ClientID** in the Contact Form Configuration
+
+### Configuration Steps
+
+1. **Enable Email Submissions:**
    - Toggle the switch to "ON"
-6. **Paste your Web App URL:**
+
+2. **Paste your Web App URL:**
    - Paste the URL you copied from Step 3
    - It should start with `https://script.google.com/macros/s/...`
-7. **Enter Client ID:**
-   - Enter the ClientID from your "Clients" tab (e.g., `rose`, `bakery`)
-   - This must **exactly match** the ClientID in your Google Sheet
-8. **Verify Configuration:**
+
+3. **Enter Client ID:**
+   - Enter the ClientID you created in your Google Sheet
+   - Example: If you added `salon` in the sheet, enter `salon` here
+   - This must **exactly match** the ClientID in your Google Sheet (case-sensitive)
+
+4. **Verify Configuration:**
    - You should see a green status indicator: "Configuration complete"
    - If you see yellow, check that both fields are filled
 
@@ -283,11 +438,11 @@ This is the **most important step**. Follow these instructions carefully:
 ```
 ✅ Enable Email Submissions: ON
 📋 Google Apps Script Web App URL: https://script.google.com/macros/s/AKfycby.../exec
-🆔 Client ID: rose
+🆔 Client ID: salon
 ```
 
-9. **Save your website:**
-   - Click the "Save" button in the top right
+5. **Save your website:**
+   - Click the "Save Changes" button in the top right
    - Wait for the success message
 
 ---
@@ -326,19 +481,34 @@ This setup supports **unlimited clients** from a single script. Here's how:
 
 ### Adding a New Client
 
+**Step 1: Get Information from Client**
+- Ask the client for:
+  - Their email address (where they want inquiries sent)
+  - Their business name
+
+**Step 2: Create ClientID**
+- You create a unique ClientID (e.g., `salon`, `bakery`, `mike`)
+- Keep it simple: lowercase, no spaces, easy to remember
+- Tip: Use their subdomain or a shortened version of their business name
+
+**Step 3: Add to Google Sheet**
 1. **In your Google Sheet, go to the "Clients" tab**
 2. **Add a new row:**
    ```
    | ClientID | OwnerEmail           | BusinessName    |
    |----------|----------------------|-----------------|
-   | newclient| client@example.com   | New Business    |
+   | salon    | orders@salon.com     | Salon Beauty    |
    ```
-3. **In the Website Builder:**
-   - Open the website for the new client
-   - Go to Contact Form Configuration
-   - Use the **same Web App URL** (from your script)
-   - Enter the **new ClientID** (e.g., `newclient`)
-   - Save
+
+**Step 4: Configure in Website Builder**
+1. **Open the website for the new client**
+2. **Go to "Content Management" tab**
+3. **Scroll to "Contact" section**
+4. **Find "Contact Form Configuration"** (below Contact Details)
+5. **Enable Email Submissions** (toggle ON)
+6. **Paste the Web App URL** (same URL for all clients - from your script)
+7. **Enter the ClientID** you created (e.g., `salon`)
+8. **Save the website**
 
 **That's it!** No code changes needed. The script automatically routes emails based on the ClientID.
 
@@ -358,12 +528,14 @@ This setup supports **unlimited clients** from a single script. Here's how:
 
 **Possible causes:**
 1. **Check spam folder** - Gmail might have filtered it
-2. **Verify ClientID** - Must exactly match the sheet (case-sensitive)
+2. **Verify ClientID** - Must match the sheet (case-insensitive, but check for typos)
 3. **Check Google Sheet** - Look in "Inquiries" tab to see if data was saved
 4. **Check Apps Script execution log:**
    - Go to Apps Script editor
    - Click "Executions" (clock icon)
    - Check for errors
+5. **Verify email in Clients tab** - Make sure OwnerEmail column has a valid email address
+6. **Check recipient** - Emails go to OwnerEmail (client), not admin. Admin gets BCC copy.
 
 ### Problem: "Something went wrong" error message
 

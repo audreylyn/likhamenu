@@ -94,7 +94,23 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
 
   // Use white background for Contact section
   return (
-    <section id="contact" className="py-20 bg-white">
+    <>
+      <style>{`
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -20px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+      `}</style>
+      <section id="contact" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -402,26 +418,75 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
               >
                 {status === 'submitting' ? 'Sending...' : 'Send Message'}
               </button>
-
-              {/* Status Messages */}
-              {status === 'success' && (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800" style={{ fontFamily: 'var(--body-font)' }}>
-                    ✓ Message sent successfully! We'll get back to you soon.
-                  </p>
-                </div>
-              )}
-              {status === 'error' && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800" style={{ fontFamily: 'var(--body-font)' }}>
-                    ✗ Something went wrong. Please try again or contact us directly.
-                  </p>
-                </div>
-              )}
             </form>
+
+            {/* Alert Toast - Fixed Position at Top */}
+            {status === 'success' && (
+              <div 
+                className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down"
+                style={{ 
+                  maxWidth: '90%',
+                  width: '500px',
+                  fontFamily: 'var(--body-font)'
+                }}
+              >
+                <div className="bg-green-50 border-2 border-green-400 rounded-lg shadow-xl p-4 flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-green-900">Message sent successfully!</p>
+                    <p className="text-xs text-green-700 mt-0.5">We'll get back to you soon.</p>
+                  </div>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="flex-shrink-0 text-green-600 hover:text-green-800 transition-colors"
+                    aria-label="Close"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+            {status === 'error' && (
+              <div 
+                className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down"
+                style={{ 
+                  maxWidth: '90%',
+                  width: '500px',
+                  fontFamily: 'var(--body-font)'
+                }}
+              >
+                <div className="bg-red-50 border-2 border-red-400 rounded-lg shadow-xl p-4 flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-red-900">Something went wrong</p>
+                    <p className="text-xs text-red-700 mt-0.5">Please try again or contact us directly.</p>
+                  </div>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="flex-shrink-0 text-red-600 hover:text-red-800 transition-colors"
+                    aria-label="Close"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </section>
+    </>
   );
 };
