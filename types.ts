@@ -120,6 +120,17 @@ export interface WebsiteContent {
     phone: string;
     email: string;
     address: string;
+    hours?: {
+      weekday?: string;
+      weekend?: string;
+      closed?: string;
+    };
+    catering?: {
+      text: string;
+      link: string;
+      linkText: string;
+    };
+    inquiryTypes?: string[];
   };
   products: Product[];
   benefits: Benefit[];

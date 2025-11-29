@@ -46,7 +46,22 @@ export const DEFAULT_WEBSITE: Website = {
       title: 'About Us',
       paragraphs: ['Tell your story here...', 'Add more details about your business...']
     },
-    contact: { phone: '', email: '', address: '' },
+    contact: { 
+      phone: '', 
+      email: '', 
+      address: '',
+      hours: {
+        weekday: 'Tue - Fri: 7am - 4pm',
+        weekend: 'Sat - Sun: 8am - 3pm',
+        closed: 'Closed Mondays'
+      },
+      catering: {
+        text: 'Planning a wedding, corporate event, or need a large order? We require at least 48 hours notice for large orders and 2 weeks for wedding cakes.',
+        link: '#catering',
+        linkText: 'VIEW CATERING MENU'
+      },
+      inquiryTypes: ['General Question', 'Custom Order', 'Catering Inquiry', 'Event Planning', 'Other']
+    },
     products: [],
     benefits: [],
     testimonials: [],
