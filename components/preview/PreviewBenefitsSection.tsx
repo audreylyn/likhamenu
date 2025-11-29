@@ -12,27 +12,6 @@ interface PreviewBenefitsSectionProps {
   textMuted: string;
 }
 
-// Helper function to convert hex to RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 139, g: 90, b: 43 }; // Default warm brown
-};
-
-// Helper function to get warm brown color from theme
-const getWarmBrown = (theme: { primary: string }): string => {
-  const rgb = hexToRgb(theme.primary);
-  // Create a warm brown tone from the primary color
-  const brown = {
-    r: Math.max(100, Math.min(180, rgb.r + 20)),
-    g: Math.max(70, Math.min(150, rgb.g - 10)),
-    b: Math.max(40, Math.min(100, rgb.b - 30))
-  };
-  return `rgb(${brown.r}, ${brown.g}, ${brown.b})`;
-};
 
 // Icon mapping for Lucide icons
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
@@ -74,8 +53,8 @@ const isImageUrl = (icon: string): boolean => {
 };
 
 // Helper to render icon
-const renderIcon = (icon: string, theme: { primary: string }) => {
-  const warmBrown = getWarmBrown(theme);
+const renderIcon = (icon: string, theme: { colors?: { brand500?: string }; primary: string }) => {
+  const warmBrown = theme.colors?.brand500 || '#c58550';
   
   if (!icon || icon.trim() === '') {
     const IconComponent = iconMap['Star'] || Star;
@@ -124,8 +103,9 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
   textMuted,
 }) => {
   const { content, theme } = website;
-  const warmBrown = getWarmBrown(theme);
-  const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
+  // Use theme colors from presets
+  const warmBrown = theme.colors?.brand500 || '#c58550';
+  const darkBrown = theme.colors?.brand900 || '#67392b';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
   
   // Icon background colors
@@ -168,7 +148,7 @@ export const PreviewBenefitsSection: React.FC<PreviewBenefitsSectionProps> = ({
           <div 
             className="w-24 h-0.5 mx-auto"
             style={{ 
-              backgroundColor: warmBrown + '80',
+              backgroundColor: (theme.colors?.brand500 || '#c58550') + '80',
               marginTop: '0.5rem'
             }}
           />

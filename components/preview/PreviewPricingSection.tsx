@@ -8,27 +8,6 @@ interface PreviewPricingSectionProps {
   isDark: boolean;
 }
 
-// Helper function to convert hex to RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 139, g: 90, b: 43 }; // Default warm brown
-};
-
-// Helper function to get warm brown color from theme
-const getWarmBrown = (theme: { primary: string }): string => {
-  const rgb = hexToRgb(theme.primary);
-  // Create a warm brown tone from the primary color
-  const brown = {
-    r: Math.max(100, Math.min(180, rgb.r + 20)),
-    g: Math.max(70, Math.min(150, rgb.g - 10)),
-    b: Math.max(40, Math.min(100, rgb.b - 30))
-  };
-  return `rgb(${brown.r}, ${brown.g}, ${brown.b})`;
-};
 
 export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
   website,
@@ -41,16 +20,20 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
     return null;
   }
 
-  const warmBrown = getWarmBrown(theme);
-  const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
+  // Use theme colors from presets
+  const warmBrown = theme.colors?.brand500 || '#c58550';
+  const darkBrown = theme.colors?.brand900 || '#67392b';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
-  const lightBeige = isDark ? 'rgba(245, 245, 240, 0.1)' : 'rgba(250, 250, 245, 0.8)';
+  const lightBeige = theme.colors?.brand50 || '#fbf8f3';
   const cardBg = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)';
   
   // Use white background for Pricing section
-  // Button colors: light brown for regular, darker brown for popular
-  const lightBrown = isDark ? 'rgba(180, 130, 80, 0.8)' : 'rgba(180, 130, 80, 0.9)';
-  const darkerBrown = isDark ? 'rgba(120, 80, 50, 0.9)' : 'rgba(120, 80, 50, 1)';
+  // Button colors: use theme colors for regular and popular buttons
+  const regularButtonBg = theme.colors?.brand50 || '#fbf8f3';
+  const regularButtonText = theme.colors?.brand900 || '#67392b';
+  const regularButtonBorder = theme.colors?.brand200 || '#ebdcc4';
+  const popularButtonBg = theme.colors?.brand600 || theme.primary || '#b96b40';
+  const popularButtonHover = theme.colors?.brand700 || '#9a5336';
 
   // Parse price to extract number and period
   const parsePrice = (priceStr: string) => {
@@ -120,7 +103,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 {/* Plan Title */}
                 <h3 
                   className="text-2xl font-bold mb-2"
-                  style={{ color: darkBrown }}
+                  style={{ 
+                    color: darkBrown,
+                    fontFamily: 'var(--heading-font)'
+                  }}
                 >
                   {plan.name}
                 </h3>
@@ -129,7 +115,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 {plan.tagline && (
                   <p 
                     className="text-sm mb-6"
-                    style={{ color: darkGray }}
+                    style={{ 
+                      color: darkGray,
+                      fontFamily: 'var(--body-font)'
+                    }}
                   >
                     {plan.tagline}
                   </p>
@@ -139,13 +128,19 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 <div className="mb-6">
                   <span 
                     className="text-4xl font-bold"
-                    style={{ color: darkBrown }}
+                    style={{ 
+                      color: darkBrown,
+                      fontFamily: 'var(--heading-font)'
+                    }}
                   >
-                    ${amount}
+                    ₱{amount}
                   </span>
                   <span 
                     className="text-base ml-1"
-                    style={{ color: darkGray }}
+                    style={{ 
+                      color: darkGray,
+                      fontFamily: 'var(--body-font)'
+                    }}
                   >
                     {period}
                   </span>
@@ -161,7 +156,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                       />
                       <span 
                         className="text-sm leading-relaxed"
-                        style={{ color: darkGray }}
+                        style={{ 
+                          color: darkGray,
+                          fontFamily: 'var(--body-font)'
+                        }}
                       >
                         {feature}
                       </span>
@@ -174,9 +172,27 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                   href={plan.buttonLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`block w-full py-3 px-6 rounded-lg text-center font-semibold transition-all shadow-lg hover:shadow-xl ${
-                    isPopular ? 'btn-primary' : 'btn-primary'
-                  }`}
+                  className="block w-full py-3 px-6 rounded-lg text-center font-semibold transition-all shadow-lg hover:shadow-xl"
+                  style={{
+                    backgroundColor: isPopular ? popularButtonBg : regularButtonBg,
+                    color: isPopular ? 'white' : regularButtonText,
+                    border: isPopular ? 'none' : `1px solid ${regularButtonBorder}`,
+                    fontFamily: 'var(--body-font)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isPopular) {
+                      e.currentTarget.style.backgroundColor = popularButtonHover;
+                    } else {
+                      e.currentTarget.style.backgroundColor = theme.colors?.brand100 || '#f5efe4';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isPopular) {
+                      e.currentTarget.style.backgroundColor = popularButtonBg;
+                    } else {
+                      e.currentTarget.style.backgroundColor = regularButtonBg;
+                    }
+                  }}
                 >
                   {plan.buttonText}
                 </a>
@@ -189,7 +205,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
         <div className="text-center">
           <p 
             className="text-sm"
-            style={{ color: darkGray }}
+            style={{ 
+              color: darkGray,
+              fontFamily: 'var(--body-font)'
+            }}
           >
             Need a custom plan for a larger event?{' '}
             <a

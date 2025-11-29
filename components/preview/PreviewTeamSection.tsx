@@ -103,11 +103,11 @@ export const PreviewTeamSection: React.FC<PreviewTeamSectionProps> = ({
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl opacity-5"
-          style={{ backgroundColor: theme.primary }}
+          style={{ backgroundColor: theme.colors?.brand600 || theme.primary }}
         />
         <div
           className="absolute bottom-20 right-10 w-96 h-96 rounded-full blur-3xl opacity-5"
-          style={{ backgroundColor: theme.secondary }}
+          style={{ backgroundColor: theme.colors?.brand50 || theme.secondary }}
         />
       </div>
 

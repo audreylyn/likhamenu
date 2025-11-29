@@ -55,20 +55,35 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
   const exploreLinks = footer.exploreLinks || [];
   const hours = footer.hours || [];
 
+  // Use theme colors from presets - dark background with accent colors
+  const footerBg = theme.colors?.brand900 || '#0a0e1a';
+  const accentColor = theme.colors?.brand500 || '#c58550';
+  const textColor = accentColor;
+  const textMutedColor = isDark ? 'rgba(255, 255, 255, 0.6)' : accentColor + 'CC';
+  
   return (
-    <footer className={`py-16 ${isDark ? 'bg-slate-900' : 'bg-black'}`}>
+    <footer className="py-16" style={{ backgroundColor: footerBg }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand Section */}
           <div>
-            <h3 className="text-3xl font-bold mb-4" style={{ 
-              color: isDark ? '#f3f4f6' : '#fbbf24',
-              fontFamily: 'serif'
-            }}>
+            <h3 
+              className="text-3xl font-bold mb-4" 
+              style={{ 
+                color: textColor,
+                fontFamily: 'var(--heading-font)'
+              }}
+            >
               {website.title}
             </h3>
             {footer.tagline && (
-              <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-100'}`}>
+              <p 
+                className="text-sm mb-6 leading-relaxed"
+                style={{ 
+                  color: textMutedColor,
+                  fontFamily: 'var(--body-font)'
+                }}
+              >
                 {footer.tagline}
               </p>
             )}
@@ -80,9 +95,10 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
                     href={link.url}
                     target="_blank"
                     rel="noreferrer"
-                    className={`p-2 rounded-full transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-amber-200 hover:text-amber-100 hover:bg-slate-900'}`}
+                    className="p-2 rounded-full transition-all hover:opacity-80"
                     style={{
-                      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(251, 191, 36, 0.3)'}`
+                      color: textMutedColor,
+                      border: `1px solid ${accentColor}40`
                     }}
                   >
                     {getSocialIcon(link.platform)}
@@ -94,7 +110,13 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
 
           {/* Quick Links Section */}
           <div>
-            <h4 className={`text-sm font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-slate-300' : 'text-amber-200'}`}>
+            <h4 
+              className="text-sm font-bold uppercase tracking-wider mb-4"
+              style={{ 
+                color: textColor,
+                fontFamily: 'var(--body-font)'
+              }}
+            >
               QUICK LINKS
             </h4>
             {quickLinks.length > 0 ? (
@@ -104,7 +126,11 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
                     <a
                       href={link.href}
                       onClick={(e) => handleNavClick(link.href, e)}
-                      className={`text-sm transition-colors ${isDark ? 'text-slate-400 hover:text-white' : 'text-amber-100 hover:text-amber-50'}`}
+                      className="text-sm transition-colors hover:opacity-80"
+                      style={{ 
+                        color: textMutedColor,
+                        fontFamily: 'var(--body-font)'
+                      }}
                     >
                       {link.label}
                     </a>
@@ -112,36 +138,74 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
                 ))}
               </ul>
             ) : (
-              <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-amber-200/50'}`}>No quick links added</p>
+              <p 
+                className="text-xs"
+                style={{ color: textMutedColor + '80' }}
+              >
+                No quick links added
+              </p>
             )}
           </div>
 
           {/* Contact Section */}
           <div>
-            <h4 className={`text-sm font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-slate-300' : 'text-amber-200'}`}>
+            <h4 
+              className="text-sm font-bold uppercase tracking-wider mb-4"
+              style={{ 
+                color: textColor,
+                fontFamily: 'var(--body-font)'
+              }}
+            >
               CONTACT
             </h4>
             <ul className="space-y-3">
               {content.contact.address && (
                 <li className="flex items-start gap-3">
-                  <MapPin className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? 'text-slate-400' : 'text-amber-200'}`} />
-                  <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-amber-100'}`}>
+                  <MapPin 
+                    className="w-5 h-5 flex-shrink-0 mt-0.5" 
+                    style={{ color: accentColor }}
+                  />
+                  <span 
+                    className="text-sm"
+                    style={{ 
+                      color: textMutedColor,
+                      fontFamily: 'var(--body-font)'
+                    }}
+                  >
                     {content.contact.address}
                   </span>
                 </li>
               )}
               {content.contact.phone && (
                 <li className="flex items-start gap-3">
-                  <Phone className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? 'text-slate-400' : 'text-amber-200'}`} />
-                  <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-amber-100'}`}>
+                  <Phone 
+                    className="w-5 h-5 flex-shrink-0 mt-0.5" 
+                    style={{ color: accentColor }}
+                  />
+                  <span 
+                    className="text-sm"
+                    style={{ 
+                      color: textMutedColor,
+                      fontFamily: 'var(--body-font)'
+                    }}
+                  >
                     {content.contact.phone}
                   </span>
                 </li>
               )}
               {content.contact.email && (
                 <li className="flex items-start gap-3">
-                  <Mail className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? 'text-slate-400' : 'text-amber-200'}`} />
-                  <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-amber-100'}`}>
+                  <Mail 
+                    className="w-5 h-5 flex-shrink-0 mt-0.5" 
+                    style={{ color: accentColor }}
+                  />
+                  <span 
+                    className="text-sm"
+                    style={{ 
+                      color: textMutedColor,
+                      fontFamily: 'var(--body-font)'
+                    }}
+                  >
                     {content.contact.email}
                   </span>
                 </li>
@@ -151,21 +215,33 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
 
           {/* Hours Section */}
           <div>
-            <h4 className={`text-sm font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-slate-300' : 'text-amber-200'}`}>
+            <h4 
+              className="text-sm font-bold uppercase tracking-wider mb-4"
+              style={{ 
+                color: textColor,
+                fontFamily: 'var(--body-font)'
+              }}
+            >
               HOURS
             </h4>
             {hours.length > 0 ? (
               <ul className="space-y-2">
                 {hours.map((hour, index) => (
                   <li key={index}>
-                    <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-amber-100'}`}>
+                    <div 
+                      className="text-sm"
+                      style={{ 
+                        color: textMutedColor,
+                        fontFamily: 'var(--body-font)'
+                      }}
+                    >
                       <span className="font-medium">{hour.day}</span>
                       {hour.time && (
                         <>
                           {' '}
-                          <span className={hour.time.toLowerCase().includes('closed') 
-                            ? (isDark ? 'text-slate-500' : 'text-amber-200/70') 
-                            : ''}>
+                          <span style={{ 
+                            opacity: hour.time.toLowerCase().includes('closed') ? 0.7 : 1 
+                          }}>
                             {hour.time}
                           </span>
                         </>
@@ -175,7 +251,12 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
                 ))}
               </ul>
             ) : (
-              <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-amber-200/50'}`}>No hours added</p>
+              <p 
+                className="text-xs"
+                style={{ color: textMutedColor + '80' }}
+              >
+                No hours added
+              </p>
             )}
           </div>
         </div>
@@ -183,21 +264,34 @@ export const PreviewFooter: React.FC<PreviewFooterProps> = ({
         {/* Divider */}
         <div 
           className="border-t mb-8"
-          style={{ borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.2)' }}
+          style={{ borderColor: accentColor + '40' }}
         />
 
         {/* Copyright */}
         <div className="text-center space-y-2">
-          <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-amber-200/70'}`}>
+          <p 
+            className="text-sm"
+            style={{ 
+              color: textMutedColor,
+              fontFamily: 'var(--body-font)'
+            }}
+          >
             © {currentYear} {website.title}. {footer.copyright}
           </p>
-          <p className={`text-xs ${isDark ? 'text-slate-600' : 'text-amber-200/60'}`}>
+          <p 
+            className="text-xs"
+            style={{ 
+              color: textMutedColor + 'CC',
+              fontFamily: 'var(--body-font)'
+            }}
+          >
             Website created by{' '}
             <a
               href="https://likhasiteworks.studio"
               target="_blank"
               rel="noreferrer"
-              className={`hover:underline ${isDark ? 'text-slate-400 hover:text-slate-300' : 'text-amber-200/80 hover:text-amber-200'}`}
+              className="hover:underline"
+              style={{ color: textMutedColor }}
             >
               LikhaSiteWorks
             </a>

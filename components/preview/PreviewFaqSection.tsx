@@ -7,27 +7,6 @@ interface PreviewFaqSectionProps {
   isDark: boolean;
 }
 
-// Helper function to convert hex to RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 139, g: 90, b: 43 }; // Default warm brown
-};
-
-// Helper function to get warm brown color from theme
-const getWarmBrown = (theme: { primary: string }): string => {
-  const rgb = hexToRgb(theme.primary);
-  // Create a warm brown tone from the primary color
-  const brown = {
-    r: Math.max(100, Math.min(180, rgb.r + 20)),
-    g: Math.max(70, Math.min(150, rgb.g - 10)),
-    b: Math.max(40, Math.min(100, rgb.b - 30))
-  };
-  return `rgb(${brown.r}, ${brown.g}, ${brown.b})`;
-};
 
 export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
   website,
@@ -44,12 +23,13 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
     return null;
   }
 
-  const warmBrown = getWarmBrown(theme);
-  const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
+  // Use theme colors from presets
+  const darkBrown = theme.colors?.brand900 || '#67392b';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
-  const lightBeige = isDark ? 'rgba(245, 245, 240, 0.15)' : 'rgba(245, 245, 240, 0.8)';
-  const lightBeigeBorder = isDark ? 'rgba(200, 180, 150, 0.3)' : 'rgba(200, 180, 150, 0.5)';
-  const darkerBeigeBorder = isDark ? 'rgba(180, 150, 120, 0.5)' : 'rgba(180, 150, 120, 0.7)';
+  const lightBeige = theme.colors?.brand50 || '#fbf8f3';
+  const lightBeigeBorder = theme.colors?.brand200 || '#ebdcc4';
+  const darkerBeigeBorder = theme.colors?.brand500 || '#c58550';
+  const iconColor = theme.colors?.brand900 || '#67392b';
 
   // Use white background for FAQ section
   return (
@@ -61,14 +41,17 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
             className="text-4xl md:text-5xl font-bold mb-4" 
             style={{ 
               color: darkBrown,
-              fontFamily: 'serif'
+              fontFamily: 'var(--heading-font)'
             }}
           >
             Frequently Asked Questions
           </h2>
           <p 
             className="text-lg max-w-2xl mx-auto"
-            style={{ color: darkGray }}
+            style={{ 
+              color: darkGray,
+              fontFamily: 'var(--body-font)'
+            }}
           >
             Everything you need to know about our bakery.
           </p>
@@ -97,7 +80,7 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
                     className="flex-1 font-semibold text-lg md:text-xl"
                     style={{ 
                       color: darkBrown,
-                      fontFamily: 'serif'
+                      fontFamily: 'var(--heading-font)'
                     }}
                   >
                     {f.question}
@@ -113,12 +96,12 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
                     {isExpanded ? (
                       <Minus 
                         className="w-5 h-5" 
-                        style={{ color: darkBrown }} 
+                        style={{ color: iconColor }} 
                       />
                     ) : (
                       <Plus 
                         className="w-5 h-5" 
-                        style={{ color: darkBrown }} 
+                        style={{ color: iconColor }} 
                       />
                     )}
                   </div>
@@ -135,7 +118,8 @@ export const PreviewFaqSection: React.FC<PreviewFaqSectionProps> = ({
                     <p 
                       className="text-base leading-relaxed"
                       style={{ 
-                        color: darkGray
+                        color: darkGray,
+                        fontFamily: 'var(--body-font)'
                       }}
                     >
                       {f.answer}

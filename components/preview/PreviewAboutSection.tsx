@@ -51,11 +51,11 @@ export const PreviewAboutSection: React.FC<PreviewAboutSectionProps> = ({
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl opacity-5"
-          style={{ backgroundColor: theme.primary }}
+          style={{ backgroundColor: theme.colors?.brand600 || theme.primary }}
         />
         <div
           className="absolute bottom-20 right-10 w-96 h-96 rounded-full blur-3xl opacity-5"
-          style={{ backgroundColor: theme.secondary }}
+          style={{ backgroundColor: theme.colors?.brand50 || theme.secondary }}
         />
       </div>
 
@@ -89,20 +89,26 @@ export const PreviewAboutSection: React.FC<PreviewAboutSectionProps> = ({
             {about.subtitle && (
               <p 
                 className="text-sm font-semibold uppercase tracking-wider mb-4"
-                style={{ color: theme.primary }}
+                style={{ 
+                  color: theme.colors?.brand500 || theme.primary,
+                  fontFamily: 'var(--body-font)'
+                }}
               >
                 {about.subtitle}
               </p>
             )}
             <h2 
               className="text-4xl font-bold mb-4"
-              style={{ color: theme.primary }}
+              style={{ 
+                color: theme.colors?.brand900 || theme.primary,
+                fontFamily: 'var(--heading-font)'
+              }}
             >
               {about.title || 'About Us'}
             </h2>
             <div 
               className="about-divider"
-              style={{ backgroundColor: theme.primary }}
+              style={{ backgroundColor: theme.colors?.brand500 || theme.primary }}
             />
             <div className="space-y-4">
               {about.paragraphs && about.paragraphs.length > 0 ? (

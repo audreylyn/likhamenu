@@ -8,26 +8,6 @@ interface PreviewContactSectionProps {
   isDark: boolean;
 }
 
-// Helper function to convert hex to RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 139, g: 90, b: 43 }; // Default warm brown
-};
-
-// Helper function to get warm brown color from theme
-const getWarmBrown = (theme: { primary: string }): string => {
-  const rgb = hexToRgb(theme.primary);
-  const brown = {
-    r: Math.max(100, Math.min(180, rgb.r + 20)),
-    g: Math.max(70, Math.min(150, rgb.g - 10)),
-    b: Math.max(40, Math.min(100, rgb.b - 30))
-  };
-  return `rgb(${brown.r}, ${brown.g}, ${brown.b})`;
-};
 
 export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
   website,
@@ -35,11 +15,12 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
 }) => {
   const { content, theme } = website;
   const contact = content.contact;
-  const warmBrown = getWarmBrown(theme);
-  const darkBrown = isDark ? 'rgba(139, 90, 43, 0.9)' : 'rgb(101, 67, 33)';
+  // Use theme colors from presets
+  const warmBrown = theme.colors?.brand500 || '#c58550';
+  const darkBrown = theme.colors?.brand900 || '#67392b';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
-  const lightBeige = isDark ? 'rgba(245, 245, 240, 0.15)' : 'rgba(245, 245, 240, 0.8)';
-  const lightBrown = isDark ? 'rgba(200, 170, 140, 0.3)' : 'rgba(200, 170, 140, 0.5)';
+  const lightBeige = theme.colors?.brand50 || '#fbf8f3';
+  const lightBrown = theme.colors?.brand200 || '#ebdcc4';
 
   const [formData, setFormData] = useState({
     name: '',
@@ -70,14 +51,17 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
             className="text-4xl md:text-5xl font-bold mb-4" 
             style={{ 
               color: darkBrown,
-              fontFamily: 'serif'
+              fontFamily: 'var(--heading-font)'
             }}
           >
             Get in Touch
           </h2>
           <p 
             className="text-lg max-w-2xl mx-auto"
-            style={{ color: warmBrown }}
+            style={{ 
+              color: darkGray,
+              fontFamily: 'var(--body-font)'
+            }}
           >
             Have a question or planning a special event? We'd love to hear from you.
           </p>
@@ -94,7 +78,10 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
           >
             <h3 
               className="text-2xl font-bold mb-6"
-              style={{ color: darkBrown }}
+              style={{ 
+                color: darkBrown,
+                fontFamily: 'var(--heading-font)'
+              }}
             >
               Visit Our Bakery
             </h3>
@@ -110,7 +97,13 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
                     <MapPin className="w-6 h-6" style={{ color: darkBrown }} />
                   </div>
                   <div>
-                    <p className="text-base leading-relaxed" style={{ color: darkGray }}>
+                    <p 
+                      className="text-base leading-relaxed" 
+                      style={{ 
+                        color: darkGray,
+                        fontFamily: 'var(--body-font)'
+                      }}
+                    >
                       {contact.address.split('\n').map((line, i) => (
                         <span key={i}>
                           {line}
@@ -219,7 +212,10 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
           >
             <h3 
               className="text-2xl font-bold mb-6"
-              style={{ color: darkBrown }}
+              style={{ 
+                color: darkBrown,
+                fontFamily: 'var(--heading-font)'
+              }}
             >
               Send a Message
             </h3>

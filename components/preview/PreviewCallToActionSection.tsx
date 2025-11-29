@@ -16,9 +16,9 @@ export const PreviewCallToActionSection: React.FC<PreviewCallToActionSectionProp
     return null;
   }
 
-  // Use theme colors
-  const bgColor = theme.primary; // Primary color for background
-  const solidButtonBg = theme.secondary; // Secondary color for "Order Now" button
+  // Use theme colors from presets
+  const bgColor = theme.colors?.brand600 || theme.primary; // Primary color for background
+  const solidButtonBg = theme.colors?.brand50 || theme.secondary; // Secondary color for "Order Now" button
   const solidButtonText = theme.colors?.brand900 || '#67392b'; // Dark text for solid button
 
   return (
@@ -67,21 +67,24 @@ export const PreviewCallToActionSection: React.FC<PreviewCallToActionSectionProp
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative z-10">
         {/* Heading */}
-        <h2 
-          className="text-4xl md:text-5xl font-bold mb-6 leading-tight"
-          style={{ 
-            color: 'white',
-            fontFamily: 'serif'
-          }}
-        >
-          {cta.text}
-        </h2>
+          <h2 
+            className="text-4xl md:text-5xl font-bold mb-6 leading-tight"
+            style={{ 
+              color: 'white',
+              fontFamily: 'var(--heading-font)'
+            }}
+          >
+            {cta.text}
+          </h2>
         
         {/* Description */}
         {cta.description && (
           <p 
             className="text-lg md:text-xl mb-10 max-w-2xl mx-auto"
-            style={{ color: 'white' }}
+            style={{ 
+              color: 'white',
+              fontFamily: 'var(--body-font)'
+            }}
           >
             {cta.description}
           </p>
