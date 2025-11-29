@@ -70,6 +70,7 @@ export const getWebsites = async () => {
       if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
       if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
       if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
+      if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
       return copy;
     });
     return normalized;
@@ -93,6 +94,7 @@ export const getWebsiteById = async (id: string) => {
     if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
     if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
+    if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
     return copy as Website;
   } catch (err) {
     console.error('getWebsiteById error', err);
@@ -120,6 +122,7 @@ export const getWebsiteBySubdomain = async (subdomain: string) => {
     if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
     if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
+    if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
     return copy as Website;
   } catch (err) {
     console.error('getWebsiteBySubdomain error', err);
@@ -171,6 +174,7 @@ export const saveWebsite = async (website: Website) => {
     if ('createdat' in copy) { copy.createdAt = copy.createdat; delete copy.createdat; }
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
     if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
+    if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
     return copy as Website;
     } catch (err) {
     console.error('saveWebsite error', err);
@@ -191,6 +195,40 @@ export const saveWebsite = async (website: Website) => {
 export const deleteWebsite = async (id: string) => {
   const { error } = await supabase.from('websites').delete().eq('id', id);
   if (error) throw error;
+};
+
+// Get all editors (users with role 'editor')
+// Note: This requires a Supabase function or admin access
+// Alternative: Create a 'users' table that syncs with auth.users
+export const getEditors = async () => {
+  try {
+    // Try using admin API if available (requires service role key)
+    // For client-side, we'll need to create a Supabase Edge Function or use a users table
+    // For now, return empty array and show message to create editors first
+    // TODO: Implement proper editor fetching via Edge Function or users table
+    
+    // Check if we have admin access
+    if (typeof (supabase as any).auth?.admin?.listUsers === 'function') {
+      const { data: { users }, error } = await (supabase as any).auth.admin.listUsers();
+      if (!error && users) {
+        return users.filter((u: any) => {
+          const role = u.user_metadata?.role || (import.meta.env.VITE_ADMIN_EMAIL === u.email ? 'admin' : 'editor');
+          return role === 'editor';
+        }).map((u: any) => ({
+          id: u.id,
+          email: u.email || '',
+          name: u.email || 'Editor'
+        }));
+      }
+    }
+    
+    // Fallback: Return empty array (editors will need to be fetched via Edge Function or users table)
+    console.warn('Editor fetching requires admin API or Edge Function. Returning empty list.');
+    return [];
+  } catch (err) {
+    console.warn('Could not fetch editors:', err);
+    return [];
+  }
 };
 
 export default supabase;

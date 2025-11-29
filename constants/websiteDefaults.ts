@@ -33,6 +33,7 @@ export const DEFAULT_WEBSITE: Website = {
     welcomeMessage: '',
     googleScriptUrl: '',
   },
+  assignedEditors: [],
   contactFormConfig: {
     googleScriptUrl: '',
     clientId: '',

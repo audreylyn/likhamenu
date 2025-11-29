@@ -28,7 +28,8 @@ alter table public.websites
   add column if not exists contactformconfig jsonb,
   add column if not exists enabledSections jsonb,
   add column if not exists content jsonb,
-  add column if not exists marketing jsonb;
+  add column if not exists marketing jsonb,
+  add column if not exists assignededitors jsonb; -- Array of editor user IDs or emails
 
 -- Optional index to help queries that read hero content
 create index if not exists idx_websites_content_hero on public.websites ((content->>'hero'));

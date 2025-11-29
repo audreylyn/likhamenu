@@ -216,6 +216,7 @@ export interface Website {
   theme: ThemeConfig;
   messenger: MessengerConfig;
   contactFormConfig?: ContactFormConfig; // Contact form backend configuration
+  assignedEditors?: string[]; // Array of editor user IDs or emails
   enabledSections: {
     hero: boolean;
     products: boolean;

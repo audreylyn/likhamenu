@@ -156,6 +156,18 @@ export const WebsiteBuilder: React.FC = () => {
         try {
           const existing = await getWebsiteById(id);
           if (existing) {
+            // SECURITY: Check if editor has access to this website
+            if (user.role === 'editor') {
+              const userEmail = user.name?.toLowerCase(); // user.name is the email
+              const assigned = (existing.assignedEditors || []).map((e: string) => e.toLowerCase());
+              const hasAccess = assigned.includes(user.id?.toLowerCase() || '') || assigned.includes(userEmail || '');
+              
+              if (!hasAccess) {
+                alert('You do not have access to edit this website. Contact an admin to get assigned.');
+                navigate('/');
+                return;
+              }
+            }
           // Ensure new fields exist if loading legacy data
           const merged = { ...DEFAULT_WEBSITE, ...existing };
           merged.enabledSections = { ...DEFAULT_WEBSITE.enabledSections, ...existing.enabledSections };

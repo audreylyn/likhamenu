@@ -89,6 +89,142 @@ function doPost(e) {
 }
 
 // ============================================
+// READ ORDERS - For Client Dashboard
+// ============================================
+function doGet(e) {
+  try {
+    const websiteId = e.parameter.websiteId || "";
+    const websiteTitle = e.parameter.websiteTitle || "";
+    
+    if (!websiteId && !websiteTitle) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ 
+          result: "error", 
+          error: "websiteId or websiteTitle parameter required" 
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Get the Drive folder
+    const folder = getOrCreateFolder(DRIVE_FOLDER_NAME);
+    
+    // Find the spreadsheet for this website
+    let spreadsheet = null;
+    if (websiteTitle) {
+      const expectedName = websiteTitle + " - Orders";
+      const files = folder.getFilesByName(expectedName);
+      if (files.hasNext()) {
+        const file = files.next();
+        spreadsheet = SpreadsheetApp.openById(file.getId());
+      }
+    }
+    
+    if (!spreadsheet) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ 
+          result: "error", 
+          error: "Spreadsheet not found for this website" 
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Get the Orders sheet
+    const sheet = spreadsheet.getSheetByName("Orders");
+    if (!sheet) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ 
+          result: "success",
+          orders: [],
+          stats: {
+            total: 0,
+            pending: 0,
+            processing: 0,
+            ready: 0,
+            delivered: 0,
+            cancelled: 0,
+            totalRevenue: 0
+          }
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Read all order data (skip header row)
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ 
+          result: "success",
+          orders: [],
+          stats: {
+            total: 0,
+            pending: 0,
+            processing: 0,
+            ready: 0,
+            delivered: 0,
+            cancelled: 0,
+            totalRevenue: 0
+          }
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, 9); // All data rows, all columns
+    const values = dataRange.getValues();
+    
+    const orders = values.map(row => ({
+      orderId: row[0] || "",
+      dateTime: row[1] || "",
+      customerName: row[2] || "",
+      location: row[3] || "",
+      items: row[4] || "",
+      itemDetails: row[5] || "",
+      totalAmount: row[6] || "",
+      note: row[7] || "",
+      status: row[8] || "Pending"
+    }));
+
+    // Calculate statistics
+    const stats = {
+      total: orders.length,
+      pending: orders.filter(o => o.status === "Pending").length,
+      processing: orders.filter(o => o.status === "Processing").length,
+      ready: orders.filter(o => o.status === "Ready").length,
+      delivered: orders.filter(o => o.status === "Delivered").length,
+      cancelled: orders.filter(o => o.status === "Cancelled").length,
+      totalRevenue: orders.reduce((sum, o) => {
+        // Extract number from totalAmount (e.g., "₱1,234.56" -> 1234.56)
+        const amountStr = String(o.totalAmount || "0").replace(/[₱,]/g, "");
+        return sum + (parseFloat(amountStr) || 0);
+      }, 0)
+    };
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ 
+        result: "success",
+        orders: orders,
+        stats: stats,
+        spreadsheetUrl: spreadsheet.getUrl()
+      })
+    ).setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      "Access-Control-Allow-Origin": "*"
+    });
+
+  } catch (error) {
+    console.error("Error reading orders:", error);
+    return ContentService.createTextOutput(
+      JSON.stringify({ 
+        result: "error", 
+        error: error.toString() 
+      })
+    ).setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+}
+
+// ============================================
 // CORS HANDLER - Required for React/Vite
 // ============================================
 function doOptions(e) {
@@ -96,7 +232,7 @@ function doOptions(e) {
     .setMimeType(ContentService.MimeType.JSON)
     .setHeaders({
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
       "Access-Control-Allow-Headers": "Content-Type"
     });
 }
