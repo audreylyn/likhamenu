@@ -79,6 +79,10 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
           cursor: pointer;
           transition: all 0.3s ease;
           z-index: 10;
+          opacity: 0;
+        }
+        .product-image-wrapper:hover .quick-view-button {
+          opacity: 1;
         }
         .quick-view-button:hover {
           background-color: rgba(0, 0, 0, 0.8);
@@ -148,8 +152,23 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
           transition: all 0.3s ease;
         }
         .add-to-order-btn:hover {
-          background-color: ${theme.colors?.brand100 || '#f5efe4'};
-          border-color: ${theme.colors?.brand100 || '#f5efe4'};
+          background-color: ${theme.colors?.brand600 || theme.primary || '#b96b40'};
+          color: white;
+          border-color: ${theme.colors?.brand600 || theme.primary || '#b96b40'};
+        }
+        .add-to-order-btn:hover svg {
+          color: white;
+        }
+        .info-button {
+          transition: all 0.3s ease;
+        }
+        .info-button:hover {
+          background-color: ${theme.colors?.brand600 || theme.primary || '#b96b40'};
+          border-color: ${theme.colors?.brand600 || theme.primary || '#b96b40'};
+          color: white;
+        }
+        .info-button:hover svg {
+          color: white;
         }
       `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -287,7 +306,7 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                   {/* Bottom Row: Info Icon and Add to Order Button */}
                   <div className="flex items-center justify-between">
                     <button
-                      className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-200 hover:bg-slate-50 transition-colors"
+                      className="info-button w-8 h-8 rounded-full flex items-center justify-center border border-slate-200"
                       style={{ color: darkGray }}
                       title="More information"
                     >
