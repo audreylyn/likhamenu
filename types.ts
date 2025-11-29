@@ -14,6 +14,8 @@ export interface ThemeConfig {
   secondary: string;
   button: string;
   background: ThemeMode;
+  headingFont?: string; // Font family for headings (e.g., 'Playfair Display')
+  bodyFont?: string; // Font family for body text (e.g., 'Lato')
 }
 
 export interface MessengerConfig {

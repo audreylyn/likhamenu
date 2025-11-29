@@ -13,6 +13,8 @@ export const DEFAULT_WEBSITE: Website = {
     secondary: '#e0e7ff',
     button: '#4338ca',
     background: 'light',
+    headingFont: 'Playfair Display',
+    bodyFont: 'Lato',
   },
   messenger: {
     enabled: false,

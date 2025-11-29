@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Sun, Moon, Sparkles, Loader2 } from 'lucide-react';
+import { Palette, Sun, Moon, Sparkles, Loader2, Type } from 'lucide-react';
 import { ColorPicker } from '../../components/ColorPicker';
 import { Website, ThemeConfig } from '../../types';
 
@@ -106,6 +106,54 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
               value={website.theme.button}
               onChange={(v) => website && setTheme({ ...website.theme, button: v })}
             />
+          </div>
+        </div>
+
+        {/* Typography */}
+        <div>
+          <label className="text-sm font-medium text-slate-700 block mb-3 flex items-center gap-2">
+            <Type className="w-4 h-4 text-indigo-500" />
+            Typography
+          </label>
+          <div className="space-y-4 bg-white p-4 rounded-lg border border-slate-200">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-2">
+                Headings (Serif)
+              </label>
+              <select
+                value={website.theme.headingFont || 'Playfair Display'}
+                onChange={(e) => website && setTheme({ ...website.theme, headingFont: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Lora">Lora</option>
+              </select>
+              <p className="text-xs text-slate-500 mt-1">
+                Used for section titles, product names, and logo. Classic serif font for elegant, traditional feel.
+              </p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-2">
+                Body Text (Sans-serif)
+              </label>
+              <select
+                value={website.theme.bodyFont || 'Lato'}
+                onChange={(e) => website && setTheme({ ...website.theme, bodyFont: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Lato">Lato</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Inter">Inter</option>
+              </select>
+              <p className="text-xs text-slate-500 mt-1">
+                Used for descriptions, menus, buttons, and navigation. Clean, readable sans-serif font.
+              </p>
+            </div>
           </div>
         </div>
       </div>

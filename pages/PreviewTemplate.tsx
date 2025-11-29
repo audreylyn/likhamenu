@@ -150,12 +150,26 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
   const isDark = theme.background === 'dark';
 
   // Styles derived from theme configuration
+  const headingFont = website?.theme?.headingFont || 'Playfair Display';
+  const bodyFont = website?.theme?.bodyFont || 'Lato';
   const bgMain = isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900';
   const bgSecondary = isDark ? 'bg-slate-800' : 'bg-slate-50';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
 
   return (
-    <div className={`min-h-screen ${bgMain}`} style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className={`min-h-screen ${bgMain}`} style={{ fontFamily: `'${bodyFont}', sans-serif` }}>
+      <style>{`
+        :root {
+          --heading-font: '${headingFont}', serif;
+          --body-font: '${bodyFont}', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6, .font-serif {
+          font-family: var(--heading-font) !important;
+        }
+        body, p, span, div, button, a, input, textarea, select, .font-sans {
+          font-family: var(--body-font) !important;
+        }
+      `}</style>
       
       {/* Navigation */}
       <PreviewNavbar website={website} isDark={isDark} totalItems={totalItems} openCart={openCart} />
