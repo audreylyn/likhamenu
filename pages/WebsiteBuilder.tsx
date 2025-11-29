@@ -198,7 +198,24 @@ export const WebsiteBuilder: React.FC = () => {
             gallery: existing.content.gallery || [],
             team: existing.content.team || [],
             pricing: existing.content.pricing || [],
-            callToAction: existing.content.callToAction || DEFAULT_WEBSITE.content.callToAction,
+            callToAction: (() => {
+              const oldCta = existing.content.callToAction as any;
+              if (oldCta && oldCta.buttonText && oldCta.buttonLink) {
+                // Migrate old structure to new structure
+                return {
+                  text: oldCta.text || DEFAULT_WEBSITE.content.callToAction.text,
+                  description: oldCta.description || DEFAULT_WEBSITE.content.callToAction.description,
+                  backgroundColor: oldCta.backgroundColor || DEFAULT_WEBSITE.content.callToAction.backgroundColor,
+                  buttons: oldCta.buttons || [{
+                    id: '1',
+                    text: oldCta.buttonText,
+                    link: oldCta.buttonLink,
+                    style: 'solid' as const
+                  }]
+                };
+              }
+              return DEFAULT_WEBSITE.content.callToAction;
+            })(),
             socialLinks: existing.content.socialLinks || DEFAULT_WEBSITE.content.socialLinks,
           };
           // Ensure marketing object exists
@@ -361,7 +378,7 @@ export const WebsiteBuilder: React.FC = () => {
             gallery: (result.gallery?.length ?? 0) > 0,
             team: (result.team?.length ?? 0) > 0,
             pricing: (result.pricing?.length ?? 0) > 0,
-            callToAction: !!(result.callToAction?.text && result.callToAction?.buttonText && result.callToAction?.buttonLink),
+            callToAction: !!(result.callToAction?.text && result.callToAction?.buttons && result.callToAction.buttons.length > 0),
           };
 
           // Process Gallery Images
@@ -416,10 +433,15 @@ export const WebsiteBuilder: React.FC = () => {
           // Process Call to Action
           if (result.callToAction) {
             newWebsite.content.callToAction = {
-              ...DEFAULT_WEBSITE.content.callToAction,
               text: result.callToAction.text || DEFAULT_WEBSITE.content.callToAction.text,
-              buttonText: result.callToAction.buttonText || DEFAULT_WEBSITE.content.callToAction.buttonText,
-              buttonLink: result.callToAction.buttonLink || DEFAULT_WEBSITE.content.callToAction.buttonLink,
+              description: result.callToAction.description || DEFAULT_WEBSITE.content.callToAction.description,
+              backgroundColor: DEFAULT_WEBSITE.content.callToAction.backgroundColor,
+              buttons: result.callToAction.buttonText && result.callToAction.buttonLink ? [{
+                id: '1',
+                text: result.callToAction.buttonText,
+                link: result.callToAction.buttonLink,
+                style: 'solid' as const
+              }] : DEFAULT_WEBSITE.content.callToAction.buttons
             };
           } else {
             newWebsite.content.callToAction = DEFAULT_WEBSITE.content.callToAction;

@@ -61,13 +61,18 @@ export interface PricingPlan {
   isPopular?: boolean;
 }
 
-export interface CallToAction {
+export interface CTAButton {
   id: string;
   text: string;
-  buttonText: string;
-  buttonLink: string;
+  link: string;
+  style: 'solid' | 'outlined'; // solid = light brown bg with dark text, outlined = transparent with white border
+}
+
+export interface CallToAction {
+  text: string;
+  description: string;
   backgroundColor: string;
-  textColor: string;
+  buttons: CTAButton[];
 }
 
 export interface Benefit {

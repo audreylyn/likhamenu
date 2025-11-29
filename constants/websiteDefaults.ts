@@ -54,7 +54,15 @@ export const DEFAULT_WEBSITE: Website = {
     gallery: [],
     team: [],
     pricing: [],
-    callToAction: { text: 'Ready to get started?', buttonText: 'Contact Us', buttonLink: '#contact', backgroundColor: '#4f46e5', textColor: '#ffffff' },
+    callToAction: { 
+      text: 'Ready to get started?', 
+      description: 'Take the next step and experience the difference. Order online for quick pickup or visit us today.',
+      backgroundColor: '#8B5A3C',
+      buttons: [
+        { id: '1', text: 'Order Now', link: '#products', style: 'solid' },
+        { id: '2', text: 'Contact Us', link: '#contact', style: 'outlined' }
+      ]
+    },
     footer: {
       tagline: 'Handcrafting moments of joy through the art of baking. Sustainable, organic, and always fresh.',
       quickLinks: [
