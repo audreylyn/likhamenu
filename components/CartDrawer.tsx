@@ -62,11 +62,11 @@ const CartDrawer: React.FC<Props> = ({
 
         <div className="space-y-4">
           {cart.length === 0 && (
-            <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-slate-50'} text-center`}>Your cart is empty.</div>
+            <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-slate-50'} text-center`}>Your cart is empty.</div>
           )}
 
           {cart.map(ci => (
-            <div key={ci.product.id} className={`flex gap-3 items-center p-3 rounded-lg border ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+            <div key={ci.product.id} className={`flex gap-3 items-center p-3 rounded-lg border ${isDark ? 'border-slate-900' : 'border-slate-100'}`}>
               {ci.product.image && (
                 <img src={ci.product.image} onError={handleImageError} className="w-16 h-16 object-cover rounded" alt="" />
               )}
@@ -103,15 +103,15 @@ const CartDrawer: React.FC<Props> = ({
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium mb-1">Name</label>
-              <input value={checkoutForm.name} onChange={(e) => setCheckoutForm({...checkoutForm, name: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
+              <input value={checkoutForm.name} onChange={(e) => setCheckoutForm({...checkoutForm, name: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Location</label>
-              <input value={checkoutForm.location} onChange={(e) => setCheckoutForm({...checkoutForm, location: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
+              <input value={checkoutForm.location} onChange={(e) => setCheckoutForm({...checkoutForm, location: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Message (optional)</label>
-              <textarea value={checkoutForm.message} onChange={(e) => setCheckoutForm({...checkoutForm, message: e.target.value})} className={`w-full px-3 py-2 rounded border h-24 resize-none ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
+              <textarea value={checkoutForm.message} onChange={(e) => setCheckoutForm({...checkoutForm, message: e.target.value})} className={`w-full px-3 py-2 rounded border h-24 resize-none ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
             </div>
 
             <button 

@@ -110,8 +110,8 @@ export const NavLinkReorder: React.FC<NavLinkReorderProps> = ({
 
   return (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-8">
-      <h3 className="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
-        <Menu className="w-5 h-5 text-indigo-500" />
+      <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+        <Menu className="w-5 h-5 text-amber-500" />
         Navigation Order
       </h3>
       <div className="space-y-3">
@@ -128,7 +128,7 @@ export const NavLinkReorder: React.FC<NavLinkReorderProps> = ({
               <button
                 onClick={() => moveUp(index)}
                 disabled={index === 0}
-                className="p-1 text-slate-400 hover:text-indigo-600 disabled:text-slate-200 disabled:cursor-not-allowed transition-colors"
+                className="p-1 text-slate-400 hover:text-amber-600 disabled:text-slate-200 disabled:cursor-not-allowed transition-colors"
                 title="Move up"
               >
                 <ChevronUp className="w-4 h-4" />
@@ -136,7 +136,7 @@ export const NavLinkReorder: React.FC<NavLinkReorderProps> = ({
               <button
                 onClick={() => moveDown(index)}
                 disabled={index === orderedLinks.length - 1}
-                className="p-1 text-slate-400 hover:text-indigo-600 disabled:text-slate-200 disabled:cursor-not-allowed transition-colors"
+                className="p-1 text-slate-400 hover:text-amber-600 disabled:text-slate-200 disabled:cursor-not-allowed transition-colors"
                 title="Move down"
               >
                 <ChevronDown className="w-4 h-4" />

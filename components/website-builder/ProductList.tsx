@@ -22,10 +22,10 @@ export const ProductList: React.FC<ProductListProps> = ({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800">Products / Services</h3>
+        <h3 className="text-lg font-bold text-slate-900">Products / Services</h3>
         <button
           onClick={() => addItem<Product>('products', { id: Math.random().toString(), name: 'New Product', description: 'Desc', image: 'https://placehold.co/400x300?text=Product', price: '₱0.00', category: 'All' })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
         </button>
@@ -42,14 +42,14 @@ export const ProductList: React.FC<ProductListProps> = ({
                 value={p.name}
                 placeholder="Product Name"
                 onChange={(e) => updateItem<Product>('products', p.id, 'name', e.target.value)}
-                className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-indigo-400 outline-none"
+                className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-amber-400 outline-none"
               />
               <input
                 type="text"
                 value={p.price}
                 placeholder="Price"
                 onChange={(e) => updateItem<Product>('products', p.id, 'price', e.target.value)}
-                className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-indigo-400 outline-none"
+                className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-amber-400 outline-none"
               />
             </div>
             <input
@@ -57,12 +57,12 @@ export const ProductList: React.FC<ProductListProps> = ({
               value={p.category || 'All'}
               placeholder="Category (e.g., Breads, Pastries, Drinks)"
               onChange={(e) => updateItem<Product>('products', p.id, 'category', e.target.value)}
-              className="w-full bg-transparent text-sm text-slate-500 mb-2 border-b border-transparent focus:border-indigo-400 outline-none"
+              className="w-full bg-transparent text-sm text-slate-500 mb-2 border-b border-transparent focus:border-amber-400 outline-none"
             />
             <textarea
               value={p.description}
               onChange={(e) => updateItem<Product>('products', p.id, 'description', e.target.value)}
-              className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-indigo-400 rounded outline-none h-16 resize-none"
+              className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-amber-400 rounded outline-none h-16 resize-none"
             />
             <div className="flex gap-2 mt-2">
               <input

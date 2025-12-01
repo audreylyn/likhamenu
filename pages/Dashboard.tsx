@@ -44,7 +44,7 @@ export const Dashboard: React.FC = () => {
   if (user?.role === 'editor' || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
       </div>
     );
   }
@@ -96,7 +96,7 @@ export const Dashboard: React.FC = () => {
     <Layout>
       {/* Header / Stats */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-800 mb-6">Dashboard Overview</h2>
+        <h2 className="text-3xl font-bold text-slate-900 mb-6">Dashboard Overview</h2>
         
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -108,7 +108,7 @@ export const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Total Websites</p>
-                  <p className="text-3xl font-bold text-slate-800">{websites.length}</p>
+                  <p className="text-3xl font-bold text-slate-900">{websites.length}</p>
                 </div>
                 <div className="p-3 bg-indigo-50 rounded-lg text-indigo-600">
                   <Globe className="w-6 h-6" />
@@ -145,7 +145,7 @@ export const Dashboard: React.FC = () => {
       {/* Website List */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h3 className="text-lg font-bold text-slate-800">Your Websites</h3>
+          <h3 className="text-lg font-bold text-slate-900">Your Websites</h3>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
@@ -197,7 +197,7 @@ export const Dashboard: React.FC = () => {
                     <td className="px-6 py-4 text-indigo-600">{site.subdomain ? `${site.subdomain}.likhasiteworks.dev` : 'No subdomain'}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                        site.status === 'published' || site.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-800'
+                        site.status === 'published' || site.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-900'
                       }`}>
                         {site.status}
                       </span>

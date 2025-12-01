@@ -12,19 +12,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
 
   const isActive = (path: string) => {
-    return location.pathname === path ? 'bg-indigo-700 text-white' : 'text-indigo-100 hover:bg-indigo-600';
+    return location.pathname === path ? 'bg-amber-400 text-slate-900' : 'text-slate-300 hover:bg-slate-900 hover:text-amber-400';
   };
 
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-indigo-900 text-white flex flex-col fixed h-full z-10">
-        <div className="p-6 border-b border-indigo-800">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col fixed h-full z-10">
+        <div className="p-6 border-b border-slate-900">
           <div className="flex items-center gap-2">
-            <Globe className="w-8 h-8 text-indigo-400" />
+            <Globe className="w-8 h-8 text-amber-400" />
             <h1 className="text-2xl font-bold tracking-tight">WebGen AI</h1>
           </div>
-          <div className="flex items-center gap-2 mt-2 px-2 py-1 bg-indigo-800 rounded text-xs text-indigo-200">
+          <div className="flex items-center gap-2 mt-2 px-2 py-1 bg-slate-900 rounded text-xs text-slate-400">
             <User className="w-3 h-3" />
             <span className="capitalize">{user ? user.role : 'guest'} View</span>
           </div>
@@ -50,21 +50,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           )}
         </nav>
 
-        <div className="p-4 border-t border-indigo-800 space-y-4">
+        <div className="p-4 border-t border-slate-900 space-y-4">
            {/* If logged in, show role info; role switching removed (use real auth) */}
-           <div className="bg-indigo-800 p-3 rounded-lg">
-             <label className="block text-xs text-indigo-300 mb-2 font-semibold uppercase">Role</label>
-             <div className="text-sm text-indigo-200">{user ? user.role : 'guest'}</div>
+           <div className="bg-slate-900 p-3 rounded-lg">
+             <label className="block text-xs text-slate-400 mb-2 font-semibold uppercase">Role</label>
+             <div className="text-sm text-slate-300">{user ? user.role : 'guest'}</div>
            </div>
 
            {user && user.role === 'admin' && (
-             <div className="flex items-center gap-3 px-4 py-2 text-indigo-300 cursor-pointer hover:text-white transition-colors">
+             <div className="flex items-center gap-3 px-4 py-2 text-slate-400 cursor-pointer hover:text-amber-400 transition-colors">
                <Settings className="w-5 h-5" />
                <span className="text-sm">Global Settings</span>
              </div>
            )}
            
-           <div className="flex items-center gap-3 px-4 py-2 text-indigo-300 cursor-pointer hover:text-white transition-colors" onClick={() => signOut()}>
+           <div className="flex items-center gap-3 px-4 py-2 text-slate-400 cursor-pointer hover:text-amber-400 transition-colors" onClick={() => signOut()}>
              <LogOut className="w-5 h-5" />
              <span className="text-sm">Logout</span>
            </div>

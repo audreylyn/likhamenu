@@ -22,7 +22,7 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
   return (
     <div className="space-y-8">
       {/* Marketing Generator Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-blue-50 to-amber-50 p-6 rounded-xl border border-blue-100 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-bold text-blue-900 mb-1">AI Marketing Kit</h3>
           <p className="text-sm text-blue-700">Generate SEO metadata and social media posts based on your website content.</p>
@@ -40,8 +40,8 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* SEO Card */}
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full">
-          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Megaphone className="w-5 h-5 text-indigo-600" />
+          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <Megaphone className="w-5 h-5 text-amber-600" />
             SEO Settings
           </h3>
 
@@ -56,7 +56,7 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
                   ...website,
                   marketing: { ...website.marketing, seo: { ...website.marketing.seo, metaTitle: e.target.value } }
                 })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
               />
               <p className="text-xs text-slate-500 mt-1 flex justify-between">
                 <span>Recommended: 50-60 characters</span>
@@ -75,7 +75,7 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
                   ...website,
                   marketing: { ...website.marketing, seo: { ...website.marketing.seo, metaDescription: e.target.value } }
                 })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-amber-400 outline-none"
               />
               <p className="text-xs text-slate-500 mt-1 flex justify-between">
                 <span>Recommended: 150-160 characters</span>
@@ -123,7 +123,7 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
                     }
                   }
                 }}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
               />
             </div>
           </div>
@@ -131,8 +131,8 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
 
         {/* Social Media Card */}
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full flex flex-col">
-          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-indigo-600" />
+          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <MessageCircle className="w-5 h-5 text-amber-600" />
             Social Media Launch Post
           </h3>
 
@@ -145,7 +145,7 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
                   marketing: { ...website.marketing, socialPost: e.target.value }
                 })}
                 placeholder="Generate a post to announce your new website..."
-                className="w-full h-full min-h-[300px] p-4 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full h-full min-h-[300px] p-4 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-amber-400 outline-none"
               />
               <button
                 onClick={() => copyToClipboard(website.marketing.socialPost)}

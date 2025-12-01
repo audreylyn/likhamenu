@@ -45,7 +45,7 @@ export const AboutContent: React.FC<AboutContentProps> = ({
 
   return (
     <section>
-      <h3 className="text-lg font-bold text-slate-800 mb-4">About Section</h3>
+      <h3 className="text-lg font-bold text-slate-900 mb-4">About Section</h3>
       <div className="space-y-4">
         {/* Image */}
         <div>
@@ -101,7 +101,7 @@ export const AboutContent: React.FC<AboutContentProps> = ({
             <label className="block text-sm font-medium text-slate-700">Paragraphs</label>
             <button
               onClick={addParagraph}
-              className="text-xs flex items-center gap-1 text-indigo-600 hover:underline"
+              className="text-xs flex items-center gap-1 text-amber-600 hover:underline"
             >
               <Plus className="w-3 h-3" /> Add Paragraph
             </button>

@@ -18,12 +18,12 @@ export const FaqList: React.FC<FaqListProps> = ({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-slate-500" /> Frequently Asked Questions
         </h3>
         <button
           onClick={() => addItem<FAQ>('faq', { id: Math.random().toString(), question: 'Do you offer gluten-free options?', answer: 'While we specialize in traditional sourdough which contains gluten, we offer a selection of gluten-free pastries and cakes made in a separate sanitized area to minimize cross-contamination. Please ask our staff for daily options.' })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add FAQ
         </button>
@@ -45,7 +45,7 @@ export const FaqList: React.FC<FaqListProps> = ({
                   type="text"
                   value={f.question}
                   onChange={(e) => updateItem<FAQ>('faq', f.id, 'question', e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none font-semibold"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none font-semibold"
                   placeholder="Do you offer gluten-free options?"
                 />
               </div>
@@ -55,7 +55,7 @@ export const FaqList: React.FC<FaqListProps> = ({
                 <textarea
                   value={f.answer}
                   onChange={(e) => updateItem<FAQ>('faq', f.id, 'answer', e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none resize-none h-24 text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none resize-none h-24 text-sm"
                   placeholder="While we specialize in traditional sourdough which contains gluten, we offer a selection of gluten-free pastries and cakes made in a separate sanitized area to minimize cross-contamination. Please ask our staff for daily options."
                 />
               </div>

@@ -18,7 +18,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 }) => {
   return (
     <div>
-      <h3 className="text-lg font-bold text-slate-800 border-b pb-2">General Information</h3>
+      <h3 className="text-lg font-bold text-slate-900 border-b pb-2">General Information</h3>
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Website Title</label>
@@ -26,7 +26,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             type="text"
             value={website.title}
             onChange={(e) => setWebsite({ ...website, title: e.target.value })}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
           />
         </div>
         
@@ -48,7 +48,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <select
             value={website.titleFont || 'serif'}
             onChange={(e) => setWebsite({ ...website, titleFont: e.target.value })}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
           >
             <option value="serif">Serif (Elegant, Traditional)</option>
             <option value="sans-serif">Sans-serif (Modern, Clean)</option>
@@ -63,7 +63,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             type="text"
             value={website.subdomain}
             onChange={(e) => setWebsite({ ...website, subdomain: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-            className="flex-1 px-4 py-2 border border-slate-300 rounded-l-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="flex-1 px-4 py-2 border border-slate-300 rounded-l-lg focus:ring-2 focus:ring-amber-400 outline-none"
           />
           <span className="bg-slate-100 border border-l-0 border-slate-300 text-slate-500 px-4 py-2 rounded-r-lg">
             .likhasiteworks.dev
@@ -75,7 +75,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <select
             value={website.status || 'draft'}
             onChange={(e) => setWebsite({ ...website, status: e.target.value as 'draft' | 'published' })}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>

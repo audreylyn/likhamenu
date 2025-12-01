@@ -25,15 +25,15 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
 }) => {
   return (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-        <Palette className="w-5 h-5 text-indigo-500" />
+      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <Palette className="w-5 h-5 text-amber-500" />
         Visual Style
       </h3>
 
       {/* AI Theme Generator */}
-      <div className="mb-6 bg-white p-4 rounded-lg border border-indigo-100 shadow-sm">
-        <label className="text-sm font-semibold text-indigo-900 mb-2 block flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-indigo-500" />
+      <div className="mb-6 bg-white p-4 rounded-lg border border-amber-100 shadow-sm">
+        <label className="text-sm font-semibold text-slate-900 mb-2 block flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" />
           AI Theme Generator
         </label>
         <div className="flex gap-2">
@@ -42,12 +42,12 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
             placeholder="e.g. 'Cyberpunk Neon', 'Pastel Bakery', 'Corporate Blue'"
             value={themePrompt}
             onChange={(e) => setThemePrompt(e.target.value)}
-            className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-amber-400"
           />
           <button
             onClick={handleThemeGenerate}
             disabled={isGeneratingTheme || !themePrompt}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+            className="bg-amber-400 text-slate-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-500 disabled:opacity-50 flex items-center gap-2"
           >
             {isGeneratingTheme ? (
               <>
@@ -65,7 +65,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
         {/* Theme Presets */}
         <div>
           <label className="text-sm font-medium text-slate-700 block mb-3 flex items-center gap-2">
-            <Palette className="w-4 h-4 text-indigo-500" />
+            <Palette className="w-4 h-4 text-amber-500" />
             Color Scheme (Light Theme)
           </label>
           <div className="flex flex-wrap gap-3 mb-4">
@@ -83,7 +83,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
                   }}
                   className={`relative p-3 rounded-lg border-2 transition-all ${
                     isSelected
-                      ? 'border-indigo-600 bg-indigo-50'
+                      ? 'border-amber-400 bg-amber-50'
                       : 'border-slate-200 bg-white hover:border-slate-300'
                   }`}
                   title={preset.description}
@@ -112,7 +112,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
                     {preset.name}
                   </div>
                   {isSelected && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-600 rounded-full flex items-center justify-center">
                       <div className="w-2 h-2 bg-white rounded-full" />
                     </div>
                   )}
@@ -129,7 +129,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
               onClick={() => website && setTheme({ ...website.theme, background: 'light' })}
               className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                 website.theme.background === 'light'
-                  ? 'border-indigo-600 bg-white text-indigo-600'
+                  ? 'border-amber-600 bg-white text-amber-600'
                   : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
               }`}
             >
@@ -140,7 +140,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
               onClick={() => website && setTheme({ ...website.theme, background: 'dark' })}
               className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                 website.theme.background === 'dark'
-                  ? 'border-indigo-600 bg-slate-800 text-white'
+                  ? 'border-amber-600 bg-slate-900 text-white'
                   : 'border-slate-200 bg-slate-100 text-slate-500 hover:border-slate-300'
               }`}
             >
@@ -155,7 +155,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
             {/* Primary Action Button */}
             <div>
               <div className="mb-2">
-                <label className="text-sm font-semibold text-slate-800">Primary Action Button</label>
+                <label className="text-sm font-semibold text-slate-900">Primary Action Button</label>
                 <p className="text-xs text-slate-500">Used for main calls-to-action like "Order Now", "Add to Cart", and "Checkout"</p>
               </div>
               <div className="space-y-2">
@@ -189,7 +189,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
             {/* Secondary Action Button */}
             <div className="border-t pt-4">
               <div className="mb-2">
-                <label className="text-sm font-semibold text-slate-800">Secondary Action Button</label>
+                <label className="text-sm font-semibold text-slate-900">Secondary Action Button</label>
                 <p className="text-xs text-slate-500">Used for alternative actions like "View Menu", "Contact Us", or selecting filters</p>
               </div>
               <div className="space-y-2">
@@ -244,7 +244,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
             {/* Accent / Highlight */}
             <div className="border-t pt-4">
               <div className="mb-2">
-                <label className="text-sm font-semibold text-slate-800">Accent / Highlight</label>
+                <label className="text-sm font-semibold text-slate-900">Accent / Highlight</label>
                 <p className="text-xs text-slate-500">Used for badges (e.g., "Bestseller"), stars, and icons</p>
               </div>
               <ColorPicker
@@ -266,7 +266,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
         {/* Typography */}
         <div>
           <label className="text-sm font-medium text-slate-700 block mb-3 flex items-center gap-2">
-            <Type className="w-4 h-4 text-indigo-500" />
+            <Type className="w-4 h-4 text-amber-500" />
             Typography
           </label>
           <div className="space-y-4 bg-white p-4 rounded-lg border border-slate-200">
@@ -277,7 +277,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
               <select
                 value={website.theme.headingFont || 'Playfair Display'}
                 onChange={(e) => website && setTheme({ ...website.theme, headingFont: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-amber-400"
               >
                 <option value="Playfair Display">Playfair Display</option>
                 <option value="Georgia">Georgia</option>
@@ -296,7 +296,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
               <select
                 value={website.theme.bodyFont || 'Lato'}
                 onChange={(e) => website && setTheme({ ...website.theme, bodyFont: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-amber-400"
               >
                 <option value="Lato">Lato</option>
                 <option value="Poppins">Poppins</option>

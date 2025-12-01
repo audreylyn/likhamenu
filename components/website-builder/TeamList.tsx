@@ -22,10 +22,10 @@ export const TeamList: React.FC<TeamListProps> = ({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800">Team / Staff</h3>
+        <h3 className="text-lg font-bold text-slate-900">Team / Staff</h3>
         <button
           onClick={() => addItem<TeamMember>('team', { id: Math.random().toString(), name: 'New Member', role: 'Role', image: 'https://placehold.co/150x150?text=Member', description: '' })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Member
         </button>
@@ -42,7 +42,7 @@ export const TeamList: React.FC<TeamListProps> = ({
                 value={member.name}
                 placeholder="Member Name"
                 onChange={(e) => updateItem<TeamMember>('team', member.id, 'name', e.target.value)}
-                className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-indigo-400 outline-none w-full"
+                className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-amber-400 outline-none w-full"
               />
             </div>
             <div className="mb-2">
@@ -51,7 +51,7 @@ export const TeamList: React.FC<TeamListProps> = ({
                 value={member.role}
                 placeholder="Member Role"
                 onChange={(e) => updateItem<TeamMember>('team', member.id, 'role', e.target.value)}
-                className="flex-1 bg-transparent text-sm border-b border-transparent focus:border-indigo-400 outline-none w-full"
+                className="flex-1 bg-transparent text-sm border-b border-transparent focus:border-amber-400 outline-none w-full"
               />
             </div>
             <div className="mb-2">
@@ -59,7 +59,7 @@ export const TeamList: React.FC<TeamListProps> = ({
                 value={member.description || ''}
                 placeholder="Member Description (shown on hover)"
                 onChange={(e) => updateItem<TeamMember>('team', member.id, 'description', e.target.value)}
-                className="flex-1 bg-transparent text-xs border-b border-transparent focus:border-indigo-400 outline-none w-full resize-none"
+                className="flex-1 bg-transparent text-xs border-b border-transparent focus:border-amber-400 outline-none w-full resize-none"
                 rows={2}
               />
             </div>

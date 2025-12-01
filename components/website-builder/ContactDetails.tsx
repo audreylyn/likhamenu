@@ -61,7 +61,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
 
   return (
     <section>
-      <h3 className="text-lg font-bold text-slate-800 mb-4">Contact Details</h3>
+      <h3 className="text-lg font-bold text-slate-900 mb-4">Contact Details</h3>
       <div className="space-y-6">
         {/* Basic Contact Info */}
         <div className="space-y-4">
@@ -71,7 +71,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
               type="text"
               value={contact.phone || ''}
               onChange={(e) => handleChange('phone', e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none"
               placeholder="+1 (555) 123-4567"
             />
           </div>
@@ -82,7 +82,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
               type="email"
               value={contact.email || ''}
               onChange={(e) => handleChange('email', e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none"
               placeholder="hello@likhabakery.dev"
             />
           </div>
@@ -92,7 +92,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
             <textarea
               value={contact.address || ''}
               onChange={(e) => handleChange('address', e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none h-20 resize-none"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none h-20 resize-none"
               placeholder="123 Baker Street&#10;Artisan District, CA 90210"
             />
           </div>
@@ -108,7 +108,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
                 type="text"
                 value={contact.hours?.weekday || ''}
                 onChange={(e) => handleHoursChange('weekday', e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                 placeholder="Tue - Fri: 7am - 4pm"
               />
             </div>
@@ -118,7 +118,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
                 type="text"
                 value={contact.hours?.weekend || ''}
                 onChange={(e) => handleHoursChange('weekend', e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                 placeholder="Sat - Sun: 8am - 3pm"
               />
             </div>
@@ -128,7 +128,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
                 type="text"
                 value={contact.hours?.closed || ''}
                 onChange={(e) => handleHoursChange('closed', e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                 placeholder="Closed Mondays"
               />
             </div>
@@ -144,7 +144,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
               <textarea
                 value={contact.catering?.text || ''}
                 onChange={(e) => handleCateringChange('text', e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none h-20 resize-none text-sm"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none h-20 resize-none text-sm"
                 placeholder="Planning a wedding, corporate event, or need a large order? We require at least 48 hours notice for large orders and 2 weeks for wedding cakes."
               />
             </div>
@@ -155,7 +155,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
                   type="text"
                   value={contact.catering?.link || ''}
                   onChange={(e) => handleCateringChange('link', e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                   placeholder="#catering"
                 />
               </div>
@@ -165,7 +165,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
                   type="text"
                   value={contact.catering?.linkText || ''}
                   onChange={(e) => handleCateringChange('linkText', e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                   placeholder="VIEW CATERING MENU"
                 />
               </div>
@@ -179,7 +179,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
             <h4 className="text-sm font-semibold text-slate-700">Inquiry Types (for dropdown)</h4>
             <button
               onClick={addInquiryType}
-              className="text-xs flex items-center gap-1 text-indigo-600 hover:underline"
+              className="text-xs flex items-center gap-1 text-amber-600 hover:underline"
             >
               <Plus className="w-3 h-3" /> Add Type
             </button>
@@ -191,7 +191,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({
                   type="text"
                   value={type}
                   onChange={(e) => updateInquiryType(index, e.target.value)}
-                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                   placeholder="General Question"
                 />
                 <button

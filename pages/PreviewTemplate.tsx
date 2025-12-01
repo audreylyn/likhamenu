@@ -135,11 +135,11 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
           <div className="bg-red-50 p-4 rounded-full mb-4">
              <AlertTriangle className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Preview Not Available</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Preview Not Available</h2>
           <p className="text-slate-500 mb-6">{error || "Website data could not be retrieved."}</p>
           <button 
             onClick={() => window.close()}
-            className="px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors"
+            className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-900 transition-colors"
           >
             Close Tab
           </button>
@@ -155,7 +155,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
   const headingFont = website?.theme?.headingFont || 'Playfair Display';
   const bodyFont = website?.theme?.bodyFont || 'Lato';
   const bgMain = isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900';
-  const bgSecondary = isDark ? 'bg-slate-800' : 'bg-slate-50';
+  const bgSecondary = isDark ? 'bg-slate-900' : 'bg-slate-50';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
 
   // Fixed section order

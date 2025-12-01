@@ -66,13 +66,13 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
       'Delivered': 'bg-green-200 text-green-900 border-green-400',
       'Cancelled': 'bg-red-100 text-red-800 border-red-300',
     };
-    return colors[status] || 'bg-slate-100 text-slate-800 border-slate-300';
+    return colors[status] || 'bg-slate-100 text-slate-900 border-slate-300';
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-amber-600 animate-spin" />
         <span className="ml-3 text-slate-600">Loading orders...</span>
       </div>
     );
@@ -103,9 +103,9 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-slate-500">Total Orders</p>
-              <ShoppingBag className="w-4 h-4 text-indigo-600" />
+              <ShoppingBag className="w-4 h-4 text-amber-600" />
             </div>
-            <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+            <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
           </div>
           
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
@@ -127,9 +127,9 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-slate-500">Total Revenue</p>
-              <TrendingUp className="w-4 h-4 text-indigo-600" />
+              <TrendingUp className="w-4 h-4 text-amber-600" />
             </div>
-            <p className="text-2xl font-bold text-indigo-600">{formatCurrency(stats.totalRevenue)}</p>
+            <p className="text-2xl font-bold text-amber-600">{formatCurrency(stats.totalRevenue)}</p>
           </div>
         </div>
       )}
@@ -137,12 +137,12 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
       {/* Orders Table */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-6 border-b border-slate-200 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-800">Recent Orders</h3>
+          <h3 className="text-lg font-bold text-slate-900">Recent Orders</h3>
           <div className="flex items-center gap-3">
             <button
               onClick={loadOrders}
               disabled={loading}
-              className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1 disabled:opacity-50"
+              className="text-sm text-amber-600 hover:text-amber-800 flex items-center gap-1 disabled:opacity-50"
               title="Refresh orders"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -153,7 +153,7 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
                 href={spreadsheetUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                className="text-sm text-amber-600 hover:text-amber-800 flex items-center gap-1"
               >
                 <ExternalLink className="w-4 h-4" />
                 Open in Google Sheets
@@ -204,7 +204,7 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
             </table>
             {orders.length > 20 && (
               <div className="p-4 text-center text-sm text-slate-500 border-t border-slate-200">
-                Showing 20 most recent orders. <a href={spreadsheetUrl || '#'} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">View all in Google Sheets</a>
+                Showing 20 most recent orders. <a href={spreadsheetUrl || '#'} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">View all in Google Sheets</a>
               </div>
             )}
           </div>

@@ -96,12 +96,12 @@ export const BenefitList: React.FC<BenefitListProps> = ({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <Heart className="w-5 h-5 text-slate-500" /> Key Benefits
         </h3>
         <button
           onClick={() => addItem<Benefit>('benefits', { id: Math.random().toString(), title: 'New Benefit', description: 'Explanation', icon: 'Star' })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
         </button>
@@ -118,20 +118,20 @@ export const BenefitList: React.FC<BenefitListProps> = ({
                 value={b.icon || ''}
                 placeholder="Icon (Lucide name like 'Star', 'Heart' or image URL)"
                 onChange={(e) => updateItem<Benefit>('benefits', b.id, 'icon', e.target.value)}
-                className="w-full bg-transparent text-xs text-slate-500 border-b border-transparent focus:border-indigo-400 outline-none"
+                className="w-full bg-transparent text-xs text-slate-500 border-b border-transparent focus:border-amber-400 outline-none"
               />
               <input
                 type="text"
                 value={b.title}
                 placeholder="Title"
                 onChange={(e) => updateItem<Benefit>('benefits', b.id, 'title', e.target.value)}
-                className="w-full bg-transparent font-bold border-b border-transparent focus:border-indigo-400 outline-none"
+                className="w-full bg-transparent font-bold border-b border-transparent focus:border-amber-400 outline-none"
               />
               <textarea
                 value={b.description}
                 placeholder="Description"
                 onChange={(e) => updateItem<Benefit>('benefits', b.id, 'description', e.target.value)}
-                className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-indigo-400 outline-none resize-none"
+                className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-amber-400 outline-none resize-none"
                 rows={2}
               />
             </div>

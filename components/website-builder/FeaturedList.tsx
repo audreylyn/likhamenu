@@ -111,7 +111,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
     <section>
       {/* Section Header Settings */}
       <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6">
-        <h3 className="text-lg font-bold text-slate-800 mb-4">Section Header</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-4">Section Header</h3>
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">
@@ -121,7 +121,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
               type="text"
               value={featured.subtitle}
               onChange={(e) => updateFeatured({ subtitle: e.target.value })}
-              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
               placeholder="CURATED SELECTIONS"
             />
           </div>
@@ -136,7 +136,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
                 const accent = featured.titleAccent || featured.title?.split(' ').slice(-1)[0] || 'Bakes';
                 updateFeatured({ title: `${e.target.value} ${accent}` });
               }}
-              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
               placeholder="Signature"
             />
           </div>
@@ -154,7 +154,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
                   titleAccent: e.target.value 
                 });
               }}
-              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
               placeholder="Bakes"
             />
           </div>
@@ -166,7 +166,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
               type="text"
               value={featured.viewMenuLink || ''}
               onChange={(e) => updateFeatured({ viewMenuLink: e.target.value })}
-              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
               placeholder="#products"
             />
           </div>
@@ -178,7 +178,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
               type="text"
               value={featured.viewMenuText || ''}
               onChange={(e) => updateFeatured({ viewMenuText: e.target.value })}
-              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+              className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
               placeholder="View Full Menu"
             />
           </div>
@@ -187,10 +187,10 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
 
       {/* Featured Items */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800">Featured Items</h3>
+        <h3 className="text-lg font-bold text-slate-900">Featured Items</h3>
         <button
           onClick={addItem}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
         </button>
@@ -210,14 +210,14 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
                 value={item.name}
                 placeholder="Item Name"
                 onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-indigo-400 outline-none"
+                className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-amber-400 outline-none"
               />
               <input
                 type="text"
                 value={item.price}
                 placeholder="Price"
                 onChange={(e) => updateItem(item.id, 'price', e.target.value)}
-                className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-indigo-400 outline-none"
+                className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-amber-400 outline-none"
               />
             </div>
             <div className="flex gap-2 mb-2">
@@ -226,12 +226,12 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
                 value={item.badge || ''}
                 placeholder="Badge (e.g., TOP PICK, FRESH, SEASONAL)"
                 onChange={(e) => updateItem(item.id, 'badge', e.target.value)}
-                className="flex-1 bg-white border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 focus:border-indigo-400 outline-none"
+                className="flex-1 bg-white border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 focus:border-amber-400 outline-none"
               />
               <select
                 value={item.buttonStyle || 'secondary'}
                 onChange={(e) => updateItem(item.id, 'buttonStyle', e.target.value as 'primary' | 'secondary')}
-                className="bg-white border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 focus:border-indigo-400 outline-none"
+                className="bg-white border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 focus:border-amber-400 outline-none"
               >
                 <option value="primary">Primary (Dark Brown)</option>
                 <option value="secondary">Secondary (Light Cream)</option>
@@ -240,7 +240,7 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
             <textarea
               value={item.description}
               onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-              className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-indigo-400 rounded outline-none h-16 resize-none mb-2"
+              className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-amber-400 rounded outline-none h-16 resize-none mb-2"
               placeholder="Description"
             />
             <div className="flex gap-2">

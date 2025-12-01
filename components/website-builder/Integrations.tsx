@@ -13,8 +13,8 @@ export const Integrations: React.FC<IntegrationsProps> = ({
 }) => {
   return (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-        <MessageCircle className="w-5 h-5 text-indigo-500" />
+      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <MessageCircle className="w-5 h-5 text-amber-500" />
         Integrations
       </h3>
       <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
@@ -24,7 +24,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({
               <MessageCircle className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-semibold text-slate-800">Facebook Messenger</p>
+              <p className="font-semibold text-slate-900">Facebook Messenger</p>
               <p className="text-xs text-slate-500">Enable checkout via Messenger</p>
             </div>
           </div>
@@ -35,7 +35,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({
               checked={website.messenger.enabled}
               onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, enabled: e.target.checked } }) : prev)}
             />
-            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-400"></div>
           </label>
         </div>
         {website.messenger.enabled && website.enabledSections.products && (
@@ -47,7 +47,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({
                 placeholder="Your Facebook Page ID or username"
                 value={website.messenger.pageId}
                 onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, pageId: e.target.value } }) : prev)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
               />
             </div>
             <div>
@@ -59,7 +59,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({
                 placeholder="Google Apps Script Web App URL"
                 value={website.messenger.googleScriptUrl || ''}
                 onChange={(e) => setWebsite(prev => prev ? ({ ...prev, messenger: { ...prev.messenger, googleScriptUrl: e.target.value } }) : prev)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
               />
               <p className="text-xs text-slate-500 mt-1">
                 Orders will be automatically saved to Google Spreadsheet. See setup guide in docs.

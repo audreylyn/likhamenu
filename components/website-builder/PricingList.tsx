@@ -18,7 +18,7 @@ export const PricingList: React.FC<PricingListProps> = ({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800">Pricing Plans</h3>
+        <h3 className="text-lg font-bold text-slate-900">Pricing Plans</h3>
         <button
           onClick={() => addItem<PricingPlan>('pricing', { 
             id: Math.random().toString(), 
@@ -30,7 +30,7 @@ export const PricingList: React.FC<PricingListProps> = ({
             buttonLink: '#',
             isPopular: false
           })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Plan
         </button>
@@ -50,7 +50,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                 value={plan.name}
                 placeholder="Plan Name"
                 onChange={(e) => updateItem<PricingPlan>('pricing', plan.id, 'name', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none font-bold"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none font-bold"
               />
             </div>
 
@@ -62,7 +62,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                 value={plan.tagline || ''}
                 placeholder="Perfect for the daily toast enthusiast."
                 onChange={(e) => updateItem<PricingPlan>('pricing', plan.id, 'tagline', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
               />
             </div>
 
@@ -74,7 +74,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                 value={plan.price}
                 placeholder="$35/month"
                 onChange={(e) => updateItem<PricingPlan>('pricing', plan.id, 'price', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none"
               />
             </div>
 
@@ -85,7 +85,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                   type="checkbox"
                   checked={plan.isPopular || false}
                   onChange={(e) => updateItem<PricingPlan>('pricing', plan.id, 'isPopular', e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                  className="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500"
                 />
                 <span className="text-sm text-slate-700 flex items-center gap-1">
                   <Star className="w-4 h-4 text-amber-500" />
@@ -108,7 +108,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                         newFeatures[index] = e.target.value;
                         updateItem<PricingPlan>('pricing', plan.id, 'features', newFeatures);
                       }}
-                      className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none"
+                      className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none"
                       placeholder={`Feature ${index + 1}`}
                     />
                     <button
@@ -124,7 +124,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                 ))}
                 <button
                   onClick={() => updateItem<PricingPlan>('pricing', plan.id, 'features', [...plan.features, ''])}
-                  className="text-xs text-indigo-600 hover:underline flex items-center gap-1 mt-1"
+                  className="text-xs text-amber-600 hover:underline flex items-center gap-1 mt-1"
                 >
                   <Plus className="w-3 h-3" /> Add Feature
                 </button>
@@ -139,7 +139,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                 value={plan.buttonText}
                 placeholder="Get Started"
                 onChange={(e) => updateItem<PricingPlan>('pricing', plan.id, 'buttonText', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
               />
             </div>
 
@@ -151,7 +151,7 @@ export const PricingList: React.FC<PricingListProps> = ({
                 value={plan.buttonLink}
                 placeholder="#contact or https://..."
                 onChange={(e) => updateItem<PricingPlan>('pricing', plan.id, 'buttonLink', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
               />
             </div>
           </div>

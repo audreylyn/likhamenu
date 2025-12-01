@@ -46,7 +46,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
 
   return (
     <section>
-      <h3 className="text-lg font-bold text-slate-800 mb-4">Call to Action</h3>
+      <h3 className="text-lg font-bold text-slate-900 mb-4">Call to Action</h3>
       <div className="space-y-6">
         {/* Heading Text */}
         <div>
@@ -55,7 +55,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
             type="text"
             value={cta.text}
             onChange={(e) => handleCtaChange('text', e.target.value)}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none"
             placeholder="Ready to get started?"
           />
         </div>
@@ -66,7 +66,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
           <textarea
             value={cta.description || ''}
             onChange={(e) => handleCtaChange('description', e.target.value)}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none h-24 resize-none"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none h-24 resize-none"
             placeholder="Take the next step and experience the difference. Order online for quick pickup or visit us today."
           />
         </div>
@@ -86,7 +86,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
             <label className="block text-sm font-medium text-slate-700">Buttons</label>
             <button
               onClick={addButton}
-              className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+              className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
             >
               <Plus className="w-4 h-4" /> Add Button
             </button>
@@ -109,7 +109,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
                         type="text"
                         value={button.text}
                         onChange={(e) => handleButtonChange(button.id, 'text', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                         placeholder="Order Now"
                       />
                     </div>
@@ -119,7 +119,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
                         type="text"
                         value={button.link}
                         onChange={(e) => handleButtonChange(button.id, 'link', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                         placeholder="#products"
                       />
                     </div>
@@ -130,7 +130,7 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
                     <select
                       value={button.style}
                       onChange={(e) => handleButtonChange(button.id, 'style', e.target.value as 'solid' | 'outlined')}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 outline-none text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none text-sm"
                     >
                       <option value="solid">Solid (Light Brown Background)</option>
                       <option value="outlined">Outlined (White Border)</option>

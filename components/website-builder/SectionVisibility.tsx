@@ -30,8 +30,8 @@ export const SectionVisibility: React.FC<SectionVisibilityProps> = ({
 
   return (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-8">
-      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-        <Layers className="w-5 h-5 text-indigo-500" />
+      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <Layers className="w-5 h-5 text-amber-500" />
         Page Sections
       </h3>
 
@@ -41,7 +41,7 @@ export const SectionVisibility: React.FC<SectionVisibilityProps> = ({
           id="websiteType"
           value={websiteType}
           onChange={(e) => handlePresetChange(e.target.value as WebsiteType)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:border-indigo-400 outline-none"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:border-amber-400 outline-none"
         >
           {Object.values(WebsiteType).map((type) => (
             <option key={type} value={type}>{type}</option>
@@ -53,12 +53,12 @@ export const SectionVisibility: React.FC<SectionVisibilityProps> = ({
         {(Object.keys(website.enabledSections) as Array<keyof typeof website.enabledSections>).map((key) => {
           const enabled = website.enabledSections[key];
           return (
-            <label key={String(key)} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-all">
+            <label key={String(key)} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-amber-300 transition-all">
               <input
                 type="checkbox"
                 checked={enabled}
                 onChange={(e) => handleSectionToggle(key, e.target.checked)}
-                className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
               />
               <span className="capitalize text-sm font-medium text-slate-700">{key} Section</span>
             </label>

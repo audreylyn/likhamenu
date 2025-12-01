@@ -23,12 +23,12 @@ export const GalleryList: React.FC<GalleryListProps> = ({
     <section>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Gallery / Portfolio</h3>
+          <h3 className="text-lg font-bold text-slate-900">Gallery / Portfolio</h3>
           <p className="text-xs text-slate-500 mt-1">All images will be displayed in the interactive bento grid. Click any image to view in full-screen carousel.</p>
         </div>
         <button
           onClick={() => addItem<GalleryItem>('gallery', { id: Math.random().toString(), image: 'https://placehold.co/400x300?text=Gallery+Item', caption: 'New Gallery Item' })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
         </button>
@@ -70,7 +70,7 @@ export const GalleryList: React.FC<GalleryListProps> = ({
                   value={item.caption || ''}
                   placeholder="Image Caption (optional)"
                   onChange={(e) => updateItem<GalleryItem>('gallery', item.id, 'caption', e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+                  className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
                 />
               </div>
               <div className="flex gap-2">

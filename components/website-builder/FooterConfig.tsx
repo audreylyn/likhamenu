@@ -67,7 +67,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
   return (
     <section>
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-slate-800">Footer Configuration</h3>
+        <h3 className="text-lg font-bold text-slate-900">Footer Configuration</h3>
         <p className="text-slate-500 text-sm">Customize your website footer</p>
       </div>
       
@@ -89,7 +89,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
             <label className="block text-sm font-medium text-slate-700">Quick Links (Primary Links)</label>
             <button
               onClick={() => handleFooterChange('quickLinks', [...footer.quickLinks, { label: '', href: '' }])}
-              className="text-xs flex items-center gap-1 text-indigo-600 hover:underline"
+              className="text-xs flex items-center gap-1 text-amber-600 hover:underline"
             >
               <Plus className="w-3 h-3" /> Add Link
             </button>
@@ -136,7 +136,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
             <label className="block text-sm font-medium text-slate-700">Explore Links</label>
             <button
               onClick={addExploreLink}
-              className="text-xs flex items-center gap-1 text-indigo-600 hover:underline"
+              className="text-xs flex items-center gap-1 text-amber-600 hover:underline"
             >
               <Plus className="w-3 h-3" /> Add Link
             </button>
@@ -175,7 +175,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
             <label className="block text-sm font-medium text-slate-700">Operating Hours</label>
             <button
               onClick={addHours}
-              className="text-xs flex items-center gap-1 text-indigo-600 hover:underline"
+              className="text-xs flex items-center gap-1 text-amber-600 hover:underline"
             >
               <Plus className="w-3 h-3" /> Add Hours
             </button>
@@ -234,7 +234,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
                   value={link.url}
                   onChange={(e) => updateSocialLink(link.platform, 'url', e.target.value)}
                   placeholder={`https://${link.platform}.com/yourpage`}
-                  className={`flex-1 px-4 py-2 border rounded-lg outline-none ${!link.enabled ? 'bg-slate-50 text-slate-400' : 'bg-white border-slate-300 focus:border-indigo-500'}`}
+                  className={`flex-1 px-4 py-2 border rounded-lg outline-none ${!link.enabled ? 'bg-slate-50 text-slate-400' : 'bg-white border-slate-300 focus:border-amber-500'}`}
                   disabled={!link.enabled}
                 />
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -244,7 +244,7 @@ export const FooterConfig: React.FC<FooterConfigProps> = ({
                     checked={link.enabled}
                     onChange={(e) => updateSocialLink(link.platform, 'enabled', e.target.checked)}
                   />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                 </label>
               </div>
             ))}

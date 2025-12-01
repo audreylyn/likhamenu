@@ -22,12 +22,12 @@ export const TestimonialList: React.FC<TestimonialListProps> = ({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <User className="w-5 h-5 text-slate-500" /> Testimonials
         </h3>
         <button
           onClick={() => addItem<Testimonial>('testimonials', { id: Math.random().toString(), name: 'Customer Name', role: 'Client', content: 'Great service!', avatar: 'https://placehold.co/150x150?text=User' })}
-          className="text-sm flex items-center gap-1 text-indigo-600 hover:underline"
+          className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
         </button>
@@ -41,7 +41,7 @@ export const TestimonialList: React.FC<TestimonialListProps> = ({
             <textarea
               value={t.content}
               onChange={(e) => updateItem<Testimonial>('testimonials', t.id, 'content', e.target.value)}
-              className="w-full bg-transparent text-sm italic text-slate-600 border-transparent focus:border-indigo-400 outline-none resize-none mb-2"
+              className="w-full bg-transparent text-sm italic text-slate-600 border-transparent focus:border-amber-400 outline-none resize-none mb-2"
               placeholder="Quote"
             />
             <div className="flex gap-2">
@@ -63,14 +63,14 @@ export const TestimonialList: React.FC<TestimonialListProps> = ({
                   type="text"
                   value={t.name}
                   onChange={(e) => updateItem<Testimonial>('testimonials', t.id, 'name', e.target.value)}
-                  className="w-full bg-transparent font-bold text-sm border-b border-transparent focus:border-indigo-400 outline-none"
+                  className="w-full bg-transparent font-bold text-sm border-b border-transparent focus:border-amber-400 outline-none"
                   placeholder="Name"
                 />
                 <input
                   type="text"
                   value={t.role}
                   onChange={(e) => updateItem<Testimonial>('testimonials', t.id, 'role', e.target.value)}
-                  className="w-full bg-transparent text-xs text-slate-500 border-b border-transparent focus:border-indigo-400 outline-none"
+                  className="w-full bg-transparent text-xs text-slate-500 border-b border-transparent focus:border-amber-400 outline-none"
                   placeholder="Role"
                 />
               </div>

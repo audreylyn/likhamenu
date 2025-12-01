@@ -28,7 +28,7 @@ export const WebsiteBuilderHeader: React.FC<WebsiteBuilderHeaderProps> = ({
         <button onClick={() => navigate('/')} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-600" />
         </button>
-        <h1 className="text-2xl font-bold text-slate-800">
+        <h1 className="text-2xl font-bold text-slate-900">
           {isNew ? 'Create Website' : `Edit: ${website?.title || 'Loading...'}`}
         </h1>
         {user.role === 'editor' && (
@@ -40,7 +40,7 @@ export const WebsiteBuilderHeader: React.FC<WebsiteBuilderHeaderProps> = ({
       <div className="flex gap-3">
         <button
           onClick={handleViewSite}
-          className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 font-medium flex items-center gap-2"
+          className="px-4 py-2 border border-amber-400 text-slate-900 rounded-lg hover:bg-amber-50 font-medium flex items-center gap-2"
         >
           <ExternalLink className="w-4 h-4" />
           View Site
@@ -48,7 +48,7 @@ export const WebsiteBuilderHeader: React.FC<WebsiteBuilderHeaderProps> = ({
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 font-medium shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-amber-400 text-slate-900 rounded-lg hover:bg-amber-500 flex items-center gap-2 font-medium shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {isSaving ? 'Saving...' : 'Save Changes'}

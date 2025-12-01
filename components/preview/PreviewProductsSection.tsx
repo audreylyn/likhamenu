@@ -345,7 +345,7 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
           onClick={() => setQuickViewProduct(null)}
         >
           <div
-            className={`quick-view-content ${isDark ? 'bg-slate-800' : 'bg-white'} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden`}
+            className={`quick-view-content ${isDark ? 'bg-slate-900' : 'bg-white'} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative">

@@ -22,7 +22,7 @@ export const HeroContent: React.FC<HeroContentProps> = ({
 
   return (
     <section>
-      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
         <ImageIcon className="w-5 h-5 text-slate-500" /> Hero Section
       </h3>
       <div className="grid gap-4">
@@ -31,7 +31,7 @@ export const HeroContent: React.FC<HeroContentProps> = ({
           <select
             id="heroType"
             name="heroType"
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-400 focus:border-amber-400 sm:text-sm rounded-md"
             value={website.content.hero.heroType || 'default'}
             onChange={(e) => updateContent('hero', { ...website.content.hero, heroType: e.target.value as HeroType })}
           >

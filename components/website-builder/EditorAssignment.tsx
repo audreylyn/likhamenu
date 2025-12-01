@@ -65,7 +65,7 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
       <div className="flex items-center gap-2">
         {assignedEditors.length > 0 ? (
           <div className="flex items-center gap-1">
-            <User className="w-4 h-4 text-indigo-600" />
+            <User className="w-4 h-4 text-amber-600" />
             <span className="text-xs text-slate-600">{assignedEditors.length}</span>
           </div>
         ) : (
@@ -73,7 +73,7 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
         )}
         <button
           onClick={() => setShowModal(true)}
-          className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+          className="text-xs text-amber-600 hover:text-amber-800 font-medium"
           title="Manage editors"
         >
           Assign
@@ -85,7 +85,7 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-800">Assign Editors</h3>
+              <h3 className="text-lg font-bold text-slate-900">Assign Editors</h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-slate-400 hover:text-slate-600"
@@ -105,13 +105,13 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
                   value={newEditorEmail}
                   onChange={(e) => setNewEditorEmail(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddEditor()}
-                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 outline-none"
                   disabled={saving}
                 />
                 <button
                   onClick={handleAddEditor}
                   disabled={saving || !newEditorEmail.trim()}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 bg-amber-400 text-slate-900 rounded-lg hover:bg-amber-500 disabled:opacity-50 flex items-center gap-2 font-medium"
                 >
                   <Plus className="w-4 h-4" />
                   Add
@@ -131,11 +131,11 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
                   {assignedEditors.map((email, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-200 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg"
                     >
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-indigo-600" />
-                        <span className="text-sm text-slate-800">{email}</span>
+                        <User className="w-4 h-4 text-amber-600" />
+                        <span className="text-sm text-slate-900">{email}</span>
                       </div>
                       <button
                         onClick={() => handleRemoveEditor(email)}
@@ -154,7 +154,7 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
             <div className="pt-4 border-t border-slate-200">
               <button
                 onClick={() => setShowModal(false)}
-                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                className="w-full px-4 py-2 bg-amber-400 text-slate-900 rounded-lg hover:bg-amber-500 font-medium"
               >
                 Done
               </button>

@@ -137,7 +137,7 @@ export const PreviewTeamSection: React.FC<PreviewTeamSectionProps> = ({
           {content.team.map((member) => (
             <div
               key={member.id}
-              className={`team-card ${isDark ? 'bg-slate-800' : 'bg-white'} shadow-xl`}
+              className={`team-card ${isDark ? 'bg-slate-900' : 'bg-white'} shadow-xl`}
             >
               <div className="team-card-image-wrapper">
                 <img
@@ -152,7 +152,7 @@ export const PreviewTeamSection: React.FC<PreviewTeamSectionProps> = ({
                   </div>
                 )}
               </div>
-              <div className={`team-card-content ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+              <div className={`team-card-content ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
                 <h3 className={`team-card-name ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   {member.name}
                 </h3>

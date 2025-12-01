@@ -19,10 +19,10 @@ export const WebsiteBuilderTabs: React.FC<WebsiteBuilderTabsProps> = ({
         onClick={() => user.role === 'admin' && setActiveTab('settings')}
         className={`flex items-center gap-2 px-6 py-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
           activeTab === 'settings'
-            ? 'border-indigo-600 text-indigo-600'
+            ? 'border-amber-400 text-slate-900'
             : user.role === 'editor'
               ? 'border-transparent text-slate-300 cursor-not-allowed'
-              : 'border-transparent text-slate-500 hover:text-indigo-600'
+              : 'border-transparent text-slate-500 hover:text-amber-600'
         }`}
       >
         Settings & Appearance
@@ -31,7 +31,7 @@ export const WebsiteBuilderTabs: React.FC<WebsiteBuilderTabsProps> = ({
       <button
         onClick={() => setActiveTab('content')}
         className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
-          activeTab === 'content' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
+          activeTab === 'content' ? 'border-amber-400 text-slate-900' : 'border-transparent text-slate-500 hover:text-amber-600'
         }`}
       >
         Content Management
@@ -39,7 +39,7 @@ export const WebsiteBuilderTabs: React.FC<WebsiteBuilderTabsProps> = ({
       <button
         onClick={() => setActiveTab('marketing')}
         className={`flex items-center gap-2 px-6 py-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
-          activeTab === 'marketing' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
+          activeTab === 'marketing' ? 'border-amber-400 text-slate-900' : 'border-transparent text-slate-500 hover:text-amber-600'
         }`}
       >
         <Megaphone className="w-4 h-4" />

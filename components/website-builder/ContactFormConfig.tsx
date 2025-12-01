@@ -1,5 +1,5 @@
 import React from 'react';
-import { Website, ContactFormConfig } from '../../types';
+import { Website, ContactFormConfig as ContactFormConfigType } from '../../types';
 import { Mail, ExternalLink, Info } from 'lucide-react';
 
 interface ContactFormConfigProps {
@@ -11,13 +11,13 @@ export const ContactFormConfig: React.FC<ContactFormConfigProps> = ({
   website,
   setWebsite,
 }) => {
-  const config: ContactFormConfig = website.contactFormConfig || {
+  const config: ContactFormConfigType = website.contactFormConfig || {
     googleScriptUrl: '',
     clientId: '',
     enabled: false,
   };
 
-  const handleChange = (field: keyof ContactFormConfig, value: string | boolean) => {
+  const handleChange = (field: keyof ContactFormConfigType, value: string | boolean) => {
     setWebsite((prev) => {
       if (!prev) return null;
       return {
@@ -33,8 +33,8 @@ export const ContactFormConfig: React.FC<ContactFormConfigProps> = ({
   return (
     <section className="border-t border-slate-200 pt-6 mt-6">
       <div className="flex items-center gap-2 mb-4">
-        <Mail className="w-5 h-5 text-indigo-600" />
-        <h3 className="text-lg font-bold text-slate-800">Contact Form Configuration</h3>
+        <Mail className="w-5 h-5 text-amber-500" />
+        <h3 className="text-lg font-bold text-slate-900">Contact Form Configuration</h3>
       </div>
       
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -71,7 +71,7 @@ export const ContactFormConfig: React.FC<ContactFormConfigProps> = ({
               onChange={(e) => handleChange('enabled', e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
           </label>
         </div>
 
@@ -87,7 +87,7 @@ export const ContactFormConfig: React.FC<ContactFormConfigProps> = ({
               value={config.googleScriptUrl || ''}
               onChange={(e) => handleChange('googleScriptUrl', e.target.value)}
               placeholder="https://script.google.com/macros/s/..."
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none text-sm"
               disabled={!config.enabled}
             />
             {config.googleScriptUrl && (
@@ -95,7 +95,7 @@ export const ContactFormConfig: React.FC<ContactFormConfigProps> = ({
                 href={config.googleScriptUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-indigo-600 hover:text-indigo-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-amber-600 hover:text-amber-700"
                 title="Open in new tab"
               >
                 <ExternalLink className="w-4 h-4" />
@@ -118,7 +118,7 @@ export const ContactFormConfig: React.FC<ContactFormConfigProps> = ({
             value={config.clientId || ''}
             onChange={(e) => handleChange('clientId', e.target.value)}
             placeholder="e.g., rose, bakery, mike"
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none text-sm"
             disabled={!config.enabled}
           />
           <p className="text-xs text-slate-500 mt-1">

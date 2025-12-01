@@ -33,10 +33,10 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex flex-col justify-between bg-slate-800 text-white p-12 w-1/2">
+      <div className="hidden lg:flex flex-col justify-between bg-slate-900 text-white p-12 w-1/2">
         <div>
           <h1 className="text-4xl font-bold mb-4">WebGen</h1>
-          <p className="text-indigo-400 text-lg">Welcome back! Please login to your account.</p>
+          <p className="text-amber-400 text-lg">Welcome back! Please login to your account.</p>
         </div>
         <div>
           <p className="text-slate-400 text-sm">© {new Date().getFullYear()} WebGen. All rights reserved.</p>
@@ -47,7 +47,7 @@ const Login: React.FC = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="text-left mb-8">
-            <h1 className="text-2xl font-bold text-slate-800 mb-1">Login to your account</h1>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">Login to your account</h1>
             <p className="text-slate-500 text-sm">Welcome back! Please enter your details</p>
           </div>
 
@@ -74,7 +74,7 @@ const Login: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
                     placeholder="Enter your email address"
                     required
                   />
@@ -94,7 +94,7 @@ const Login: React.FC = () => {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
                     placeholder="Enter your password"
                     required
                   />
@@ -113,11 +113,11 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md text-sm font-medium text-slate-900 bg-amber-400 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 transition-colors ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
