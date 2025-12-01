@@ -6,7 +6,7 @@ export type CartItem = { product: Product; quantity: number };
 export function useCart(website?: Website | null) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [checkoutForm, setCheckoutForm] = useState({ name: '', location: '', message: '' });
+  const [checkoutForm, setCheckoutForm] = useState({ name: '', email: '', location: '', message: '' });
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const parseCurrency = (s?: string) => {
@@ -86,6 +86,7 @@ export function useCart(website?: Website | null) {
       websiteTitle: website.title,
       order: {
         customerName: checkoutForm.name,
+        email: checkoutForm.email,
         location: checkoutForm.location,
         items: orderItems,
         total: cartTotal(),
@@ -97,6 +98,8 @@ export function useCart(website?: Website | null) {
     // Prepare Messenger message
     const lines: string[] = [];
     lines.push('New Order Request');
+    lines.push(`Customer: ${checkoutForm.name}`);
+    if (checkoutForm.email) lines.push(`Email: ${checkoutForm.email}`);
     lines.push('------------------');
     lines.push('Items:');
     cart.forEach(ci => {

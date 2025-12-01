@@ -4,13 +4,20 @@
  * This script handles order submissions from websites and stores them in
  * Google Spreadsheets organized by website in a Drive folder.
  * 
+ * FEATURES:
+ * - Automatic order processing and storage
+ * - Email notifications for new orders
+ * - Modern dashboard with KPI cards and charts
+ * - Status tracking and conditional formatting
+ * 
  * SETUP INSTRUCTIONS:
  * 1. Go to script.google.com
  * 2. Create a new project
  * 3. Paste this entire code
  * 4. Update ADMIN_EMAIL with your email
  * 5. Deploy as Web App (Execute as: Me, Who has access: Anyone)
- * 6. Copy the Web App URL and use it in your website configuration
+ * 6. Copy the Web App URL and update WEB_APP_URL constant if needed
+ * 7. Use the Web App URL in your website configuration
  */
 
 // ============================================
@@ -19,6 +26,67 @@
 const ADMIN_EMAIL = "likhasiteworks@gmail.com"; // Change this to your email
 const DRIVE_FOLDER_NAME = "Messenger/Order Tracking";
 const ORDER_STATUS_OPTIONS = ["Pending", "Processing", "Preparing", "Ready", "Out for Delivery", "Delivered", "Cancelled"];
+
+// ============================================
+// ADMIN MENU & TRIGGER SETUP
+// ============================================
+
+/**
+ * Adds a custom menu to the spreadsheet when opened.
+ * NOTE: This only works if the script is bound to the spreadsheet.
+ */
+function onOpen() {
+  try {
+    const ui = SpreadsheetApp.getUi();
+    ui.createMenu('Admin Controls')
+      .addItem('Enable Email Notifications', 'setupTrigger')
+      .addToUi();
+  } catch (e) {
+    // Ignore errors if running in a context without UI (e.g. standalone web app)
+    console.log("Could not create menu: " + e.toString());
+  }
+}
+
+/**
+ * One-Click Setup: Creates the installable trigger for email notifications.
+ * Run this from the "Admin Controls" menu in the spreadsheet.
+ */
+function setupTrigger() {
+  const ui = SpreadsheetApp.getUi();
+  
+  try {
+    // Check if trigger already exists to avoid duplicates
+    const triggers = ScriptApp.getProjectTriggers();
+    const handlerName = 'sendOrderStatusEmail';
+    
+    let exists = false;
+    for (let i = 0; i < triggers.length; i++) {
+      if (triggers[i].getHandlerFunction() === handlerName) {
+        exists = true;
+        break;
+      }
+    }
+    
+    if (exists) {
+      ui.alert('Email notifications are already enabled!');
+      return;
+    }
+    
+    // Create the trigger
+    const sheet = SpreadsheetApp.getActiveSpreadsheet();
+    
+    ScriptApp.newTrigger(handlerName)
+      .forSpreadsheet(sheet)
+      .onEdit()
+      .create();
+      
+    ui.alert('Success! Email notifications are now enabled.\n\nCustomers will receive emails when you change the Order Status.');
+    
+  } catch (error) {
+    console.error(error);
+    ui.alert('Error setting up trigger: ' + error.toString());
+  }
+}
 
 // ============================================
 // MAIN FUNCTION - Handles Order Submissions
@@ -54,7 +122,7 @@ function doPost(e) {
     addOrderToSheet(sheet, orderData);
     
     // Create or update Dashboard sheet with formulas and charts
-    createOrUpdateDashboardSheet(spreadsheet, sheet);
+    createOrUpdateDashboardSheet(spreadsheet, sheet, websiteTitle);
     
     // Return success response with CORS headers
     return ContentService.createTextOutput(
@@ -145,7 +213,7 @@ function doGet(e) {
       // Create Orders sheet if it doesn't exist
       const ordersSheet = getOrCreateOrdersSheet(spreadsheet);
       // Also create Dashboard sheet
-      createOrUpdateDashboardSheet(spreadsheet, ordersSheet);
+      createOrUpdateDashboardSheet(spreadsheet, ordersSheet, websiteTitle);
       
       return ContentService.createTextOutput(
         JSON.stringify({ 
@@ -349,6 +417,7 @@ function getOrCreateOrdersSheet(spreadsheet) {
       "Order ID",
       "Date/Time",
       "Customer Name",
+      "Customer Email",
       "Location",
       "Items",
       "Item Details",
@@ -366,8 +435,8 @@ function getOrCreateOrdersSheet(spreadsheet) {
     headerRange.setFontColor("#ffffff");
     headerRange.setHorizontalAlignment("center");
     
-    // Set up data validation for Status column (column I)
-    const statusColumn = 9; // Column I
+    // Set up data validation for Status column (column J now)
+    const statusColumn = 10; // Column J
     const statusRange = sheet.getRange(2, statusColumn, 1000, 1); // 1000 rows initially
     const rule = SpreadsheetApp.newDataValidation()
       .requireValueInList(ORDER_STATUS_OPTIONS, true)
@@ -380,12 +449,13 @@ function getOrCreateOrdersSheet(spreadsheet) {
     sheet.setColumnWidth(1, 120); // Order ID
     sheet.setColumnWidth(2, 150); // Date/Time
     sheet.setColumnWidth(3, 150); // Customer Name
-    sheet.setColumnWidth(4, 200); // Location
-    sheet.setColumnWidth(5, 300); // Items
-    sheet.setColumnWidth(6, 400); // Item Details
-    sheet.setColumnWidth(7, 120); // Total Amount
-    sheet.setColumnWidth(8, 300); // Note
-    sheet.setColumnWidth(9, 150); // Status
+    sheet.setColumnWidth(4, 200); // Customer Email
+    sheet.setColumnWidth(5, 200); // Location
+    sheet.setColumnWidth(6, 300); // Items
+    sheet.setColumnWidth(7, 400); // Item Details
+    sheet.setColumnWidth(8, 120); // Total Amount
+    sheet.setColumnWidth(9, 300); // Note
+    sheet.setColumnWidth(10, 150); // Status
     
     // Freeze header row
     sheet.setFrozenRows(1);
@@ -407,56 +477,56 @@ function setupStatusColorCoding(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return; // No data rows yet
   
-  const dataRange = sheet.getRange(2, 1, lastRow - 1, 9); // All data rows, all columns
+  const dataRange = sheet.getRange(2, 1, lastRow - 1, 10); // All data rows, all columns
   
   // Status-based color rules
   const conditionalFormatRules = [
     // Pending - White
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Pending"')
+      .whenFormulaSatisfied('=$J2="Pending"')
       .setBackground("#ffffff") // White
       .build(),
     
     // Processing - Light blue
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Processing"')
+      .whenFormulaSatisfied('=$J2="Processing"')
       .setBackground("#e3f2fd") // Light blue
       .build(),
     
     // Preparing - Light orange
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Preparing"')
+      .whenFormulaSatisfied('=$J2="Preparing"')
       .setBackground("#ffe0b2") // Light orange
       .build(),
     
     // Ready - Light green
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Ready"')
+      .whenFormulaSatisfied('=$J2="Ready"')
       .setBackground("#c8e6c9") // Light green
       .build(),
     
     // Out for Delivery - Light purple
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Out for Delivery"')
+      .whenFormulaSatisfied('=$J2="Out for Delivery"')
       .setBackground("#e1bee7") // Light purple
       .build(),
     
     // Delivered - Green
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Delivered"')
+      .whenFormulaSatisfied('=$J2="Delivered"')
       .setBackground("#a5d6a7") // Green
       .build(),
     
     // Cancelled - Light red
     SpreadsheetApp.newConditionalFormatRule()
       .setRanges([dataRange])
-      .whenFormulaSatisfied('=$I2="Cancelled"')
+      .whenFormulaSatisfied('=$J2="Cancelled"')
       .setBackground("#ffcdd2") // Light red
       .build()
   ];
@@ -495,6 +565,7 @@ function addOrderToSheet(sheet, orderData) {
     orderId,
     dateTime,
     orderData.customerName || "",
+    orderData.email || "",
     orderData.location || "",
     itemsList,
     itemDetails,
@@ -509,8 +580,8 @@ function addOrderToSheet(sheet, orderData) {
   const newRowRange = sheet.getRange(2, 1, 1, rowData.length);
   newRowRange.setValues([rowData]);
   
-  // Apply data validation to the new Status cell (column I, row 2)
-  const statusCell = sheet.getRange(2, 9); // Column I, Row 2
+  // Apply data validation to the new Status cell (column J, row 2)
+  const statusCell = sheet.getRange(2, 10); // Column J, Row 2
   const rule = SpreadsheetApp.newDataValidation()
     .requireValueInList(ORDER_STATUS_OPTIONS, true)
     .setAllowInvalid(false)
@@ -535,129 +606,291 @@ function formatCurrency(amount) {
 }
 
 /**
- * Create or update Dashboard sheet with formulas and charts
+ * REPLACEMENT FUNCTION: Generate "Pro-Level" SaaS Dashboard
  */
-function createOrUpdateDashboardSheet(spreadsheet, ordersSheet) {
+function createOrUpdateDashboardSheet(spreadsheet, ordersSheet, websiteTitle) {
   let dashboardSheet = spreadsheet.getSheetByName("Dashboard");
   
   if (!dashboardSheet) {
-    // Create new Dashboard sheet
     dashboardSheet = spreadsheet.insertSheet("Dashboard");
-    dashboardSheet.setTabColor("#34a853"); // Green color for dashboard tab
+    dashboardSheet.setTabColor("#1a73e8");
   } else {
-    // Clear existing content (keep structure)
-    dashboardSheet.clear();
+    dashboardSheet.clear(); // Wipe clean
   }
+
+  // 1. GLOBAL SETTINGS
+  dashboardSheet.setHiddenGridlines(true); // Crucial for "App" look
+  dashboardSheet.setColumnWidth(1, 20); // Spacer Col A
+
+  // =======================================
+  // SECTION 1: HEADER & TITLE
+  // =======================================
+  const headerRange = dashboardSheet.getRange("B2:M3");
+  const title = (websiteTitle || "WEBSITE") + " | ORDER DASHBOARD";
+  headerRange.merge()
+    .setValue(title.toUpperCase())
+    .setBackground("#202124")
+    .setFontColor("#ffffff")
+    .setFontFamily("Roboto")
+    .setFontSize(18)
+    .setFontWeight("bold")
+    .setVerticalAlignment("middle")
+    .setHorizontalAlignment("left")
+    .setWrap(false);
+    // Add padding via text indent if possible, or just space in string
+
+  // =======================================
+  // SECTION 2: KPI CARDS (The "Scoreboard")
+  // =======================================
+  const kpiRow = 5;
   
-  // Set up header
-  dashboardSheet.getRange(1, 1).setValue("ORDER DASHBOARD").setFontSize(18).setFontWeight("bold");
-  dashboardSheet.getRange(1, 1, 1, 4).merge();
+  // Card 1: Revenue (Green Theme)
+  createModernCard(dashboardSheet, "B5:E8", "TOTAL REVENUE", 
+    `=SUM(ARRAYFORMULA(IF(ISBLANK(Orders!G2:G),0,VALUE(SUBSTITUTE(SUBSTITUTE(Orders!G2:G,"₱",""),",","")))))`, 
+    "₱#,##0.00", "#0f9d58");
+
+  // Card 2: Orders Count (Blue Theme)
+  createModernCard(dashboardSheet, "F5:I8", "TOTAL ORDERS", 
+    `=COUNTA(Orders!A2:A)`, 
+    "0", "#4285f4");
+
+  // Card 3: Action Needed (Red Theme)
+  createModernCard(dashboardSheet, "J5:M8", "PENDING ORDERS", 
+    `=COUNTIF(Orders!I2:I,"Pending") + COUNTIF(Orders!I2:I,"Processing")`, 
+    "0", "#db4437");
+
+  // =======================================
+  // SECTION 3: DATA PROCESSING (Hidden Engine)
+  // =======================================
+  // We use columns O, P, Q, R (Hidden) for chart data
+  const stats = calculateDashboardStats(ordersSheet);
   
-  // Key Metrics Section
-  dashboardSheet.getRange(3, 1).setValue("KEY METRICS").setFontWeight("bold").setFontSize(12);
-  dashboardSheet.getRange(3, 1, 1, 2).merge();
+  // 1. STATUS DATA (Dynamic Formulas for Pie Chart)
+  // We use formulas so the chart updates instantly when data changes
+  dashboardSheet.getRange("O1:P1").setValues([["Status", "Count"]]);
   
-  // Metric labels and formulas
-  const metrics = [
-    ["Total Orders:", "=COUNTA(Orders!A2:A)"],
-    ["Pending Orders:", "=COUNTIF(Orders!I2:I,\"Pending\")"],
-    ["Processing Orders:", "=COUNTIF(Orders!I2:I,\"Processing\")"],
-    ["Ready Orders:", "=COUNTIF(Orders!I2:I,\"Ready\")"],
-    ["Delivered Orders:", "=COUNTIF(Orders!I2:I,\"Delivered\")"],
-    ["Cancelled Orders:", "=COUNTIF(Orders!I2:I,\"Cancelled\")"],
-    ["", ""], // Spacer
-    ["Total Revenue:", "=SUM(ARRAYFORMULA(IF(ISBLANK(Orders!G2:G),0,VALUE(SUBSTITUTE(SUBSTITUTE(Orders!G2:G,\"₱\",\"\"),\",\",\"\")))))"],
-    ["Average Order Value:", "=IF(B4=0,0,B11/B4)"],
-    ["Today's Orders:", "=COUNTIF(Orders!B2:B,\">=\"&TODAY())"],
-    ["Today's Revenue:", "=SUM(ARRAYFORMULA(IF((ISBLANK(Orders!G2:G))+(Orders!B2:B<TODAY()),0,VALUE(SUBSTITUTE(SUBSTITUTE(Orders!G2:G,\"₱\",\"\"),\",\",\"\")))))"]
-  ];
-  
-  let row = 4;
-  metrics.forEach(metric => {
-    dashboardSheet.getRange(row, 1).setValue(metric[0]);
-    if (metric[1]) {
-      dashboardSheet.getRange(row, 2).setFormula(metric[1]).setNumberFormat("#,##0.00");
-    }
-    row++;
+  // Use the global ORDER_STATUS_OPTIONS to ensure all statuses are tracked
+  ORDER_STATUS_OPTIONS.forEach((status, index) => {
+    const row = 2 + index;
+    dashboardSheet.getRange(row, 15).setValue(status); // Col O
+    dashboardSheet.getRange(row, 16).setFormula(`=COUNTIF(Orders!I:I, "${status}")`); // Col P
   });
+
+  // 2. TOP PRODUCTS DATA (Static Snapshot)
+  // This still requires script execution to update as parsing is complex
+  dashboardSheet.getRange("S1:T1").setValues([["Product", "Qty"]]);
+  if (stats.productData.length > 0) {
+    dashboardSheet.getRange(2, 19, stats.productData.length, 2).setValues(stats.productData);
+  }
+
+  // =======================================
+  // SECTION 4: CHARTS
+  // =======================================
   
-  // Format metric values
-  dashboardSheet.getRange(4, 2, metrics.length, 1).setFontWeight("bold").setFontSize(11);
+  // Chart 1: Order Status Distribution (Pie Chart)
+  // Position: Row 10, Left side
+  const statusDataRange = dashboardSheet.getRange(1, 15, ORDER_STATUS_OPTIONS.length + 1, 2);
   
-  // Status Breakdown Section
-  row += 2;
-  dashboardSheet.getRange(row, 1).setValue("STATUS BREAKDOWN").setFontWeight("bold").setFontSize(12);
-  dashboardSheet.getRange(row, 1, 1, 2).merge();
-  row++;
-  
-  const statusBreakdownStartRow = row;
-  const statusBreakdown = [
-    ["Status", "Count", "Percentage"],
-    ["Pending", "=COUNTIF(Orders!I2:I,\"Pending\")", "=IF($B$4=0,0,B" + (row + 1) + "/$B$4)"],
-    ["Processing", "=COUNTIF(Orders!I2:I,\"Processing\")", "=IF($B$4=0,0,B" + (row + 2) + "/$B$4)"],
-    ["Preparing", "=COUNTIF(Orders!I2:I,\"Preparing\")", "=IF($B$4=0,0,B" + (row + 3) + "/$B$4)"],
-    ["Ready", "=COUNTIF(Orders!I2:I,\"Ready\")", "=IF($B$4=0,0,B" + (row + 4) + "/$B$4)"],
-    ["Out for Delivery", "=COUNTIF(Orders!I2:I,\"Out for Delivery\")", "=IF($B$4=0,0,B" + (row + 5) + "/$B$4)"],
-    ["Delivered", "=COUNTIF(Orders!I2:I,\"Delivered\")", "=IF($B$4=0,0,B" + (row + 6) + "/$B$4)"],
-    ["Cancelled", "=COUNTIF(Orders!I2:I,\"Cancelled\")", "=IF($B$4=0,0,B" + (row + 7) + "/$B$4)"]
-  ];
-  
-  statusBreakdown.forEach((rowData, idx) => {
-    dashboardSheet.getRange(row, 1, 1, 3).setValues([rowData]);
-    if (idx === 0) {
-      // Header row
-      dashboardSheet.getRange(row, 1, 1, 3).setFontWeight("bold").setBackground("#4285f4").setFontColor("#ffffff");
-    } else {
-      // Data rows - set percentage format
-      dashboardSheet.getRange(row, 3).setNumberFormat("0.00%");
-    }
-    row++;
-  });
-  
-  // Format columns
-  dashboardSheet.setColumnWidth(1, 180);
-  dashboardSheet.setColumnWidth(2, 120);
-  dashboardSheet.setColumnWidth(3, 100);
-  
-  // Create Pie Chart for Status Breakdown
-  const chartRange = dashboardSheet.getRange(statusBreakdownStartRow + 1, 1, statusBreakdown.length - 1, 2);
-  const chartBuilder = dashboardSheet.newChart()
+  const pieChart = dashboardSheet.newChart()
     .setChartType(Charts.ChartType.PIE)
-    .addRange(chartRange)
-    .setPosition(row + 2, 1, 0, 0)
+    .addRange(statusDataRange)
+    .setPosition(10, 2, 0, 0)
     .setOption('title', 'Order Status Distribution')
-    .setOption('legend.position', 'right')
-    .setOption('pieHole', 0.4)
+    .setOption('pieHole', 0.4) // Doughnut style
+    .setOption('width', 550)
+    .setOption('height', 350)
+    .setOption('backgroundColor', '#ffffff')
+    // Google Colors: Blue, Red, Yellow, Green, Purple, Cyan, Orange
+    .setOption('colors', ['#4285f4', '#db4437', '#f4b400', '#0f9d58', '#ab47bc', '#00acc1', '#ff7043'])
     .build();
+  dashboardSheet.insertChart(pieChart);
+
+  // Chart 2: Top Products (Bar Chart) - NEW!
+  // Position: Row 10, Right side
+  const barChart = dashboardSheet.newChart()
+    .setChartType(Charts.ChartType.BAR)
+    .addRange(dashboardSheet.getRange("S1:T6")) // Top 5 products
+    .setPosition(10, 8, 0, 0) // Col H
+    .setOption('title', 'Top 5 Best Sellers')
+    .setOption('colors', ['#f4b400']) // Gold color
+    .setOption('legend', {position: 'none'})
+    .setOption('width', 550)
+    .setOption('height', 350)
+    .setOption('backgroundColor', '#ffffff')
+    .build();
+  dashboardSheet.insertChart(barChart);
+
+  // =======================================
+  // SECTION 5: RECENT ORDERS TABLE
+  // =======================================
+  const tableStartRow = 29;
   
-  dashboardSheet.insertChart(chartBuilder);
+  // Table Header
+  dashboardSheet.getRange(tableStartRow, 2).setValue("RECENT ORDERS LOG")
+    .setFontWeight("bold")
+    .setFontColor("#5f6368")
+    .setFontSize(12);
+
+  const headers = [["Order ID", "Date", "Customer", "Items Summary", "Total", "Status"]];
+  const tableHeaderRange = dashboardSheet.getRange(tableStartRow + 1, 2, 1, 6);
+  tableHeaderRange.setValues(headers)
+    .setBackground("#f1f3f4")
+    .setFontWeight("bold")
+    .setFontColor("#202124")
+    .setBorder(false, false, true, false, false, false, "#dadce0", SpreadsheetApp.BorderStyle.SOLID); // Bottom border only
+
+  // Generate Formulas for the last 8 orders (Rows 2 to 9 in Orders sheet)
+  // We use formulas to ensure REAL-TIME SYNCHRONIZATION
+  const numRows = 8;
+  const startRow = tableStartRow + 2;
   
-  // Revenue Trends Section (if there are dates)
-  row += 12;
-  dashboardSheet.getRange(row, 1).setValue("RECENT ORDERS SUMMARY").setFontWeight("bold").setFontSize(12);
-  dashboardSheet.getRange(row, 1, 1, 4).merge();
-  row++;
-  
-  // Show last 10 orders summary
-  dashboardSheet.getRange(row, 1, 1, 4).setValues([["Order ID", "Date", "Customer", "Amount", "Status"]]);
-  dashboardSheet.getRange(row, 1, 1, 4).setFontWeight("bold").setBackground("#4285f4").setFontColor("#ffffff");
-  row++;
-  
-  // Formula to get last 10 orders
-  for (let i = 0; i < 10; i++) {
-    const orderRow = 2 + i; // Orders start at row 2
-    dashboardSheet.getRange(row + i, 1).setFormula("=IF(ROW(Orders!A" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!A" + orderRow + ")");
-    dashboardSheet.getRange(row + i, 2).setFormula("=IF(ROW(Orders!B" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!B" + orderRow + ")");
-    dashboardSheet.getRange(row + i, 3).setFormula("=IF(ROW(Orders!C" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!C" + orderRow + ")");
-    dashboardSheet.getRange(row + i, 4).setFormula("=IF(ROW(Orders!G" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!G" + orderRow + ")");
-    dashboardSheet.getRange(row + i, 5).setFormula("=IF(ROW(Orders!I" + orderRow + ")>COUNTA(Orders!A2:A),\"\",Orders!I" + orderRow + ")");
+  for (let i = 0; i < numRows; i++) {
+    const dashboardRow = startRow + i;
+    const ordersRow = 2 + i; // Orders start at row 2 (Newest is at top)
+    
+    // 1. Order ID
+    dashboardSheet.getRange(dashboardRow, 2).setFormula(`=IF(Orders!A${ordersRow}<>"", Orders!A${ordersRow}, "")`);
+    
+    // 2. Date (Truncated for display)
+    dashboardSheet.getRange(dashboardRow, 3).setFormula(`=IF(Orders!A${ordersRow}<>"", LEFT(Orders!B${ordersRow}, 16), "")`);
+    
+    // 3. Customer
+    dashboardSheet.getRange(dashboardRow, 4).setFormula(`=IF(Orders!A${ordersRow}<>"", Orders!C${ordersRow}, "")`);
+    
+    // 4. Items (Truncated)
+    dashboardSheet.getRange(dashboardRow, 5).setFormula(`=IF(Orders!A${ordersRow}<>"", LEFT(Orders!E${ordersRow}, 35) & IF(LEN(Orders!E${ordersRow})>35, "...", ""), "")`);
+    
+    // 5. Total
+    dashboardSheet.getRange(dashboardRow, 6).setFormula(`=IF(Orders!A${ordersRow}<>"", Orders!G${ordersRow}, "")`);
+    
+    // 6. Status
+    dashboardSheet.getRange(dashboardRow, 7).setFormula(`=IF(Orders!A${ordersRow}<>"", Orders!I${ordersRow}, "")`);
   }
   
-  dashboardSheet.setColumnWidth(4, 120);
-  dashboardSheet.setColumnWidth(5, 120);
+  // Styling Data Rows
+  const tableRange = dashboardSheet.getRange(startRow, 2, numRows, 6);
+  tableRange.setFontSize(10).setVerticalAlignment("middle");
+  tableRange.setBorder(false, false, true, false, false, false, "#f1f3f4", SpreadsheetApp.BorderStyle.SOLID);
   
-  // Freeze header rows
-  dashboardSheet.setFrozenRows(3);
+  // Add Conditional Formatting for Status Column (Col G in Dashboard, which is index 7)
+  const statusRange = dashboardSheet.getRange(startRow, 7, numRows, 1);
+  
+  const newRules = [];
+  const createRule = (text, color) => SpreadsheetApp.newConditionalFormatRule()
+    .whenTextEqualTo(text)
+    .setFontColor(color)
+    .setBold(true)
+    .setRanges([statusRange])
+    .build();
+    
+  newRules.push(createRule("Pending", "#db4437")); // Red
+  newRules.push(createRule("Processing", "#f4b400")); // Orange/Gold
+  newRules.push(createRule("Ready", "#0f9d58")); // Green
+  newRules.push(createRule("Delivered", "#137333")); // Dark Green
+  newRules.push(createRule("Cancelled", "#9aa0a6")); // Grey
+  
+  dashboardSheet.setConditionalFormatRules(newRules);
+
+  // Hide the Calculation Engine Columns
+  dashboardSheet.hideColumns(15, 6); // Hide O to T
+}
+
+/**
+ * HELPER: Create a "SaaS Style" KPI Card
+ */
+function createModernCard(sheet, rangeStr, title, formula, numFormat, accentColor) {
+  const range = sheet.getRange(rangeStr);
+  range.merge();
+  
+  // 1. The Value
+  range.setFormula(formula)
+    .setNumberFormat(numFormat)
+    .setFontSize(28)
+    .setFontWeight("bold")
+    .setFontColor("#202124")
+    .setVerticalAlignment("middle")
+    .setHorizontalAlignment("center")
+    .setBackground("#ffffff"); // White Card
+    
+  // 2. The Border (Simulating Shadow/Card)
+  range.setBorder(true, true, true, true, null, null, "#dadce0", SpreadsheetApp.BorderStyle.SOLID);
+
+  // 3. The Title Bar (Inside the card, top)
+  // We can't split merged cells easily, so we use the cell ABOVE the range for the "Label"
+  // Actually, let's use the layout passed in.
+  // We will assume the range passed is the "Value Box". 
+  // We will decorate the cell ABOVE it as the title.
+  
+  const startRow = range.getRow();
+  const startCol = range.getColumn();
+  const numCols = range.getNumColumns();
+  
+  const titleRange = sheet.getRange(startRow - 1, startCol, 1, numCols);
+  titleRange.merge()
+    .setValue(title)
+    .setFontSize(10)
+    .setFontWeight("bold")
+    .setFontColor(accentColor) // Use the accent color for text
+    .setHorizontalAlignment("left")
+    .setVerticalAlignment("bottom");
+    
+  // Add a thick colored line at the top of the value card
+  range.setBorder(true, true, true, true, null, null, accentColor, SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+}
+
+/**
+ * HELPER: Calculate Stats for Charts (Revenue, Status, Top Products)
+ */
+function calculateDashboardStats(ordersSheet) {
+  const lastRow = ordersSheet.getLastRow();
+  if (lastRow < 2) return { statusData: [], revenueData: [], productData: [] };
+
+  const data = ordersSheet.getRange(2, 1, lastRow - 1, 9).getValues();
+  
+  const dailyTotals = {};
+  const statusCounts = {};
+  const productCounts = {};
+
+  data.forEach(row => {
+    // 1. Revenue
+    let dateStr = row[1].toString().substring(0, 10);
+    let amount = parseFloat(row[6].toString().replace(/[₱,]/g, "")) || 0;
+    dailyTotals[dateStr] = (dailyTotals[dateStr] || 0) + amount;
+
+    // 2. Status
+    let status = row[8] || "Unknown";
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+    // 3. Top Products (Parsing "Item Name xQty")
+    // Assumes format: "Product A x2, Product B x1"
+    let itemsStr = row[4].toString(); 
+    if (itemsStr) {
+      let items = itemsStr.split(","); // Split by comma
+      items.forEach(item => {
+        let parts = item.trim().split(" x"); // Split by " x"
+        if (parts.length >= 2) {
+          let name = parts[0].trim();
+          let qty = parseInt(parts[1]) || 1;
+          productCounts[name] = (productCounts[name] || 0) + qty;
+        }
+      });
+    }
+  });
+
+  // Format Revenue Data (Last 7 Days)
+  let sortedDates = Object.keys(dailyTotals).sort().reverse().slice(0, 7).reverse();
+  const revenueData = sortedDates.map(d => [d, dailyTotals[d]]);
+
+  // Format Status Data
+  const statusData = Object.keys(statusCounts).map(s => [s, statusCounts[s]]);
+
+  // Format Top Products Data (Top 5)
+  const productData = Object.keys(productCounts)
+    .map(p => [p, productCounts[p]])
+    .sort((a, b) => b[1] - a[1]) // Sort by count desc
+    .slice(0, 5);
+
+  return { statusData, revenueData, productData };
 }
 
 /**
@@ -693,4 +926,113 @@ function testSetup() {
   const result = doPost(mockEvent);
   Logger.log(result.getContent());
 }
+
+// ============================================
+// EMAIL NOTIFICATION SYSTEM
+// ============================================
+
+/**
+ * TRIGGER FUNCTION: Send email when order status changes
+ * 
+ * INSTRUCTIONS TO SET UP TRIGGER:
+ * 1. In Apps Script editor, click on "Triggers" (alarm clock icon) on the left.
+ * 2. Click "+ Add Trigger" (bottom right).
+ * 3. Choose function to run: "onEditTrigger"
+ * 4. Select event source: "From spreadsheet"
+ * 5. Select event type: "On edit"
+ * 6. Click "Save".
+ * 
+ * NOTE: You must set this up manually for each spreadsheet, OR use a bound script.
+ * Since this is a standalone script managing multiple sheets, we need a different approach.
+ * 
+ * ALTERNATIVE: Since this script manages multiple spreadsheets in a folder, 
+ * we cannot easily attach an "onEdit" trigger to all of them automatically.
+ * 
+ * SOLUTION: We will use a time-driven trigger to check for changes, OR
+ * we accept that this feature requires the script to be bound to the sheet.
+ * 
+ * FOR THIS SPECIFIC REQUEST:
+ * The user wants "if i change the dropdown status, automatically sent the order track".
+ * This implies an "onEdit" trigger.
+ * 
+ * Below is the function that SHOULD be triggered.
+ * You can manually attach this to your specific spreadsheet if you copy the script there.
+ */
+function sendOrderStatusEmail(e) {
+  // Ensure the event object exists (it comes from the trigger)
+  if (!e || !e.range) return;
+
+  const sheet = e.range.getSheet();
+  if (sheet.getName() !== "Orders") return;
+
+  const range = e.range;
+  const column = range.getColumn();
+  const row = range.getRow();
+  
+  // Check if the edited cell is the "Status" column (Column 10 / J)
+  // And ensure it's not the header row
+  if (column === 10 && row > 1) {
+    const newStatus = e.value;
+    
+    // Get order details from the row
+    // Columns: 
+    // 1: ID, 2: Date, 3: Name, 4: Email, 5: Location, 6: Items, 7: Details, 8: Total, 9: Note, 10: Status
+    const rowData = sheet.getRange(row, 1, 1, 10).getValues()[0];
+    
+    const orderId = rowData[0];
+    const customerName = rowData[2];
+    const customerEmail = rowData[3];
+    const items = rowData[5];
+    const total = rowData[7];
+    
+    // Validate email
+    if (!customerEmail || !customerEmail.includes("@")) {
+      console.log("No valid email found for order " + orderId);
+      return;
+    }
+    
+    // Prepare email subject and body
+    const subject = `Order Update: ${orderId} is ${newStatus}`;
+    let body = `
+      Hi ${customerName},
+      
+      Your order status has been updated!
+      
+      Order ID: ${orderId}
+      Status: ${newStatus}
+      
+      Order Details:
+      ${items}
+      
+      Total: ${total}
+      
+      Thank you for your business!
+    `;
+    
+    // Customize message based on status
+    if (newStatus === "Out for Delivery") {
+      body += "\n\nYour order is on the way! Please be ready to receive it.";
+    } else if (newStatus === "Delivered") {
+      body += "\n\nWe hope you enjoy your purchase! Please let us know if you have any feedback.";
+    } else if (newStatus === "Cancelled") {
+      body += "\n\nYour order has been cancelled. If this was a mistake, please contact us.";
+    }
+    
+    // Send the email
+    try {
+      MailApp.sendEmail({
+        to: customerEmail,
+        subject: subject,
+        body: body
+      });
+      
+      // Optional: Log that email was sent (e.g., in a comment or log sheet)
+      // e.range.setNote("Email sent to " + customerEmail + " at " + new Date());
+      
+    } catch (error) {
+      console.error("Failed to send email: " + error.toString());
+    }
+  }
+}
+
 

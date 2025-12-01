@@ -12,8 +12,8 @@ type Props = {
   removeFromCart: (productId: string) => void;
   cartTotal: () => number;
   totalItems: () => number;
-  checkoutForm: { name: string; location: string; message: string };
-  setCheckoutForm: (form: { name: string; location: string; message: string }) => void;
+  checkoutForm: { name: string; email: string; location: string; message: string };
+  setCheckoutForm: (form: { name: string; email: string; location: string; message: string }) => void;
   handleCheckout: () => void;
   parseCurrency: (s?: string) => number;
   formatCurrency: (n: number) => string;
@@ -106,6 +106,10 @@ const CartDrawer: React.FC<Props> = ({
               <input value={checkoutForm.name} onChange={(e) => setCheckoutForm({...checkoutForm, name: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
             </div>
             <div>
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <input type="email" value={checkoutForm.email} onChange={(e) => setCheckoutForm({...checkoutForm, email: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
+            </div>
+            <div>
               <label className="block text-sm font-medium mb-1">Location</label>
               <input value={checkoutForm.location} onChange={(e) => setCheckoutForm({...checkoutForm, location: e.target.value})} className={`w-full px-3 py-2 rounded border ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`} />
             </div>
@@ -116,7 +120,7 @@ const CartDrawer: React.FC<Props> = ({
 
             <button 
               onClick={handleCheckout} 
-              disabled={!checkoutForm.name || !checkoutForm.location || cart.length === 0 || !website?.messenger.pageId || isCheckingOut} 
+              disabled={!checkoutForm.name || !checkoutForm.email || !checkoutForm.location || cart.length === 0 || !website?.messenger.pageId || isCheckingOut} 
               className="w-full py-3 rounded font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity" 
               style={{ backgroundColor: theme.button }}
             >
