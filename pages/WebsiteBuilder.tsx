@@ -86,6 +86,12 @@ export const WebsiteBuilder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    navigate('/login', { replace: true });
+    return null;
+  }
   
   const [activeTab, setActiveTab] = useState<'settings' | 'content' | 'marketing'>('settings');
   const websiteManager = useWebsite(null);
@@ -550,7 +556,7 @@ export const WebsiteBuilder: React.FC = () => {
       <Layout>
         <div className="flex h-screen items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
             <p className="text-slate-500">Loading editor...</p>
           </div>
         </div>

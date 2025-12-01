@@ -123,7 +123,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-3">Color Theme</label>
+          <label className="text-sm font-medium text-slate-700 block mb-3">Color Theme (Recommended: Light Mode)</label>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => website && setTheme({ ...website.theme, background: 'light' })}

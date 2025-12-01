@@ -22,7 +22,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-6 border-b border-slate-900">
           <div className="flex items-center gap-2">
             <Globe className="w-8 h-8 text-amber-400" />
-            <h1 className="text-2xl font-bold tracking-tight">LikhaSiteWorks</h1>
+            <h1 className="text-2xl font-bold tracking-tight"><a href="http://likhasiteworks.studio" target="_blank" rel="noopener noreferrer">LikhaSiteWorks</a></h1>
           </div>
           <div className="flex items-center gap-2 mt-2 px-2 py-1 bg-slate-900 rounded text-xs text-slate-400">
             <User className="w-3 h-3" />
@@ -51,19 +51,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
 
         <div className="p-4 border-t border-slate-900 space-y-4">
-           {/* If logged in, show role info; role switching removed (use real auth) */}
-           <div className="bg-slate-900 p-3 rounded-lg">
-             <label className="block text-xs text-slate-400 mb-2 font-semibold uppercase">Role</label>
-             <div className="text-sm text-slate-300">{user ? user.role : 'guest'}</div>
-           </div>
-
-           {user && user.role === 'admin' && (
-             <div className="flex items-center gap-3 px-4 py-2 text-slate-400 cursor-pointer hover:text-amber-400 transition-colors">
-               <Settings className="w-5 h-5" />
-               <span className="text-sm">Global Settings</span>
-             </div>
-           )}
-           
            <div className="flex items-center gap-3 px-4 py-2 text-slate-400 cursor-pointer hover:text-amber-400 transition-colors" onClick={() => signOut()}>
              <LogOut className="w-5 h-5" />
              <span className="text-sm">Logout</span>

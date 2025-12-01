@@ -22,15 +22,15 @@ export const AiMarketingKit: React.FC<AiMarketingKitProps> = ({
   return (
     <div className="space-y-8">
       {/* Marketing Generator Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-amber-50 p-6 rounded-xl border border-blue-100 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-100 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold text-blue-900 mb-1">AI Marketing Kit</h3>
-          <p className="text-sm text-blue-700">Generate SEO metadata and social media posts based on your website content.</p>
+          <h3 className="text-lg font-bold text-slate-900 mb-1">AI Marketing Kit</h3>
+          <p className="text-sm text-slate-700">Generate SEO metadata and social media posts based on your website content.</p>
         </div>
         <button
           onClick={handleMarketingGenerate}
           disabled={isGeneratingMarketing}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 shadow-sm font-medium"
+          className="px-6 py-2 bg-amber-400 text-slate-900 rounded-lg hover:bg-amber-300 disabled:opacity-50 flex items-center gap-2 shadow-sm font-medium"
         >
           {isGeneratingMarketing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {isGeneratingMarketing ? 'Generating...' : 'Generate Kit'}

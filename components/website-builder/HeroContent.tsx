@@ -31,15 +31,18 @@ export const HeroContent: React.FC<HeroContentProps> = ({
           <select
             id="heroType"
             name="heroType"
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-400 focus:border-amber-400 sm:text-sm rounded-md"
+            className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-amber-400"
             value={website.content.hero.heroType || 'default'}
             onChange={(e) => updateContent('hero', { ...website.content.hero, heroType: e.target.value as HeroType })}
           >
-            <option value="premium">Premium (Full-Screen with Ken Burns)</option>
-            <option value="default">Default</option>
-            <option value="centered">Centered</option>
-            <option value="imageLeft">Image Left</option>
+            <option value="premium">Premium - Full-screen with Ken Burns effect</option>
+            <option value="default">Default - Standard hero with image and text</option>
+            <option value="centered">Centered - Text centered, image background</option>
+            <option value="imageLeft">Image Left - Image on left, text on right</option>
           </select>
+          <p className="text-xs text-slate-500 mt-1">
+            Choose the layout style for your hero section. Each type offers a different visual presentation.
+          </p>
         </div>
         <WebsiteBuilderInput
           label="Headline"

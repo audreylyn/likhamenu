@@ -43,7 +43,7 @@ const AdminUsers: React.FC = () => {
                 placeholder="editor@example.com" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" 
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" 
                 required
               />
             </div>
@@ -54,22 +54,22 @@ const AdminUsers: React.FC = () => {
                 placeholder="Password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" 
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" 
                 required
               />
             </div>
             <button 
               type="submit" 
               disabled={loading} 
-              className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
+              className="w-full bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 disabled:opacity-50 font-medium"
             >
               {loading ? 'Creating...' : 'Create Editor'}
             </button>
           </form>
 
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <h3 className="font-semibold text-slate-900 mb-2">How to Assign Editors to Websites</h3>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-indigo-800">
+            <ol className="list-decimal list-inside space-y-1 text-sm text-amber-800">
               <li>Create editor accounts using the form above</li>
               <li>Go to <strong>Dashboard</strong> (Overview page)</li>
               <li>Click <strong>"Assign"</strong> in the Editors column for any website</li>

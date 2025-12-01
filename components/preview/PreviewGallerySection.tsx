@@ -267,7 +267,7 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
                 className="text-sm font-semibold uppercase tracking-wider mb-2" 
                 style={{ color: darkBrown }}
               >
-                LIFE AT LIKIIA
+                bg-amber-300 LIKIIA
               </p>
               <h2 
                 className="text-4xl md:text-5xl font-bold" 
@@ -276,7 +276,7 @@ export const PreviewGallerySection: React.FC<PreviewGallerySectionProps> = ({
                   fontFamily: 'var(--heading-font)'
                 }}
               >
-                A Glimpse Inside
+                Life at {website.title || 'Our Business'}
               </h2>
             </div>
             {instagramLink && instagramLink !== '#' && (

@@ -122,7 +122,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center gap-2 text-slate-500 bg-slate-50">
-        <Loader2 className="animate-spin w-6 h-6 text-indigo-600" />
+        <Loader2 className="animate-spin w-6 h-6 text-amber-600" />
         <span className="font-medium">Loading website preview...</span>
       </div>
     );
