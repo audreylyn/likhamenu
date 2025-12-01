@@ -183,6 +183,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
             textMuted={textMuted}
             handleImageError={handleImageError}
             openCart={openCart}
+            addToCart={addToCart}
           />
         ) : null;
       case 'about':

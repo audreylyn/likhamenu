@@ -1,7 +1,6 @@
 import React from 'react';
 import { ArrowRight, Star, ShoppingBag } from 'lucide-react';
-import { Website, FeaturedItem } from '../../types';
-import { useCart } from '../../hooks/useCart';
+import { Website, FeaturedItem, Product } from '../../types';
 
 interface PreviewFeaturedSectionProps {
   website: Website;
@@ -9,6 +8,7 @@ interface PreviewFeaturedSectionProps {
   textMuted: string;
   handleImageError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   openCart: () => void;
+  addToCart: (product: Product) => void;
 }
 
 export const PreviewFeaturedSection: React.FC<PreviewFeaturedSectionProps> = ({
@@ -17,9 +17,9 @@ export const PreviewFeaturedSection: React.FC<PreviewFeaturedSectionProps> = ({
   textMuted,
   handleImageError,
   openCart,
+  addToCart,
 }) => {
   const { content, theme } = website;
-  const { addToCart } = useCart(website);
 
   if (!content.featured || content.featured.items.length === 0) {
     return null;
@@ -239,11 +239,7 @@ export const PreviewFeaturedSection: React.FC<PreviewFeaturedSectionProps> = ({
                   {/* Add to Basket Button */}
                   <button
                     onClick={() => handleAddToCart(item)}
-                    className={`w-full py-3 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 ${
-                      item.buttonStyle === 'primary' 
-                        ? 'featured-button-primary' 
-                        : 'featured-button-secondary'
-                    }`}
+                    className="w-full py-3 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 featured-button-secondary"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Add to Basket</span>
