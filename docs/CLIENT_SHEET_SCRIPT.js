@@ -26,6 +26,8 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu('Admin Controls')
     .addItem('Enable Email Notifications', 'setupTrigger')
+    .addSeparator()
+    .addItem('Initialize Chatbot Knowledge Base', 'setupChatbot')
     .addToUi();
 }
 
@@ -67,6 +69,95 @@ function setupTrigger() {
     console.error(error);
     ui.alert('Error setting up trigger: ' + error.toString());
   }
+}
+
+/**
+ * One-Click Setup: Creates the Knowledge Base sheet for the Chatbot.
+ */
+function setupChatbot() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("KnowledgeBase");
+  
+  if (sheet) {
+    SpreadsheetApp.getUi().alert('KnowledgeBase sheet already exists!');
+    return;
+  }
+  
+  sheet = ss.insertSheet("KnowledgeBase");
+  
+  // Set Headers
+  const headers = [["Keywords (What user asks)", "Answer (What bot says)"]];
+  sheet.getRange(1, 1, 1, 2).setValues(headers);
+  
+  // Style Headers
+  sheet.getRange(1, 1, 1, 2).setFontWeight("bold").setBackground("#4285f4").setFontColor("white");
+  sheet.setColumnWidth(1, 300);
+  sheet.setColumnWidth(2, 500);
+  
+  // Add Sample Data
+  const sampleData = [
+    ["hi, hello, hey, greetings", "Hello! Welcome to " + BUSINESS_NAME + ". How can I help you today?"],
+    ["price, cost, how much", "Our prices vary by item. You can view our full menu on the 'Products' section of this website."],
+    ["location, where, address", "We are an online store, but we deliver to your doorstep!"],
+    ["delivery, shipping", "We offer delivery within the city. Standard delivery fee is ₱50."],
+    ["payment, pay, gcash", "We accept GCash, Bank Transfer, and Cash on Delivery (COD)."],
+    ["contact, number, phone", "You can reach us at " + BUSINESS_EMAIL + "."],
+    ["order, buy, purchase", "You can order directly here on our website! Just add items to your cart and checkout."]
+  ];
+  
+  sheet.getRange(2, 1, sampleData.length, 2).setValues(sampleData);
+  
+  SpreadsheetApp.getUi().alert('Success! KnowledgeBase sheet created.\n\n1. Go to Extensions > Deploy as Web App\n2. Set "Who has access" to "Anyone"\n3. Copy the URL and use it in your website Chat Widget.');
+}
+
+// ============================================
+// CHATBOT API (doGet)
+// ============================================
+
+/**
+ * API Endpoint for the Chatbot
+ * Usage: GET https://script.google.com/.../exec?q=hello
+ */
+function doGet(e) {
+  const params = e.parameter;
+  const query = (params.q || "").toLowerCase().trim();
+  const callback = params.callback; // For JSONP if needed
+  
+  const result = {
+    answer: "I'm sorry, I didn't understand that. Could you please rephrase?",
+    found: false
+  };
+  
+  if (query) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("KnowledgeBase");
+    
+    if (sheet) {
+      const data = sheet.getDataRange().getValues(); // Get all data
+      
+      // Simple Keyword Matching
+      // Row 0 is header, start at 1
+      for (let i = 1; i < data.length; i++) {
+        const keywords = String(data[i][0]).toLowerCase().split(",").map(k => k.trim());
+        const answer = data[i][1];
+        
+        // Check if any keyword exists in the user query
+        const match = keywords.some(keyword => query.includes(keyword));
+        
+        if (match) {
+          result.answer = answer;
+          result.found = true;
+          break; // Stop at first match
+        }
+      }
+    }
+  }
+  
+  // Return JSON
+  const output = ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+    
+  return output;
 }
 
 // ============================================

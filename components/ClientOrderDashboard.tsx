@@ -15,23 +15,24 @@ export const ClientOrderDashboard: React.FC<ClientOrderDashboardProps> = ({ webs
   const [spreadsheetUrl, setSpreadsheetUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (website.messenger.googleScriptUrl) {
-      loadOrders();
+    const scriptUrl = import.meta.env.VITE_ORDER_TRACKING_SCRIPT_URL || website.messenger.googleScriptUrl;
+    if (scriptUrl) {
+      loadOrders(scriptUrl);
     } else {
       setError('Google Spreadsheet integration not configured for this website.');
       setLoading(false);
     }
   }, [website]);
 
-  const loadOrders = async () => {
-    if (!website.messenger.googleScriptUrl) return;
+  const loadOrders = async (url: string) => {
+    if (!url) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const result = await fetchOrdersFromSheets(
-        website.messenger.googleScriptUrl,
+        url,
         website.id || website.subdomain,
         website.title
       );

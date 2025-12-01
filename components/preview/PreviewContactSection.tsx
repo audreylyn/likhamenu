@@ -40,14 +40,15 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
     e.preventDefault();
     
     const formConfig = website.contactFormConfig;
+    const scriptUrl = import.meta.env.VITE_CONTACT_FORM_SCRIPT_URL || formConfig?.googleScriptUrl;
     
     // If Google Script is configured and enabled, use it
-    if (formConfig?.enabled && formConfig.googleScriptUrl && formConfig.clientId) {
+    if (formConfig?.enabled && scriptUrl && formConfig.clientId) {
       setStatus('submitting');
       
       try {
         // Send to Google Apps Script
-        await fetch(formConfig.googleScriptUrl, {
+        await fetch(scriptUrl, {
           method: 'POST',
           mode: 'no-cors', // Important: prevents CORS errors with Google Scripts
           headers: {
