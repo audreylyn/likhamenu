@@ -311,6 +311,7 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                       className="info-button w-8 h-8 rounded-full flex items-center justify-center border border-slate-200"
                       style={{ color: darkGray }}
                       title="More information"
+                      onClick={() => setQuickViewProduct(product)}
                     >
                       <Info className="w-4 h-4" />
                     </button>

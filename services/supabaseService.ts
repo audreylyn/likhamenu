@@ -229,7 +229,8 @@ export const getAllStorageImages = async (bucket = IMAGE_BUCKET) => {
       sortBy: { column: 'name', order: 'asc' }
     });
     if (error) throw error;
-    return data || [];
+    // Filter out folders (items without metadata)
+    return (data || []).filter(item => item.metadata);
   } catch (err) {
     console.error('Error listing storage images:', err);
     throw err;
@@ -289,7 +290,12 @@ export const findOrphanedImages = async (bucket = IMAGE_BUCKET) => {
     usedUrls.forEach(url => {
       const parts = url.split('/');
       const filename = parts[parts.length - 1];
-      if (filename) usedFilenames.add(filename);
+      if (filename) {
+        // Handle URL encoding (e.g. %20 for spaces)
+        usedFilenames.add(decodeURIComponent(filename));
+        // Also add the raw filename just in case
+        usedFilenames.add(filename);
+      }
     });
 
     // Find files in storage that aren't in any website
@@ -319,18 +325,27 @@ export const deleteOrphanedImages = async (bucket = IMAGE_BUCKET) => {
     // Delete in batches of 100 (Supabase limit)
     for (let i = 0; i < filenames.length; i += 100) {
       const batch = filenames.slice(i, i + 100);
-      const { error } = await supabase.storage.from(bucket).remove(batch);
+      const { data: deletedFiles, error } = await supabase.storage.from(bucket).remove(batch);
       
       if (error) {
         console.error('Error deleting batch:', error);
         errors += batch.length;
       } else {
-        deleted += batch.length;
-        // Calculate size of deleted files
-        batch.forEach(filename => {
-          const file = orphaned.find(f => f.name === filename);
-          if (file?.metadata?.size) totalSize += file.metadata.size;
-        });
+        // Count actually deleted files if returned
+        // If deletedFiles is null/undefined, it might be an older supabase version, so we assume success?
+        // But if it is an array and empty, it means nothing was deleted (likely RLS policy).
+        if (deletedFiles && deletedFiles.length === 0 && batch.length > 0) {
+          console.warn('Batch deletion returned 0 deleted files. Check RLS policies.');
+          errors += batch.length; // Treat as error
+        } else {
+          const deletedCount = deletedFiles ? deletedFiles.length : batch.length;
+          deleted += deletedCount;
+          // Calculate size of deleted files
+          batch.forEach(filename => {
+            const file = orphaned.find(f => f.name === filename);
+            if (file?.metadata?.size) totalSize += file.metadata.size;
+          });
+        }
       }
     }
 
