@@ -22,7 +22,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-6 border-b border-slate-900">
           <div className="flex items-center gap-2">
             <Globe className="w-8 h-8 text-amber-400" />
-            <h1 className="text-2xl font-bold tracking-tight">WebGen AI</h1>
+            <h1 className="text-2xl font-bold tracking-tight">LikhaSiteWorks</h1>
           </div>
           <div className="flex items-center gap-2 mt-2 px-2 py-1 bg-slate-900 rounded text-xs text-slate-400">
             <User className="w-3 h-3" />

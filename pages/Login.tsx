@@ -35,11 +35,11 @@ const Login: React.FC = () => {
       {/* Left side - Branding */}
       <div className="hidden lg:flex flex-col justify-between bg-slate-900 text-white p-12 w-1/2">
         <div>
-          <h1 className="text-4xl font-bold mb-4">WebGen</h1>
+          <h1 className="text-4xl font-bold mb-4">LikhaSiteWorks</h1>
           <p className="text-amber-400 text-lg">Welcome back! Please login to your account.</p>
         </div>
         <div>
-          <p className="text-slate-400 text-sm">© {new Date().getFullYear()} WebGen. All rights reserved.</p>
+          <p className="text-slate-400 text-sm">© {new Date().getFullYear()} LikhaSiteWorks. All rights reserved.</p>
         </div>
       </div>
 
