@@ -219,6 +219,154 @@ export const cleanAllWebsitesImages = async (): Promise<{ cleaned: number; error
   }
 };
 
+// Storage management: get all images in storage
+export const getAllStorageImages = async (bucket = IMAGE_BUCKET) => {
+  try {
+    const { data, error } = await supabase.storage.from(bucket).list();
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('Error listing storage images:', err);
+    throw err;
+  }
+};
+
+// Storage management: get all image URLs used in websites
+export const getAllUsedImageUrls = async (): Promise<Set<string>> => {
+  try {
+    const { data: websites, error } = await supabase
+      .from('websites')
+      .select('*');
+
+    if (error) throw error;
+
+    const usedUrls = new Set<string>();
+
+    for (const websiteData of websites || []) {
+      const website = websiteData as Website;
+      
+      // Collect all image URLs from website
+      if (website.logo) usedUrls.add(website.logo);
+      if (website.content?.hero?.image) usedUrls.add(website.content.hero.image);
+      if (website.content?.about?.image) usedUrls.add(website.content.about.image);
+      
+      // Products
+      website.content?.products?.forEach(p => p.image && usedUrls.add(p.image));
+      
+      // Featured items
+      website.content?.featured?.items?.forEach(f => f.image && usedUrls.add(f.image));
+      
+      // Gallery
+      website.content?.gallery?.forEach(g => g.image && usedUrls.add(g.image));
+      
+      // Team
+      website.content?.team?.forEach(t => t.image && usedUrls.add(t.image));
+      
+      // Testimonials
+      website.content?.testimonials?.forEach(t => t.avatar && usedUrls.add(t.avatar));
+    }
+
+    return usedUrls;
+  } catch (err) {
+    console.error('Error getting used image URLs:', err);
+    throw err;
+  }
+};
+
+// Storage management: find orphaned images (in storage but not used)
+export const findOrphanedImages = async (bucket = IMAGE_BUCKET) => {
+  try {
+    const storageFiles = await getAllStorageImages(bucket);
+    const usedUrls = await getAllUsedImageUrls();
+    
+    // Extract filenames from used URLs
+    const usedFilenames = new Set<string>();
+    usedUrls.forEach(url => {
+      const parts = url.split('/');
+      const filename = parts[parts.length - 1];
+      if (filename) usedFilenames.add(filename);
+    });
+
+    // Find files in storage that aren't in any website
+    const orphaned = storageFiles.filter(file => !usedFilenames.has(file.name));
+    
+    return orphaned;
+  } catch (err) {
+    console.error('Error finding orphaned images:', err);
+    throw err;
+  }
+};
+
+// Storage management: delete orphaned images
+export const deleteOrphanedImages = async (bucket = IMAGE_BUCKET) => {
+  try {
+    const orphaned = await findOrphanedImages(bucket);
+    
+    if (orphaned.length === 0) {
+      return { deleted: 0, errors: 0, totalSize: 0 };
+    }
+
+    const filenames = orphaned.map(f => f.name);
+    let deleted = 0;
+    let errors = 0;
+    let totalSize = 0;
+
+    // Delete in batches of 100 (Supabase limit)
+    for (let i = 0; i < filenames.length; i += 100) {
+      const batch = filenames.slice(i, i + 100);
+      const { error } = await supabase.storage.from(bucket).remove(batch);
+      
+      if (error) {
+        console.error('Error deleting batch:', error);
+        errors += batch.length;
+      } else {
+        deleted += batch.length;
+        // Calculate size of deleted files
+        batch.forEach(filename => {
+          const file = orphaned.find(f => f.name === filename);
+          if (file?.metadata?.size) totalSize += file.metadata.size;
+        });
+      }
+    }
+
+    return { deleted, errors, totalSize };
+  } catch (err) {
+    console.error('Error deleting orphaned images:', err);
+    throw err;
+  }
+};
+
+// Storage management: get storage statistics
+export const getStorageStats = async (bucket = IMAGE_BUCKET) => {
+  try {
+    const allFiles = await getAllStorageImages(bucket);
+    const orphaned = await findOrphanedImages(bucket);
+    
+    const totalFiles = allFiles.length;
+    const orphanedFiles = orphaned.length;
+    const usedFiles = totalFiles - orphanedFiles;
+    
+    const totalSize = allFiles.reduce((sum, f) => sum + (f.metadata?.size || 0), 0);
+    const orphanedSize = orphaned.reduce((sum, f) => sum + (f.metadata?.size || 0), 0);
+    const usedSize = totalSize - orphanedSize;
+
+    return {
+      totalFiles,
+      usedFiles,
+      orphanedFiles,
+      totalSize,
+      usedSize,
+      orphanedSize,
+      totalSizeMB: (totalSize / (1024 * 1024)).toFixed(2),
+      usedSizeMB: (usedSize / (1024 * 1024)).toFixed(2),
+      orphanedSizeMB: (orphanedSize / (1024 * 1024)).toFixed(2),
+    };
+  } catch (err) {
+    console.error('Error getting storage stats:', err);
+    throw err;
+  }
+};
+
 // Database CRUD for websites
 export const getWebsites = async () => {
   try {
