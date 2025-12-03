@@ -5,7 +5,7 @@ import { Website, FeaturedItem } from '../../types';
 interface FeaturedListProps {
   website: Website;
   setWebsite: React.Dispatch<React.SetStateAction<Website | null>>;
-  handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => void;
+  handleFileUpload: (file: File, callback: (url: string) => void, oldImageUrl?: string) => void;
   isUploadingImage: boolean;
 }
 
@@ -261,9 +261,12 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) =>
-                    handleFileUpload(e, (base64) => updateItem(item.id, 'image', base64))
-                  }
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleFileUpload(file, (url) => updateItem(item.id, 'image', url), item.image);
+                    }
+                  }}
                   disabled={isUploadingImage}
                 />
               </label>

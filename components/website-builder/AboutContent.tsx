@@ -5,7 +5,7 @@ import { Plus, Trash, Upload, Loader2 } from 'lucide-react';
 interface AboutContentProps {
   website: Website;
   updateContent: (section: 'about', data: Website['content']['about']) => void;
-  handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => void;
+  handleFileUpload: (file: File, callback: (url: string) => void, oldImageUrl?: string) => void;
   isUploadingImage: boolean;
 }
 
@@ -64,7 +64,12 @@ export const AboutContent: React.FC<AboutContentProps> = ({
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleFileUpload(e, (base64) => handleAboutChange('image', base64))}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleFileUpload(file, (url) => handleAboutChange('image', url), about.image);
+                  }
+                }}
                 disabled={isUploadingImage}
               />
             </label>

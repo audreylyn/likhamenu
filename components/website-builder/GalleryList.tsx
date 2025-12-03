@@ -7,7 +7,7 @@ interface GalleryListProps {
   addItem: <T extends keyof Website['content']>(section: T, item: Website['content'][T][number]) => void;
   removeItem: <T extends keyof Website['content']>(section: T, id: string) => void;
   updateItem: <T extends keyof Website['content'], K extends keyof Website['content'][T][number]>(section: T, id: string, key: K, value: Website['content'][T][number][K]) => void;
-  handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => void;
+  handleFileUpload: (file: File, callback: (url: string) => void, oldImageUrl?: string) => void;
   isUploadingImage: boolean;
 }
 
@@ -87,7 +87,12 @@ export const GalleryList: React.FC<GalleryListProps> = ({
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleFileUpload(e, (base64) => updateItem<GalleryItem>('gallery', item.id, 'image', base64))}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleFileUpload(file, (url) => updateItem<GalleryItem>('gallery', item.id, 'image', url), item.image);
+                      }
+                    }}
                     disabled={isUploadingImage}
                   />
                 </label>

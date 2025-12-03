@@ -33,6 +33,11 @@ export const getUser = () => {
 // Storage: upload image to bucket and return public URL
 export const uploadImage = async (file: File, bucket = IMAGE_BUCKET, path?: string) => {
   try {
+    // Validate input file
+    if (!file || !(file instanceof File) && !(file instanceof Blob)) {
+      throw new Error('Invalid file: The file given is not an instance of Blob or File');
+    }
+
     // Image compression options
     const options = {
       maxSizeMB: 1,           // (max file size and image is compressed to that size) Max size in MB
@@ -42,8 +47,18 @@ export const uploadImage = async (file: File, bucket = IMAGE_BUCKET, path?: stri
     };
     const compressedFile = await imageCompression(file, options);
 
-    const filePath = path || `${Date.now()}_${compressedFile.name}`;
-    const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, compressedFile, { upsert: true });
+    // Validate compressed file
+    if (!compressedFile || (!(compressedFile instanceof File) && !(compressedFile instanceof Blob))) {
+      throw new Error('Image compression failed: The compressed file is not a valid File or Blob');
+    }
+
+    // Ensure we have a File object (not just Blob) for Supabase
+    const fileToUpload = compressedFile instanceof File 
+      ? compressedFile 
+      : new File([compressedFile], file.name || 'image.jpg', { type: compressedFile.type || 'image/jpeg' });
+
+    const filePath = path || `${Date.now()}_${fileToUpload.name}`;
+    const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, fileToUpload, { upsert: true });
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
