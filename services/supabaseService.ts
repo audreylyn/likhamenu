@@ -525,7 +525,8 @@ export const saveWebsite = async (website: Website) => {
       .select('*')
       .maybeSingle();
 
-    if (updateError) {
+    // Ignore 406 error on update - it just means the row doesn't exist or RLS hid it
+    if (updateError && updateError.code !== 'PGRST116' && updateError.code !== '406') {
       console.error("Supabase Update Error:", updateError);
       throw updateError;
     }
