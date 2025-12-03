@@ -148,22 +148,9 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
               type="text"
               value={featured.titleAccent || ''}
               onChange={(e) => {
-                const newAccent = e.target.value;
-                const oldAccent = featured.titleAccent || '';
-                let newTitle = featured.title || '';
-                
-                // If title ends with old accent, replace it with new accent
-                if (oldAccent && newTitle.endsWith(oldAccent)) {
-                  newTitle = newTitle.slice(0, -oldAccent.length) + newAccent;
-                } else if (newAccent) {
-                  // If it doesn't end with old accent, append new accent (with space if needed)
-                  newTitle = newTitle ? `${newTitle.trim()} ${newAccent}` : newAccent;
-                }
-                
-                updateFeatured({ 
-                  titleAccent: newAccent,
-                  title: newTitle
-                });
+                // Only update the titleAccent field, don't modify the title
+                // The preview will use titleAccent to style that portion of the title
+                updateFeatured({ titleAccent: e.target.value });
               }}
               className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
               placeholder="Bakes"

@@ -130,16 +130,50 @@ export const PreviewFeaturedSection: React.FC<PreviewFeaturedSectionProps> = ({
                 fontFamily: 'var(--heading-font)'
               }}
             >
-              {featured.title?.split(' ').slice(0, -1).join(' ') || 'Signature'}{' '}
-              <span 
-                className="italic"
-                style={{ 
-                  color: warmBrown,
-                  fontFamily: 'var(--heading-font)'
-                }}
-              >
-                {featured.titleAccent || featured.title?.split(' ').slice(-1)[0] || 'Bakes'}
-              </span>
+              {(() => {
+                const fullTitle = featured.title || 'Signature Bakes';
+                const accent = featured.titleAccent || '';
+                
+                // If accent exists and title ends with it, split them
+                if (accent && fullTitle.endsWith(accent)) {
+                  const baseTitle = fullTitle.slice(0, -accent.length).trimEnd();
+                  return (
+                    <>
+                      {baseTitle}{' '}
+                      <span 
+                        className="italic"
+                        style={{ 
+                          color: warmBrown,
+                          fontFamily: 'var(--heading-font)'
+                        }}
+                      >
+                        {accent}
+                      </span>
+                    </>
+                  );
+                }
+                
+                // If accent exists but title doesn't end with it, just show accent styled
+                if (accent) {
+                  return (
+                    <>
+                      {fullTitle}{' '}
+                      <span 
+                        className="italic"
+                        style={{ 
+                          color: warmBrown,
+                          fontFamily: 'var(--heading-font)'
+                        }}
+                      >
+                        {accent}
+                      </span>
+                    </>
+                  );
+                }
+                
+                // No accent, just show the full title
+                return fullTitle;
+              })()}
             </h2>
           </div>
 
