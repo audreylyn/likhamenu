@@ -131,25 +131,13 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
             </label>
             <input
               type="text"
-              value={(() => {
-                // Extract base title by removing the current titleAccent from the end
-                const currentAccent = featured.titleAccent || '';
-                if (currentAccent && featured.title?.endsWith(` ${currentAccent}`)) {
-                  return featured.title.slice(0, -(currentAccent.length + 1));
-                }
-                // Fallback: remove last word if no titleAccent is set
-                return featured.title?.split(' ').slice(0, -1).join(' ') || featured.title || '';
-              })()}
+              value={featured.title || ''}
               onChange={(e) => {
-                const newBaseTitle = e.target.value.trim();
-                const accent = featured.titleAccent || '';
-                // Only combine if accent exists, otherwise just use the base title
-                updateFeatured({ 
-                  title: accent ? `${newBaseTitle} ${accent}` : newBaseTitle 
-                });
+                // Allow direct editing of the full title
+                updateFeatured({ title: e.target.value });
               }}
               className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
-              placeholder="Signature"
+              placeholder="Signature Bakes"
             />
           </div>
           <div>
@@ -160,20 +148,21 @@ export const FeaturedList: React.FC<FeaturedListProps> = ({
               type="text"
               value={featured.titleAccent || ''}
               onChange={(e) => {
-                const newAccent = e.target.value.trim();
-                // Extract base title by removing the current titleAccent from the end
-                let baseTitle = featured.title || 'Signature';
-                const currentAccent = featured.titleAccent || '';
-                if (currentAccent && baseTitle.endsWith(` ${currentAccent}`)) {
-                  baseTitle = baseTitle.slice(0, -(currentAccent.length + 1));
-                } else if (!currentAccent && baseTitle) {
-                  // If no current accent, the whole title is the base
-                  baseTitle = baseTitle;
+                const newAccent = e.target.value;
+                const oldAccent = featured.titleAccent || '';
+                let newTitle = featured.title || '';
+                
+                // If title ends with old accent, replace it with new accent
+                if (oldAccent && newTitle.endsWith(oldAccent)) {
+                  newTitle = newTitle.slice(0, -oldAccent.length) + newAccent;
+                } else if (newAccent) {
+                  // If it doesn't end with old accent, append new accent (with space if needed)
+                  newTitle = newTitle ? `${newTitle.trim()} ${newAccent}` : newAccent;
                 }
-                // Update both titleAccent and reconstruct title
+                
                 updateFeatured({ 
                   titleAccent: newAccent,
-                  title: newAccent ? `${baseTitle} ${newAccent}` : baseTitle
+                  title: newTitle
                 });
               }}
               className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 focus:border-amber-400 outline-none"
