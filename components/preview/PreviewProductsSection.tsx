@@ -342,7 +342,8 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
         {/* Quick View Modal */}
         {quickViewProduct && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 quick-view-modal"
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 quick-view-modal"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(8px)' }}
           onClick={() => setQuickViewProduct(null)}
         >
           <div

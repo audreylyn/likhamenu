@@ -47,6 +47,31 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
 
   return (
     <section id="pricing" className="py-20 bg-white">
+      <style>{`
+        .pricing-card {
+          transition: all 0.3s ease;
+        }
+        .pricing-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        .pricing-check-icon {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .pricing-button {
+          transition: all 0.3s ease;
+        }
+        .pricing-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+      `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -79,11 +104,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
             return (
               <div
                 key={plan.id}
-                className="relative rounded-2xl p-8 shadow-lg transition-all hover:shadow-xl"
+                className="pricing-card relative rounded-2xl p-8 shadow-lg"
                 style={{
                   backgroundColor: cardBg,
                   border: isPopular ? `2px solid ${warmBrown}` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-                  transform: isPopular ? 'scale(1.02)' : 'scale(1)',
                 }}
               >
                 {/* Most Popular Badge */}
@@ -150,10 +174,15 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-3">
-                      <Check 
-                        className="w-5 h-5 flex-shrink-0 mt-0.5" 
-                        style={{ color: '#10b981' }} // Green checkmark
-                      />
+                      <div 
+                        className="pricing-check-icon mt-0.5"
+                        style={{ backgroundColor: `${warmBrown}20` }}
+                      >
+                        <Check 
+                          className="w-3 h-3" 
+                          style={{ color: warmBrown }}
+                        />
+                      </div>
                       <span 
                         className="text-sm leading-relaxed"
                         style={{ 
@@ -170,9 +199,7 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                 {/* CTA Button */}
                 <a
                   href={plan.buttonLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full py-3 px-6 rounded-lg text-center font-semibold transition-all shadow-lg hover:shadow-xl"
+                  className="pricing-button block w-full py-3 px-6 rounded-lg text-center font-semibold shadow-lg"
                   style={{
                     backgroundColor: isPopular ? popularButtonBg : regularButtonBg,
                     color: isPopular ? 'white' : regularButtonText,
@@ -183,7 +210,10 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                     if (isPopular) {
                       e.currentTarget.style.backgroundColor = popularButtonHover;
                     } else {
-                      e.currentTarget.style.backgroundColor = theme.colors?.brand100 || '#f5efe4';
+                      // Non-popular buttons turn dark on hover
+                      e.currentTarget.style.backgroundColor = darkBrown;
+                      e.currentTarget.style.color = 'white';
+                      e.currentTarget.style.borderColor = darkBrown;
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -191,6 +221,8 @@ export const PreviewPricingSection: React.FC<PreviewPricingSectionProps> = ({
                       e.currentTarget.style.backgroundColor = popularButtonBg;
                     } else {
                       e.currentTarget.style.backgroundColor = regularButtonBg;
+                      e.currentTarget.style.color = regularButtonText;
+                      e.currentTarget.style.borderColor = regularButtonBorder;
                     }
                   }}
                 >

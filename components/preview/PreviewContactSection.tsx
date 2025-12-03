@@ -110,6 +110,20 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
         .animate-slide-down {
           animation: slide-down 0.3s ease-out;
         }
+        .contact-icon-circle {
+          transition: all 0.3s ease;
+          cursor: default;
+        }
+        .contact-info-item:hover .contact-icon-circle {
+          background-color: ${warmBrown} !important;
+          transform: scale(1.1);
+        }
+        .contact-info-item:hover .contact-icon-circle svg {
+          color: white !important;
+        }
+        .contact-info-item {
+          transition: all 0.3s ease;
+        }
       `}</style>
       <section id="contact" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,9 +171,9 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
             <div className="space-y-6">
               {/* Location */}
               {contact.address && (
-                <div className="flex items-start gap-4">
+                <div className="contact-info-item flex items-start gap-4">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    className="contact-icon-circle w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: lightBrown }}
                   >
                     <MapPin className="w-6 h-6" style={{ color: darkBrown }} />
@@ -185,9 +199,9 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
 
               {/* Opening Hours */}
               {contact.hours && (
-                <div className="flex items-start gap-4">
+                <div className="contact-info-item flex items-start gap-4">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    className="contact-icon-circle w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: lightBrown }}
                   >
                     <Clock className="w-6 h-6" style={{ color: darkBrown }} />
@@ -213,9 +227,9 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
               )}
 
               {/* Contact */}
-              <div className="flex items-start gap-4">
+              <div className="contact-info-item flex items-start gap-4">
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                  className="contact-icon-circle w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: lightBrown }}
                 >
                   <Phone className="w-6 h-6" style={{ color: darkBrown }} />
@@ -241,9 +255,9 @@ export const PreviewContactSection: React.FC<PreviewContactSectionProps> = ({
                     className="border-t pt-6 mt-6"
                     style={{ borderColor: lightBrown }}
                   >
-                    <div className="flex items-start gap-4 mb-4">
+                    <div className="contact-info-item flex items-start gap-4 mb-4">
                       <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                        className="contact-icon-circle w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: lightBrown }}
                       >
                         <Calendar className="w-5 h-5" style={{ color: darkBrown }} />

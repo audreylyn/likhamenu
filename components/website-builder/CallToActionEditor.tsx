@@ -1,7 +1,6 @@
 import React from 'react';
 import { Plus, Trash } from 'lucide-react';
 import { Website, CallToAction, CTAButton } from '../../types';
-import { ColorPicker } from '../ColorPicker';
 
 interface CallToActionEditorProps {
   website: Website;
@@ -68,15 +67,6 @@ export const CallToActionEditor: React.FC<CallToActionEditorProps> = ({
             onChange={(e) => handleCtaChange('description', e.target.value)}
             className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-amber-400 outline-none h-24 resize-none"
             placeholder="Take the next step and experience the difference. Order online for quick pickup or visit us today."
-          />
-        </div>
-
-        {/* Background Color */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Background Color</label>
-          <ColorPicker 
-            color={cta.backgroundColor} 
-            setColor={(color) => handleCtaChange('backgroundColor', color)} 
           />
         </div>
 
