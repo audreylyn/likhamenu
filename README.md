@@ -1,4 +1,4 @@
-# WebGen AI
+# LikhaSiteWorks
 
 A powerful React-based website generator with AI-assisted content creation and comprehensive admin management. Build beautiful, responsive websites with multiple templates, AI-powered content generation, and integrated features like contact forms, order tracking, and chat support.
 
