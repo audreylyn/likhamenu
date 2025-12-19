@@ -30,7 +30,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
   }, [quickViewProduct]);
 
   // Get unique categories
-  const categories = ['All', ...Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')))];
+  const categories = ['All', ...Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')))] as string[];
 
   // Filter products
   const filteredProducts = content.products.filter(product => {
