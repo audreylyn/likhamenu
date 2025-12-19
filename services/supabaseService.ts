@@ -427,6 +427,7 @@ export const getWebsites = async () => {
       if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
       if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
       if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
+      if ('site_mode' in copy) { copy.siteMode = copy.site_mode; delete copy.site_mode; }
       return copy;
     });
     return normalized;
@@ -451,6 +452,7 @@ export const getWebsiteById = async (id: string) => {
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
     if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
     if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
+    if ('site_mode' in copy) { copy.siteMode = copy.site_mode; delete copy.site_mode; }
     return copy as Website;
   } catch (err) {
     console.error('getWebsiteById error', err);
@@ -479,6 +481,7 @@ export const getWebsiteBySubdomain = async (subdomain: string) => {
     if ('titlefont' in copy) { copy.titleFont = copy.titlefont; delete copy.titlefont; }
     if ('contactformconfig' in copy) { copy.contactFormConfig = copy.contactformconfig; delete copy.contactformconfig; }
     if ('assignededitors' in copy) { copy.assignedEditors = copy.assignededitors; delete copy.assignededitors; }
+    if ('site_mode' in copy) { copy.siteMode = copy.site_mode; delete copy.site_mode; }
     return copy as Website;
   } catch (err) {
     console.error('getWebsiteBySubdomain error', err);
@@ -512,7 +515,13 @@ export const saveWebsite = async (website: Website) => {
 
     // Convert top-level keys to lowercase to match Postgres unquoted column names
     const dbPayload: any = {};
-    Object.keys(payload).forEach((k) => { dbPayload[k.toLowerCase()] = (payload as any)[k]; });
+    Object.keys(payload).forEach((k) => { 
+      if (k === 'siteMode') {
+        dbPayload['site_mode'] = payload[k];
+      } else {
+        dbPayload[k.toLowerCase()] = (payload as any)[k]; 
+      }
+    });
 
     let savedData = null;
 
