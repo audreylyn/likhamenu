@@ -125,15 +125,28 @@ export const SectionVisibility: React.FC<SectionVisibilityProps> = ({
       <div className="grid grid-cols-2 gap-4">
         {(Object.keys(website.enabledSections) as Array<keyof typeof website.enabledSections>).map((key) => {
           const enabled = website.enabledSections[key];
+          const isPosOnly = website.siteMode === 'POS_ONLY';
+          const isProductSection = key === 'products';
+          const isDisabled = isPosOnly && !isProductSection;
+
           return (
-            <label key={String(key)} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-amber-300 transition-all">
+            <label 
+              key={String(key)} 
+              className={`flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 transition-all ${
+                isDisabled ? 'opacity-50 cursor-not-allowed bg-slate-100' : 'cursor-pointer hover:border-amber-300'
+              }`}
+            >
               <input
                 type="checkbox"
                 checked={enabled}
+                disabled={isDisabled}
                 onChange={(e) => handleSectionToggle(key, e.target.checked)}
-                className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
+                className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500 disabled:text-slate-400"
               />
-              <span className="capitalize text-sm font-medium text-slate-700">{key} Section</span>
+              <span className="capitalize text-sm font-medium text-slate-700">
+                {key} Section
+                {isDisabled && <span className="block text-xs text-slate-500 font-normal">(Disabled in POS Only)</span>}
+              </span>
             </label>
           );
         })}

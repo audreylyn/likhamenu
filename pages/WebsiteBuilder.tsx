@@ -700,7 +700,7 @@ export const WebsiteBuilder: React.FC = () => {
               {/* Sections List */}
               
               {/* Hero */}
-              {website.enabledSections.hero && (
+              {website.enabledSections.hero && website.siteMode !== 'POS_ONLY' && (
                 <HeroContent
                   website={website}
                   updateContent={updateContent}
@@ -710,7 +710,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* About */}
-              {website.enabledSections.about && (
+              {website.enabledSections.about && website.siteMode !== 'POS_ONLY' && (
                 <AboutContent 
                   website={website} 
                   updateContent={updateContent}
@@ -732,7 +732,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Featured (Quick Hook) */}
-              {website.enabledSections.featured && (
+              {website.enabledSections.featured && website.siteMode !== 'POS_ONLY' && (
                 <FeaturedList
                   website={website}
                   setWebsite={setWebsite}
@@ -742,7 +742,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Benefits */}
-              {website.enabledSections.benefits && (
+              {website.enabledSections.benefits && website.siteMode !== 'POS_ONLY' && (
                 <BenefitList
                   website={website}
                   addItem={addItem}
@@ -752,7 +752,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Testimonials */}
-              {website.enabledSections.testimonials && (
+              {website.enabledSections.testimonials && website.siteMode !== 'POS_ONLY' && (
                 <TestimonialList
                   website={website}
                   addItem={addItem}
@@ -764,7 +764,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* FAQ */}
-              {website.enabledSections.faq && (
+              {website.enabledSections.faq && website.siteMode !== 'POS_ONLY' && (
                 <FaqList
                   website={website}
                   addItem={addItem}
@@ -774,7 +774,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Gallery */}
-              {website.enabledSections.gallery && (
+              {website.enabledSections.gallery && website.siteMode !== 'POS_ONLY' && (
                 <GalleryList
                   website={website}
                   addItem={addItem}
@@ -786,7 +786,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Team */}
-              {website.enabledSections.team && (
+              {website.enabledSections.team && website.siteMode !== 'POS_ONLY' && (
                 <TeamList
                   website={website}
                   addItem={addItem}
@@ -798,7 +798,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Pricing */}
-              {website.enabledSections.pricing && (
+              {website.enabledSections.pricing && website.siteMode !== 'POS_ONLY' && (
                 <PricingList
                   website={website}
                   addItem={addItem}
@@ -808,7 +808,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Call to Action */}
-              {website.enabledSections.callToAction && (
+              {website.enabledSections.callToAction && website.siteMode !== 'POS_ONLY' && (
                 <CallToActionEditor
                   website={website}
                   updateContent={updateContent}
@@ -816,7 +816,7 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Contact */}
-              {website.enabledSections.contact && (
+              {website.enabledSections.contact && website.siteMode !== 'POS_ONLY' && (
                 <ContactDetails
                   content={website.content.contact}
                   onContentChange={(newContent) => updateContent('contact', newContent)}
@@ -826,11 +826,13 @@ export const WebsiteBuilder: React.FC = () => {
               )}
 
               {/* Footer Configuration */}
-              <FooterConfig
-                website={website}
-                updateContent={updateContent}
-                updateSocialLink={updateSocialLink}
-              />
+              {website.siteMode !== 'POS_ONLY' && (
+                <FooterConfig
+                  website={website}
+                  updateContent={updateContent}
+                  updateSocialLink={updateSocialLink}
+                />
+              )}
             </div>
           )}
 
