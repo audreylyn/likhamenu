@@ -134,7 +134,7 @@ const CartDrawer: React.FC<Props> = ({
             </div>
 
             <button 
-              onClick={handleCheckout} 
+              onClick={() => handleCheckout('Website')} 
               disabled={!checkoutForm.name || !checkoutForm.email || !checkoutForm.location || cart.length === 0 || !website?.messenger.pageId || isCheckingOut} 
               className="w-full py-3 rounded font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity" 
               style={{ backgroundColor: theme.button }}

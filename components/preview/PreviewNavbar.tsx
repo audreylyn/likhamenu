@@ -50,6 +50,9 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
 
   // Handle Order Online button click
 
+  const handleOrderOnline = (e: React.MouseEvent) => {
+    e.preventDefault();
+
     // In Hybrid mode, if we are on the marketing page, go to POS page
     if (siteMode === 'HYBRID' && location.pathname !== '/pos') {
       navigate('/pos');
@@ -57,8 +60,6 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
       return;
     }
 
-  const handleOrderOnline = (e: React.MouseEvent) => {
-    e.preventDefault();
     if (hasCartItems) {
       // If cart has items, open cart drawer
       openCart();
