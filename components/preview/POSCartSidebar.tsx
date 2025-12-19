@@ -1,7 +1,7 @@
 import React from 'react';
 import { Website } from '../../types';
 import { useCart } from '../../hooks/useCart';
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard, X } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, X, User } from 'lucide-react';
 
 interface POSCartSidebarProps {
   cartHook: ReturnType<typeof useCart>;
@@ -16,7 +16,7 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
   isOpen = true,
   onClose,
 }) => {
-  const { cart, updateQuantity, removeFromCart, cartTotal, clearCart, handleCheckout, isCheckingOut } = cartHook;
+  const { cart, updateQuantity, removeFromCart, cartTotal, clearCart, handleCheckout, isCheckingOut, checkoutForm, setCheckoutForm } = cartHook;
 
   return (
     <>
@@ -32,7 +32,7 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
         ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
       `}>
       {/* Header */}
-      <div className="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-slate-50">
+      <div className="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-slate-50 shrink-0">
         <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-slate-600" />
             <h2 className="font-bold text-lg text-slate-800">Current Order</h2>
@@ -44,6 +44,20 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                     <X className="w-5 h-5 text-slate-500" />
                 </button>
             )}
+        </div>
+      </div>
+
+      {/* Customer Input */}
+      <div className="px-6 py-3 bg-white border-b border-slate-100 shrink-0">
+        <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2 border border-slate-200 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all">
+            <User className="w-4 h-4 text-slate-400" />
+            <input 
+                type="text"
+                placeholder="Customer Name (Optional)"
+                className="bg-transparent border-none outline-none text-sm w-full font-medium text-slate-700 placeholder:text-slate-400"
+                value={checkoutForm.name}
+                onChange={(e) => setCheckoutForm(prev => ({ ...prev, name: e.target.value }))}
+            />
         </div>
       </div>
 
