@@ -23,6 +23,7 @@ import { PreviewFooter } from '../components/preview/PreviewFooter';
 import { ScrollToTopButton } from '../components/preview/ScrollToTopButton';
 import { ChatSupport } from '../components/ChatSupport';
 import { generateThemeCSS } from '../utils/themeColors';
+import { POSLayout } from '../components/preview/POSLayout';
 
 export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain }) => {
   const { id } = useParams<{ id: string }>();
@@ -295,19 +296,14 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
       `}</style>
       
       {/* Navigation */}
-      <PreviewNavbar website={website} isDark={isDark} totalItems={totalItems} openCart={openCart} />
+      {!isPosMode && <PreviewNavbar website={website} isDark={isDark} totalItems={totalItems} openCart={openCart} />}
 
       {isPosMode ? (
-        <div className="pt-20 min-h-screen">
-          <PreviewProductsSection
-            key="products"
+        <div className="h-screen overflow-hidden">
+          <POSLayout
             website={website}
-            bgSecondary={bgSecondary}
-            isDark={isDark}
-            textMuted={textMuted}
+            cartHook={cartHook}
             handleImageError={handleImageError}
-            addToCart={addToCart}
-            openCart={openCart}
           />
         </div>
       ) : (

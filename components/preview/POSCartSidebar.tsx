@@ -1,0 +1,124 @@
+import React from 'react';
+import { Website } from '../../types';
+import { useCart } from '../../hooks/useCart';
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard } from 'lucide-react';
+
+interface POSCartSidebarProps {
+  cartHook: ReturnType<typeof useCart>;
+  website: Website;
+}
+
+export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
+  cartHook,
+  website,
+}) => {
+  const { cart, updateQuantity, removeFromCart, cartTotal, clearCart, handleCheckout, isCheckingOut } = cartHook;
+
+  return (
+    <div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full shadow-xl z-10 shrink-0">
+      {/* Header */}
+      <div className="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-slate-50">
+        <div className="flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-slate-600" />
+            <h2 className="font-bold text-lg text-slate-800">Current Order</h2>
+        </div>
+        <span className="text-slate-400 text-sm font-mono">#{Math.floor(Math.random() * 1000).toString().padStart(4, '0')}</span>
+      </div>
+
+      {/* Cart Items */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {cart.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4 opacity-60">
+                <ShoppingBag className="w-16 h-16" />
+                <p className="text-sm font-medium">Order is empty</p>
+            </div>
+        ) : (
+            cart.map((item) => (
+            <div key={item.id} className="flex justify-between items-start p-3 bg-slate-50 rounded-lg border border-slate-100 group">
+                <div className="flex-1">
+                    <div className="flex justify-between mb-1">
+                        <span className="font-bold text-slate-800 text-sm">{item.name}</span>
+                        <span className="font-bold text-slate-800 text-sm">₱{(parseFloat(item.price.replace(/[^0-9.-]+/g, '')) * item.quantity).toLocaleString()}</span>
+                    </div>
+                    {item.selectedOptions && item.selectedOptions.length > 0 && (
+                        <div className="text-xs text-slate-500 mb-2 space-y-0.5">
+                            {item.selectedOptions.map((opt, idx) => (
+                                <div key={idx} className="flex justify-between">
+                                    <span>+ {opt.choiceName}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center bg-white rounded border border-slate-200 h-8">
+                            <button 
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                className="w-8 h-full flex items-center justify-center hover:bg-slate-100 text-slate-600"
+                            >
+                                <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="w-8 text-center text-sm font-bold text-slate-800">{item.quantity}</span>
+                            <button 
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                className="w-8 h-full flex items-center justify-center hover:bg-slate-100 text-slate-600"
+                            >
+                                <Plus className="w-3 h-3" />
+                            </button>
+                        </div>
+                        <button 
+                            onClick={() => removeFromCart(item.id)}
+                            className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+            ))
+        )}
+      </div>
+
+      {/* Footer / Totals */}
+      <div className="p-6 bg-slate-50 border-t border-slate-200 space-y-4">
+        <div className="space-y-2">
+            <div className="flex justify-between text-slate-600 text-sm">
+                <span>Subtotal</span>
+                <span>₱{cartTotal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-slate-600 text-sm">
+                <span>Tax (12%)</span>
+                <span>₱{(cartTotal * 0.12).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-xl font-bold text-slate-900 pt-2 border-t border-slate-200">
+                <span>Total</span>
+                <span>₱{(cartTotal * 1.12).toLocaleString()}</span>
+            </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+             <button 
+                onClick={clearCart}
+                disabled={cart.length === 0}
+                className="py-3 px-4 rounded-lg border border-slate-300 text-slate-600 font-bold hover:bg-white hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+                Cancel
+             </button>
+             <button 
+                onClick={() => {
+                    // For POS, we might want a different checkout flow, but for now reuse handleCheckout
+                    // Or just a simple "Charge" alert
+                    alert(`Processing payment for ₱${(cartTotal * 1.12).toLocaleString()}`);
+                    clearCart();
+                }}
+                disabled={cart.length === 0}
+                className="py-3 px-4 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+                <CreditCard className="w-5 h-5" />
+                Charge
+             </button>
+        </div>
+      </div>
+    </div>
+  );
+};
