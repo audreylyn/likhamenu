@@ -238,6 +238,10 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
               };
             };
             const priceParts = product.price ? parsePrice(product.price) : null;
+            
+            // Stock Logic
+            const isOutOfStock = product.trackStock && (product.stock === undefined || product.stock <= 0);
+            const isLowStock = product.trackStock && product.stock && product.stock > 0 && product.stock <= 5;
 
             return (
               <div 
@@ -250,8 +254,18 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                     src={product.image}
                     alt={product.name}
                     onError={handleImageError}
-                    className="product-image w-full h-full object-cover"
+                    className={`product-image w-full h-full object-cover ${isOutOfStock ? 'grayscale opacity-80' : ''}`}
                   />
+                  
+                  {/* Out of Stock Overlay */}
+                  {isOutOfStock && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20">
+                      <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm uppercase tracking-wider shadow-lg transform -rotate-12 border-2 border-white">
+                        Sold Out
+                      </span>
+                    </div>
+                  )}
+
                   {/* Quick View Button - Always visible */}
                   <button
                     className="quick-view-button"
@@ -315,17 +329,28 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                     >
                       <Info className="w-4 h-4" />
                     </button>
-                    <button
-                      className="add-to-order-btn px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2"
-                      onClick={() => {
-                        addToCart(product);
-                        openCart();
-                      }}
-                      style={{ fontFamily: 'var(--body-font)' }}
-                    >
-                      <span>Add to Order</span>
-                      <Plus className="w-4 h-4" />
-                    </button>
+                    
+                    <div className="flex flex-col items-end">
+                      <button
+                        className={`add-to-order-btn px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => {
+                          if (!isOutOfStock) {
+                            addToCart(product);
+                            openCart();
+                          }
+                        }}
+                        disabled={isOutOfStock}
+                        style={{ fontFamily: 'var(--body-font)' }}
+                      >
+                        <span>{isOutOfStock ? 'Sold Out' : 'Add to Order'}</span>
+                        {!isOutOfStock && <Plus className="w-4 h-4" />}
+                      </button>
+                      {isLowStock && (
+                        <span className="text-[10px] text-amber-600 font-medium mt-1">
+                          Only {product.stock} left!
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

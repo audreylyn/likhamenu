@@ -56,6 +56,8 @@ export interface Product {
   image: string;
   price: string;
   category?: string;
+  trackStock?: boolean; // Optional: Enable stock tracking
+  stock?: number;       // Optional: Number of items available
 }
 
 export interface FeaturedItem {

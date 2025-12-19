@@ -64,6 +64,33 @@ export const ProductList: React.FC<ProductListProps> = ({
               onChange={(e) => updateItem<Product>('products', p.id, 'description', e.target.value)}
               className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-amber-400 rounded outline-none h-16 resize-none"
             />
+            
+            {/* Stock Management */}
+            <div className="flex items-center gap-4 mb-2 mt-2">
+              <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={p.trackStock || false}
+                  onChange={(e) => updateItem<Product>('products', p.id, 'trackStock', e.target.checked)}
+                  className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                />
+                Track Stock
+              </label>
+              
+              {p.trackStock && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500">Qty:</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={p.stock || 0}
+                    onChange={(e) => updateItem<Product>('products', p.id, 'stock', parseInt(e.target.value) || 0)}
+                    className="w-16 text-xs border border-slate-200 rounded px-2 py-1 outline-none focus:border-amber-400"
+                  />
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2 mt-2">
               <input
                 type="text"

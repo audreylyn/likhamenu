@@ -35,6 +35,16 @@ export function useCart(website?: Website | null) {
       console.error('Cannot add product to cart: product is missing or has no id', product);
       return;
     }
+
+    // Stock Check
+    if (product.trackStock && product.stock !== undefined) {
+      const currentInCart = cart.find(ci => ci.product.id === product.id)?.quantity || 0;
+      if (currentInCart + qty > product.stock) {
+        addToast(`Sorry, only ${product.stock} available in stock.`, 'error');
+        return;
+      }
+    }
+
     setCart(prev => {
       const idx = prev.findIndex(ci => ci.product.id === product.id);
       if (idx >= 0) {
@@ -44,10 +54,20 @@ export function useCart(website?: Website | null) {
       }
       return [...prev, { product, quantity: qty }];
     });
+    addToast('Added to cart', 'success');
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
     setCart(prev => {
+      // Find product to check stock
+      const item = prev.find(ci => ci.product.id === productId);
+      if (item && item.product.trackStock && item.product.stock !== undefined) {
+        if (quantity > item.product.stock) {
+          addToast(`Sorry, cannot add more. Only ${item.product.stock} in stock.`, 'error');
+          return prev; // Return unchanged state
+        }
+      }
+
       const mapped = prev.map(ci => ci.product.id === productId ? { ...ci, quantity } : ci);
       return mapped.filter(ci => ci.quantity > 0);
     });
