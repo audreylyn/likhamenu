@@ -489,9 +489,10 @@ function addOrderToSheet(sheet, orderData, data) {
   const dateTime = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
   
   // Format items list
+  // Use newline as delimiter to avoid issues with commas in product names/options
   const itemsList = orderData.items.map(item => 
     `${item.name} x${item.quantity}`
-  ).join(", ");
+  ).join("\n");
   
   // Format item details (more detailed breakdown)
   const itemDetails = orderData.items.map(item => {
@@ -806,17 +807,19 @@ function calculateDashboardStats(ordersSheet) {
     statusCounts[status] = (statusCounts[status] || 0) + 1;
 
     // 3. Top Products (Parsing "Item Name xQty")
-    // Assumes format: "Product A x2, Product B x1"
+    // Assumes format: "Product A x2\nProduct B x1" (New format) OR "Product A x2, Product B x1" (Old format fallback)
     let itemsStr = row[5].toString(); 
     if (itemsStr) {
-      let items = itemsStr.split(","); // Split by comma
+      // Try splitting by newline first, if not found, try comma (backward compatibility)
+      let items = itemsStr.includes("\n") ? itemsStr.split("\n") : itemsStr.split(",");
+      
       items.forEach(item => {
         let parts = item.trim().split(" x"); // Split by " x"
         if (parts.length >= 2) {
+          let name = parts[0].trim();
           // CLEANUP: Remove options in parentheses e.g. "Dark Choco (Drink customizations: nata)" -> "Dark Choco"
           name = name.replace(/\s*\(.*\)/, "");
           
-          let name = parts[0].trim();
           let qty = parseInt(parts[1]) || 1;
           productCounts[name] = (productCounts[name] || 0) + qty;
         }

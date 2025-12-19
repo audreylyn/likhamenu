@@ -17,6 +17,11 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
   onClose,
 }) => {
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart, handleCheckout, isCheckingOut, checkoutForm, setCheckoutForm } = cartHook;
+  const [amountTendered, setAmountTendered] = React.useState<string>('');
+
+  const total = cartTotal();
+  const tendered = parseFloat(amountTendered) || 0;
+  const change = tendered - total;
 
   return (
     <>
@@ -120,17 +125,40 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
         <div className="space-y-2">
             <div className="flex justify-between text-slate-600 text-sm">
                 <span>Subtotal</span>
-                <span>₱{cartTotal().toLocaleString()}</span>
+                <span>₱{total.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-xl font-bold text-slate-900 pt-2 border-t border-slate-200">
                 <span>Total</span>
-                <span>₱{cartTotal().toLocaleString()}</span>
+                <span>₱{total.toLocaleString()}</span>
+            </div>
+        </div>
+
+        {/* Payment Calculation */}
+        <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium text-slate-600">Amount Tendered</span>
+                <div className="flex items-center gap-1 bg-slate-50 rounded px-2 border border-slate-200 w-32">
+                    <span className="text-slate-400 text-sm">₱</span>
+                    <input 
+                        type="number" 
+                        className="w-full bg-transparent border-none outline-none text-right font-bold text-slate-800"
+                        placeholder="0.00"
+                    handleCheckout('POS');
+                    setAmountTendered('');
+            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                <span className="text-sm font-medium text-slate-600">Change</span>
+                <span className={`font-bold ${change < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                    ₱{change.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
             </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
              <button 
-                onClick={clearCart}
+                onClick={() => {
+                    clearCart();
+                    setAmountTendered('');
+                }}
                 disabled={cart.length === 0}
                 className="py-3 px-4 rounded-lg border border-slate-300 text-slate-600 font-bold hover:bg-white hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
              >

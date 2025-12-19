@@ -220,8 +220,12 @@ export function useCart(website?: Website | null) {
       });
     }
 
-    // Open Messenger immediately (don't wait for spreadsheet)
-    window.open(messengerUrl, '_blank');
+    // Open Messenger immediately (don't wait for spreadsheet) ONLY if not POS
+    if (source !== 'POS') {
+        window.open(messengerUrl, '_blank');
+    } else {
+        addToast('Order saved to system!', 'success');
+    }
     
     // Small delay to show loading state and prevent double-clicks
     await new Promise(resolve => setTimeout(resolve, 500));

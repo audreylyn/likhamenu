@@ -110,7 +110,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-slate-100 font-sans text-slate-900 relative">
       {/* Sidebar: Categories */}
-      <div className="w-full md:w-24 bg-white border-b md:border-r border-slate-200 flex flex-row md:flex-col items-center py-2 md:py-4 px-4 md:px-0 gap-2 overflow-x-auto md:overflow-y-auto shrink-0 scrollbar-hide h-auto md:h-full order-1 z-10">
+      <div className="w-full md:w-24 bg-white border-b md:border-r border-slate-200 flex flex-row md:flex-col items-center py-2 md:py-4 px-4 md:px-0 gap-2 overflow-x-auto md:overflow-y-auto shrink-0 scrollbar-hide h-auto md:h-full z-10">
         {siteMode === 'HYBRID' && (
              <button 
                onClick={() => navigate('/')}
@@ -138,7 +138,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative order-2">
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Header with Search */}
         <div className="h-16 md:h-20 bg-white border-b border-slate-200 flex items-center px-4 md:px-6 gap-4 shrink-0">
              <div className="relative flex-1 max-w-2xl">
