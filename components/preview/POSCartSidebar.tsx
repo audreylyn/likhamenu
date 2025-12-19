@@ -153,5 +153,6 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
