@@ -130,6 +130,20 @@ export async function sendChatbotMessage(
 ): Promise<string> {
   console.log('[Chatbot] Sending message:', message, 'for website:', websiteId);
   
+  const config = await getChatbotConfig(websiteId);
+  
+  if (!config) {
+    console.error('[Chatbot] No config found for website:', websiteId);
+    return "I'm sorry, I'm having trouble connecting. Please try again later.";
+  }
+
+  if (!config.apiKey) {
+    console.error('[Chatbot] No API key configured');
+    return "I'm sorry, I'm having trouble connecting. Please make sure the chatbot is properly configured.";
+  }
+
+  console.log('[Chatbot] Config loaded, API key present, knowledge base:', config.knowledgeBase ? 'Yes' : 'No');
+
   if (config.provider === 'groq') {
     return handleGroq(message, config, conversationId);
   }
