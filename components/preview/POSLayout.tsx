@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Website, Product, ProductOption, ProductOptionChoice } from '../../types';
 import { SelectedOption, useCart } from '../../hooks/useCart';
-import { Search, Grid, List, Plus, Minus, Trash2, X, ChevronRight, ChevronLeft, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Search, Grid, List, Plus, Minus, Trash2, X, ChevronRight, ChevronLeft, ShoppingBag, ArrowLeft, Utensils, Coffee, IceCream, Sandwich, Pizza, Beer } from 'lucide-react';
 import { POSProductCard } from './POSProductCard';
 import { POSCartSidebar } from './POSCartSidebar';
 
@@ -85,7 +85,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
   };
 
   const calculateTotalPrice = (product: Product) => {
-    const basePrice = parseFloat(product.price.replace(/[^0-9.-]+/g, '')) || 0;
+    const basePrice = parseFloat((product.price || '0').toString().replace(/[^0-9.-]+/g, '')) || 0;
     const optionsPrice = selectedOptions.reduce((sum, opt) => sum + opt.price, 0);
     return basePrice + optionsPrice;
   };
@@ -94,51 +94,67 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
     return `₱${price.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  const getCategoryIcon = (category: string) => {
+    const lower = category.toLowerCase();
+    if (lower.includes('burger')) return <Sandwich className="w-6 h-6" />;
+    if (lower.includes('chicken')) return <Utensils className="w-6 h-6" />; 
+    if (lower.includes('drink') || lower.includes('beverage')) return <Coffee className="w-6 h-6" />;
+    if (lower.includes('coffee')) return <Coffee className="w-6 h-6" />;
+    if (lower.includes('dessert') || lower.includes('ice')) return <IceCream className="w-6 h-6" />;
+    if (lower.includes('pizza')) return <Pizza className="w-6 h-6" />;
+    if (lower.includes('beer') || lower.includes('alcohol')) return <Beer className="w-6 h-6" />;
+    return <Utensils className="w-6 h-6" />;
+  };
+
   return (
     <div className="h-screen w-screen flex overflow-hidden bg-slate-100 font-sans text-slate-900">
-      {/* Left Column: Menu Grid */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Header / Category Tabs */}
-        <div className="h-16 bg-white border-b border-slate-200 flex items-center px-4 gap-2 overflow-x-auto scrollbar-hide shrink-0">
-           {siteMode === 'HYBRID' && (
+      {/* Sidebar: Categories */}
+      <div className="w-24 bg-white border-r border-slate-200 flex flex-col items-center py-4 gap-2 overflow-y-auto shrink-0 scrollbar-hide">
+        {siteMode === 'HYBRID' && (
              <button 
                onClick={() => navigate('/')}
-               className="mr-2 p-2 hover:bg-slate-100 rounded-full text-slate-600"
+               className="mb-4 p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-colors"
                title="Back to Home"
              >
-               <ArrowLeft className="w-5 h-5" />
+               <ArrowLeft className="w-6 h-6" />
              </button>
-           )}
-           {categories.map(category => (
-             <button
-               key={category}
-               onClick={() => setSelectedCategory(category)}
-               className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${
-                 selectedCategory === category
-                   ? 'bg-amber-600 text-white shadow-sm'
-                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-               }`}
-             >
-               {category}
-             </button>
-           ))}
-        </div>
+        )}
+        
+        {categories.map(category => (
+            <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`flex flex-col items-center justify-center w-20 h-20 rounded-xl gap-2 transition-all ${
+                    selectedCategory === category
+                    ? 'bg-amber-600 text-white shadow-md scale-105'
+                    : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                }`}
+            >
+                {getCategoryIcon(category)}
+                <span className="text-[10px] font-bold text-center leading-tight px-1 line-clamp-2 uppercase tracking-wide">{category}</span>
+            </button>
+        ))}
+      </div>
 
-        {/* Search Bar (Optional, but good for POS) */}
-        <div className="px-4 py-3 bg-white border-b border-slate-200 flex items-center gap-2 shrink-0">
-            <Search className="w-5 h-5 text-slate-400" />
-            <input 
-                type="text" 
-                placeholder="Search products..." 
-                className="flex-1 bg-transparent outline-none text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+        {/* Header with Search */}
+        <div className="h-20 bg-white border-b border-slate-200 flex items-center px-6 gap-4 shrink-0">
+             <div className="relative flex-1 max-w-2xl">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input 
+                    type="text" 
+                    placeholder="Search products..." 
+                    className="w-full pl-12 pr-4 py-3 bg-slate-100 border-none rounded-xl outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-slate-700 placeholder:text-slate-400 font-medium"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+             </div>
         </div>
 
         {/* Product Grid */}
-        <div className="flex-1 overflow-y-auto p-4 bg-slate-100">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredProducts.map(product => (
               <POSProductCard 
                 key={product.id} 

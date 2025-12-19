@@ -38,7 +38,7 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                 <div className="flex-1">
                     <div className="flex justify-between mb-1">
                         <span className="font-bold text-slate-800 text-sm">{item.name}</span>
-                        <span className="font-bold text-slate-800 text-sm">₱{(parseFloat(item.price.replace(/[^0-9.-]+/g, '')) * item.quantity).toLocaleString()}</span>
+                        <span className="font-bold text-slate-800 text-sm">₱{((parseFloat((item.price || '0').toString().replace(/[^0-9.-]+/g, '')) || 0) * item.quantity).toLocaleString()}</span>
                     </div>
                     {item.selectedOptions && item.selectedOptions.length > 0 && (
                         <div className="text-xs text-slate-500 mb-2 space-y-0.5">
@@ -86,13 +86,9 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                 <span>Subtotal</span>
                 <span>₱{cartTotal.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-slate-600 text-sm">
-                <span>Tax (12%)</span>
-                <span>₱{(cartTotal * 0.12).toLocaleString()}</span>
-            </div>
             <div className="flex justify-between text-xl font-bold text-slate-900 pt-2 border-t border-slate-200">
                 <span>Total</span>
-                <span>₱{(cartTotal * 1.12).toLocaleString()}</span>
+                <span>₱{cartTotal.toLocaleString()}</span>
             </div>
         </div>
 
