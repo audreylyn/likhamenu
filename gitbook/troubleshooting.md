@@ -26,3 +26,15 @@ ALTER TABLE public.websites
 -   Check that the Google Script URL is configured in website settings.
 -   Verify the script has been redeployed with the `doGet` function.
 -   Check browser console for specific error messages.
+
+### 5. "Preview Not Available"
+**Error**: `Website [subdomain].likhamenu.com not found or not published.`
+**Cause**:
+-   The website status is set to `draft` (default) instead of `published`.
+-   The subdomain in the URL does not match the subdomain saved in the website settings.
+**Fix**:
+1.  Go to the **Website Builder** dashboard.
+2.  Open the website you want to preview.
+3.  Click the **"Publish"** button in the top right corner.
+4.  Ensure the status changes to **"Published"**.
+5.  Verify the subdomain in **Settings > General** matches the URL you are trying to access.

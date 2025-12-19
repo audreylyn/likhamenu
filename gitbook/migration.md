@@ -36,7 +36,25 @@ create index on websites ((content->>'hero'));
 ```
 
 ### 3. Storage Bucket
-Create a public storage bucket named `webgen-images`.
+1. In your Supabase dashboard, click on **"Storage"** in the left sidebar.
+2. Click **"Create a new bucket"**.
+3. Name it: `webgen-images`.
+4. Set it to **"Public bucket"** (toggle ON).
+5. Click **"Create bucket"**.
+6. After creation, click on the bucket name (`webgen-images`).
+7. Go to the **"Configuration"** tab (or **"Policies"** depending on UI version, usually "Configuration" > "Policies").
+8. Under **"Storage Policies"**, click **"New Policy"**.
+9. Select **"For full customization"**.
+10. Enter a policy name, e.g., "Allow authenticated uploads".
+11. Under **"Allowed operations"**, select **"INSERT"** (and optionally "SELECT", "UPDATE", "DELETE" if needed).
+12. Under **"Target roles"**, select **"authenticated"**.
+13. In the **"WITH CHECK expression"** (for INSERT/UPDATE), enter:
+    ```sql
+    bucket_id = 'webgen-images'
+    ```
+14. Click **"Review"** and then **"Save policy"**.
+
+> **Note:** You may also need a policy for public read access if it wasn't created automatically. Create another policy for `SELECT` operation, target role `anon` (public), with expression `bucket_id = 'webgen-images'`.
 
 ### 4. Environment Variables
 Add to `.env`:
