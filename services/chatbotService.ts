@@ -1,6 +1,6 @@
 import { supabase } from './supabaseService';
 
-export type ChatbotProvider = 'gemini';
+export type ChatbotProvider = 'gemini' | 'groq';
 
 export interface ChatbotConfig {
   provider: ChatbotProvider;
@@ -91,10 +91,24 @@ export async function getChatbotConfig(websiteId: string): Promise<ChatbotConfig
 
     // Use environment variable for Gemini API key (same as AI content generation)
     const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY || data.chatbot_api_key || undefined;
+    const groqApiKey = import.meta.env.VITE_GROQ_API_KEY || undefined;
+
+    // Determine provider and key
+    let provider: ChatbotProvider = 'gemini';
+    let apiKey = geminiApiKey;
+
+    // Prioritize Groq if configured in Env
+    if (groqApiKey) {
+      provider = 'groq';
+      apiKey = groqApiKey;
+    } else if (data.chatbot_provider === 'groq') {
+      provider = 'groq';
+      apiKey = data.chatbot_api_key || undefined;
+    }
 
     return {
-      provider: 'gemini' as ChatbotProvider,
-      apiKey: geminiApiKey,
+      provider: provider,
+      apiKey: apiKey,
       botId: undefined,
       webhookUrl: undefined,
       config: (data.chatbot_config as Record<string, any>) || {},
@@ -116,8 +130,86 @@ export async function sendChatbotMessage(
 ): Promise<string> {
   console.log('[Chatbot] Sending message:', message, 'for website:', websiteId);
   
-  const config = await getChatbotConfig(websiteId);
-  
+  if (config.provider === 'groq') {
+    return handleGroq(message, config, conversationId);
+  }
+
+  // Default to Gemini
+  return handleGemini(message, config, conversationId);
+}
+
+/**
+ * Groq integration (Llama 3)
+ * Documentation: https://console.groq.com/docs/api-reference
+ */
+async function handleGroq(
+  message: string,
+  config: ChatbotConfig,
+  conversationId?: string
+): Promise<string> {
+  if (!config.apiKey) {
+    console.error('Groq: Missing apiKey');
+    return "I'm sorry, I'm having trouble connecting. Please make sure the Groq API key is configured.";
+  }
+
+  try {
+    // Build system instruction with knowledge base if available
+    let systemInstruction = config.config?.systemPrompt || 'You are a helpful customer support assistant for a business. Be friendly, concise, and accurate. Always respond naturally to greetings and questions, even simple ones like "hello" or "hi".';
+    
+    if (config.knowledgeBase) {
+      console.log('[Chatbot] Including knowledge base in prompt (Groq)');
+      systemInstruction = `${systemInstruction}\n\nKnowledge Base:\n${config.knowledgeBase}\n\nUse the knowledge base above to answer questions accurately. Always respond naturally to greetings (like "hello", "hi", "helo") with a friendly greeting back. If the information is not in the knowledge base, politely say you don't have that information and suggest contacting support directly.`;
+    }
+
+    console.log('[Chatbot] Sending message to Groq:', message.substring(0, 50) + '...');
+
+    const model = config.config?.model || 'llama3-8b-8192';
+    const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${config.apiKey}`
+    };
+
+    const body = {
+      model: model,
+      messages: [
+        { role: 'system', content: systemInstruction },
+        { role: 'user', content: message }
+      ],
+      temperature: config.config?.temperature || 0.7,
+      max_tokens: config.config?.maxTokens || 500,
+    };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('[Chatbot] Groq API error:', response.status, errorData);
+      throw new Error(`Groq API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
+    }
+
+    const data = await response.json();
+    console.log('[Chatbot] Groq API response received');
+
+    if (data.choices && data.choices.length > 0) {
+      const content = data.choices[0].message?.content;
+      if (content) {
+        return content;
+      }
+    }
+
+    console.warn('[Chatbot] No valid response from Groq');
+    return 'I received your message.';
+
+  } catch (error) {
+    console.error('Groq error:', error);
+    return "I'm sorry, I'm having trouble processing your message. Please try again later.";
+  }
   if (!config) {
     console.error('[Chatbot] No config found for website:', websiteId);
     return "I'm sorry, I'm having trouble connecting. Please try again later.";
