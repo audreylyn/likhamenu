@@ -93,31 +93,70 @@ export const generateWebsiteContent = async (businessName: string, businessType:
       required: ["heroTitle", "heroSubtext", "heroImagePrompt", "aboutText", "products", "benefits", "testimonials", "faq"]
     };
 
-    const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-      },
-    });
-    
-    if (!result || !result.text) {
-      return null;
-    }
+    const maxRetries = 3;
+    let retryCount = 0;
+    let lastError: any;
 
-    const responseText = result.text.trim();
-    
-    // Clean up the response text (remove markdown code blocks if present)
-    let cleanedText = responseText;
-    if (cleanedText.startsWith('```json')) {
-      cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (cleanedText.startsWith('```')) {
-      cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    while (retryCount < maxRetries) {
+      try {
+        const result = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: responseSchema,
+          },
+        });
+        
+        // Check if result has text property or method (handling different SDK versions/types)
+        let responseText = '';
+        if (result && typeof (result as any).text === 'function') {
+             responseText = (result as any).text();
+        } else if (result && (result as any).text) {
+             responseText = (result as any).text;
+        } else if (result && result.response && typeof result.response.text === 'function') {
+             responseText = result.response.text();
+        }
+
+        if (!responseText) {
+          throw new Error('Empty response from Gemini');
+        }
+
+        responseText = responseText.trim();
+        
+        // Clean up the response text (remove markdown code blocks if present)
+        let cleanedText = responseText;
+        if (cleanedText.startsWith('```json')) {
+          cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanedText.startsWith('```')) {
+          cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        const parsedResponse = JSON.parse(cleanedText);
+        return parsedResponse as AISuggestionResponse;
+
+      } catch (error: any) {
+        lastError = error;
+        const isRetryable = 
+          error?.status === 503 || 
+          error?.code === 503 || 
+          error?.message?.includes('503') || 
+          error?.message?.includes('overloaded') ||
+          error?.message?.includes('UNAVAILABLE');
+
+        if (isRetryable) {
+          console.warn(`[GeminiService] Attempt ${retryCount + 1} failed with 503/Overloaded. Retrying...`);
+          retryCount++;
+          // Exponential backoff: 1s, 2s, 4s
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount - 1)));
+          continue;
+        }
+        throw error;
+      }
     }
     
-    const parsedResponse = JSON.parse(cleanedText);
-    return parsedResponse as AISuggestionResponse;
+    throw lastError;
+
   } catch (error) {
     console.error('[GeminiService] Error generating website content:', error);
     if (error instanceof SyntaxError) {
