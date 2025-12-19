@@ -9,6 +9,8 @@ export function useCart(website?: Website | null) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [checkoutForm, setCheckoutForm] = useState({ name: '', email: '', location: '', message: '' });
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showMessengerModal, setShowMessengerModal] = useState(false);
+  const [messengerUrl, setMessengerUrl] = useState('');
   const { addToast } = useToast();
 
   const parseCurrency = (s?: string) => {
@@ -120,12 +122,13 @@ export function useCart(website?: Website | null) {
     const encodedMessage = encodeURIComponent(fullMessage);
     // Note: m.me links with ?text= are often blocked or ignored by Meta now.
     // We keep it as a best-effort attempt, but rely on clipboard copy.
-    const messengerUrl = `https://m.me/${website.messenger.pageId}?text=${encodedMessage}`;
+    const url = `https://m.me/${website.messenger.pageId}?text=${encodedMessage}`;
+    setMessengerUrl(url);
 
     // Copy to clipboard as fallback for Messenger not supporting prefilled text
     try {
       await navigator.clipboard.writeText(fullMessage);
-      addToast('Order details copied! Paste in Messenger to send.', 'success');
+      // Toast is now handled by the modal
     } catch (err) {
       console.error('Failed to copy to clipboard', err);
       addToast('Please copy order details manually if needed.', 'info');
@@ -148,11 +151,8 @@ export function useCart(website?: Website | null) {
       });
     }
 
-    // Open Messenger immediately (don't wait for spreadsheet)
-    window.open(messengerUrl, '_blank');
-    
-    // Small delay to show loading state and prevent double-clicks
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Show the modal instead of opening immediately
+    setShowMessengerModal(true);
     
     // Clear cart and form
     setCart([]);
@@ -160,6 +160,8 @@ export function useCart(website?: Website | null) {
     closeCart();
     setIsCheckingOut(false);
   };
+
+  const closeMessengerModal = () => setShowMessengerModal(false);
 
   const clearCart = () => setCart([]);
 
@@ -179,6 +181,9 @@ export function useCart(website?: Website | null) {
     parseCurrency,
     formatCurrency,
     clearCart,
-    isCheckingOut
+    isCheckingOut,
+    showMessengerModal,
+    closeMessengerModal,
+    messengerUrl
   } as const;
 }
