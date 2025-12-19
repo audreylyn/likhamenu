@@ -336,11 +336,13 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
       )}
 
       {/* Footer */}
-      <PreviewFooter
-        website={website}
-        isDark={isDark}
-        textMuted={textMuted}
-      />
+      {!isPosMode && (
+        <PreviewFooter
+          website={website}
+          isDark={isDark}
+          textMuted={textMuted}
+        />
+      )}
 
       {/* Scroll To Top */}
       <ScrollToTopButton showScrollTop={showScrollTop} scrollToTop={scrollToTop} />

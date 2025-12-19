@@ -195,12 +195,14 @@ export function useCart(website?: Website | null) {
     const messengerUrl = `https://m.me/${website.messenger.pageId}?text=${encodedMessage}`;
 
     // Copy to clipboard as fallback for Messenger not supporting prefilled text
-    try {
-      await navigator.clipboard.writeText(fullMessage);
-      addToast('Order details copied! Paste in Messenger to send.', 'success');
-    } catch (err) {
-      console.error('Failed to copy to clipboard', err);
-      addToast('Please copy order details manually if needed.', 'info');
+    if (source !== 'POS') {
+      try {
+        await navigator.clipboard.writeText(fullMessage);
+        addToast('Order details copied! Paste in Messenger to send.', 'success');
+      } catch (err) {
+        console.error('Failed to copy to clipboard', err);
+        addToast('Please copy order details manually if needed.', 'info');
+      }
     }
 
     // Send to Google Spreadsheet in background (fire and forget)
