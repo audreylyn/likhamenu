@@ -23,6 +23,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Reset options when product changes
   useEffect(() => {
@@ -107,16 +108,16 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
   };
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-slate-100 font-sans text-slate-900">
+    <div className="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-slate-100 font-sans text-slate-900 relative">
       {/* Sidebar: Categories */}
-      <div className="w-24 bg-white border-r border-slate-200 flex flex-col items-center py-4 gap-2 overflow-y-auto shrink-0 scrollbar-hide">
+      <div className="w-full md:w-24 bg-white border-b md:border-r border-slate-200 flex flex-row md:flex-col items-center py-2 md:py-4 px-4 md:px-0 gap-2 overflow-x-auto md:overflow-y-auto shrink-0 scrollbar-hide h-auto md:h-full order-1 z-10">
         {siteMode === 'HYBRID' && (
              <button 
                onClick={() => navigate('/')}
-               className="mb-4 p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-colors"
+               className="mb-0 md:mb-4 p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-colors shrink-0"
                title="Back to Home"
              >
-               <ArrowLeft className="w-6 h-6" />
+               <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
              </button>
         )}
         
@@ -124,7 +125,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
             <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`flex flex-col items-center justify-center w-20 h-20 rounded-xl gap-2 transition-all ${
+                className={`flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl gap-1 md:gap-2 transition-all shrink-0 ${
                     selectedCategory === category
                     ? 'bg-amber-600 text-white shadow-md scale-105'
                     : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
@@ -137,15 +138,15 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative order-2">
         {/* Header with Search */}
-        <div className="h-20 bg-white border-b border-slate-200 flex items-center px-6 gap-4 shrink-0">
+        <div className="h-16 md:h-20 bg-white border-b border-slate-200 flex items-center px-4 md:px-6 gap-4 shrink-0">
              <div className="relative flex-1 max-w-2xl">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input 
                     type="text" 
                     placeholder="Search products..." 
-                    className="w-full pl-12 pr-4 py-3 bg-slate-100 border-none rounded-xl outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-slate-700 placeholder:text-slate-400 font-medium"
+                    className="w-full pl-12 pr-4 py-2 md:py-3 bg-slate-100 border-none rounded-xl outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-slate-700 placeholder:text-slate-400 font-medium text-sm md:text-base"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -153,8 +154,8 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
         </div>
 
         {/* Product Grid */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50/50 pb-24 md:pb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
             {filteredProducts.map(product => (
               <POSProductCard 
                 key={product.id} 
@@ -177,7 +178,18 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
       <POSCartSidebar 
         cartHook={cartHook} 
         website={website}
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
       />
+
+      {/* Mobile Cart Toggle Button */}
+      <button 
+        onClick={() => setIsCartOpen(true)}
+        className="md:hidden fixed bottom-6 right-6 z-40 bg-amber-600 text-white p-4 rounded-full shadow-xl shadow-amber-600/30 flex items-center gap-3 active:scale-95 transition-transform"
+      >
+        <ShoppingBag className="w-6 h-6" />
+        <span className="font-bold text-lg">{cartHook.totalItems()}</span>
+      </button>
 
       {/* Options Modal */}
       {quickViewProduct && (

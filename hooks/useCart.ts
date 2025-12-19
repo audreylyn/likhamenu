@@ -122,7 +122,7 @@ export function useCart(website?: Website | null) {
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (source: 'Website' | 'POS' = 'Website') => {
     if (!website?.messenger.pageId || cart.length === 0 || isCheckingOut) return;
     
     setIsCheckingOut(true);
@@ -149,8 +149,9 @@ export function useCart(website?: Website | null) {
     const orderData = {
       websiteId: website.id || website.subdomain,
       websiteTitle: website.title,
+      source: source,
       order: {
-        customerName: checkoutForm.name,
+        customerName: checkoutForm.name || (source === 'POS' ? 'Walk-in Customer' : ''),
         email: checkoutForm.email,
         location: checkoutForm.location,
         items: orderItems,

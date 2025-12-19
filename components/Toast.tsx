@@ -90,11 +90,11 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[9999] space-y-3">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] space-y-3 w-full max-w-md px-4 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 p-4 rounded-lg shadow-lg ${getBgColor(toast.type)}`}
+            className={`flex items-center gap-3 p-4 rounded-lg shadow-lg ${getBgColor(toast.type)} pointer-events-auto animate-in slide-in-from-top-2 fade-in duration-300`}
             role="alert"
           >
             {getIcon(toast.type)}

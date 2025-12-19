@@ -1,28 +1,50 @@
 import React from 'react';
 import { Website } from '../../types';
 import { useCart } from '../../hooks/useCart';
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, X } from 'lucide-react';
 
 interface POSCartSidebarProps {
   cartHook: ReturnType<typeof useCart>;
   website: Website;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
   cartHook,
   website,
+  isOpen = true,
+  onClose,
 }) => {
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart, handleCheckout, isCheckingOut } = cartHook;
 
   return (
-    <div className="w-96 bg-white border-l border-slate-200 flex flex-col h-full shadow-xl z-10 shrink-0">
+    <>
+      {/* Mobile Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/50 z-20 md:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={onClose}
+      />
+      
+      <div className={`
+        bg-white border-l border-slate-200 flex flex-col h-full shadow-xl z-30 shrink-0
+        fixed inset-y-0 right-0 w-full sm:w-96 md:static md:w-96 transition-transform duration-300
+        ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+      `}>
       {/* Header */}
       <div className="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-slate-50">
         <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-slate-600" />
             <h2 className="font-bold text-lg text-slate-800">Current Order</h2>
         </div>
-        <span className="text-slate-400 text-sm font-mono">#{Math.floor(Math.random() * 1000).toString().padStart(4, '0')}</span>
+        <div className="flex items-center gap-3">
+            <span className="text-slate-400 text-sm font-mono">#{Math.floor(Math.random() * 1000).toString().padStart(4, '0')}</span>
+            {onClose && (
+                <button onClick={onClose} className="md:hidden p-1 hover:bg-slate-200 rounded-full">
+                    <X className="w-5 h-5 text-slate-500" />
+                </button>
+            )}
+        </div>
       </div>
 
       {/* Cart Items */}
@@ -104,8 +126,9 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                 onClick={() => {
                     // For POS, we might want a different checkout flow, but for now reuse handleCheckout
                     // Or just a simple "Charge" alert
-                    alert(`Processing payment for ₱${cartTotal().toLocaleString()}`);
-                    clearCart();
+                    // alert(`Processing payment for ₱${cartTotal().toLocaleString()}`);
+                    handleCheckout('POS');
+                    // clearCart(); // handleCheckout clears it
                 }}
                 disabled={cart.length === 0}
                 className="py-3 px-4 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"

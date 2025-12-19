@@ -44,6 +44,7 @@ function doPost(e) {
     const orderData = data.order || {};
     
     // Validate required fields
+    // For POS, customerName might be generic, but we ensure it's sent
     if (!orderData.customerName || !orderData.items || !orderData.items.length) {
       throw new Error("Missing required order data: customerName and items are required");
     }
@@ -58,7 +59,7 @@ function doPost(e) {
     const sheet = getOrCreateOrdersSheet(spreadsheet);
     
     // Add the order to the spreadsheet
-    addOrderToSheet(sheet, orderData);
+    addOrderToSheet(sheet, orderData, data); // Pass full data object for source
     
     // Create or update Dashboard sheet with formulas and charts
     createOrUpdateDashboardSheet(spreadsheet, sheet, websiteTitle);
@@ -363,7 +364,8 @@ function getOrCreateOrdersSheet(spreadsheet) {
       "Item Details",
       "Total Amount",
       "Note",
-      "Status"
+      "Status",
+      "Source"
     ];
     
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -396,6 +398,7 @@ function getOrCreateOrdersSheet(spreadsheet) {
     sheet.setColumnWidth(8, 120); // Total Amount
     sheet.setColumnWidth(9, 300); // Note
     sheet.setColumnWidth(10, 150); // Status
+    sheet.setColumnWidth(11, 100); // Source
     
     // Freeze header row
     sheet.setFrozenRows(1);
@@ -477,7 +480,7 @@ function setupStatusColorCoding(sheet) {
 /**
  * Add order data to the spreadsheet
  */
-function addOrderToSheet(sheet, orderData) {
+function addOrderToSheet(sheet, orderData, data) {
   // Generate unique Order ID (timestamp + random)
   const orderId = "ORD-" + new Date().getTime() + "-" + Math.floor(Math.random() * 1000);
   
@@ -510,7 +513,8 @@ function addOrderToSheet(sheet, orderData) {
     itemsList,
     itemDetails,
     orderData.totalFormatted || formatCurrency(total),
-    orderData.note || "",
+    orderData, // Default status
+    data.source || "Website", // Source
     "Pending" // Default status
   ];
   
@@ -809,6 +813,9 @@ function calculateDashboardStats(ordersSheet) {
       items.forEach(item => {
         let parts = item.trim().split(" x"); // Split by " x"
         if (parts.length >= 2) {
+          // CLEANUP: Remove options in parentheses e.g. "Dark Choco (Drink customizations: nata)" -> "Dark Choco"
+          name = name.replace(/\s*\(.*\)/, "");
+          
           let name = parts[0].trim();
           let qty = parseInt(parts[1]) || 1;
           productCounts[name] = (productCounts[name] || 0) + qty;
