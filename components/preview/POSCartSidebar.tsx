@@ -148,12 +148,14 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                     />
                 </div>
             </div>
-            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
-                <span className="text-sm font-medium text-slate-600">Change</span>
-                <span className={`font-bold ${change < 0 ? 'text-red-500' : 'text-green-600'}`}>
-                    ₱{change.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </span>
-            </div>
+            {amountTendered && parseFloat(amountTendered) > 0 && (
+                <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                    <span className="text-sm font-medium text-slate-600">Change</span>
+                    <span className={`font-bold ${change < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                        ₱{change.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                </div>
+            )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -168,12 +170,9 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                 Cancel
              </button>
              <button 
-                onClick={() => {
-                    // For POS, we might want a different checkout flow, but for now reuse handleCheckout
-                    // Or just a simple "Charge" alert
-                    // alert(`Processing payment for ₱${cartTotal().toLocaleString()}`);
-                    handleCheckout('POS');
-                    // clearCart(); // handleCheckout clears it
+                onClick={async () => {
+                    await handleCheckout('POS');
+                    setAmountTendered('');
                 }}
                 disabled={cart.length === 0}
                 className="py-3 px-4 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"

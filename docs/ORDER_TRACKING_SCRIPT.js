@@ -307,14 +307,22 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   createModernCard(dashboardSheet, "J5:M8", "PENDING ORDERS", "=" + getPendingFormula(), "0", "#db4437");
 
   // Charts Data Preparation (Hidden Columns O, P)
-  // We need to aggregate status counts from both sheets via script because formulas are messy for this
-  const stats = calculateAggregatedStats(spreadsheet);
+  // We use formulas for Status Distribution so it updates in real-time
   
-  // Write Status Data
+  // Write Status Data Headers
   dashboardSheet.getRange("O1:P1").setValues([["Status", "Count"]]);
-  if (stats.statusData.length) {
-    dashboardSheet.getRange(2, 15, stats.statusData.length, 2).setValues(stats.statusData);
-  }
+  
+  // Write Status Data Formulas
+  CONFIG.ORDER_STATUS_OPTIONS.forEach((status, index) => {
+    const row = 2 + index;
+    dashboardSheet.getRange(row, 15).setValue(status); // Col O
+    // Formula: COUNTIF(Web!J:J, status) + COUNTIF(POS!J:J, status)
+    const formula = `=COUNTIF(IFERROR('${webSheet}'!J:J), "${status}") + COUNTIF(IFERROR('${posSheet}'!J:J), "${status}")`;
+    dashboardSheet.getRange(row, 16).setFormula(formula); // Col P
+  });
+  
+  // For Top Products, we still need static calculation because parsing is complex
+  const stats = calculateAggregatedStats(spreadsheet);
   
   // Write Top Products Data
   dashboardSheet.getRange("S1:T1").setValues([["Product", "Qty"]]);
@@ -325,7 +333,7 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   // Charts
   const pieChart = dashboardSheet.newChart()
     .setChartType(Charts.ChartType.PIE)
-    .addRange(dashboardSheet.getRange(1, 15, stats.statusData.length + 1, 2))
+    .addRange(dashboardSheet.getRange(1, 15, CONFIG.ORDER_STATUS_OPTIONS.length + 1, 2))
     .setPosition(10, 2, 0, 0)
     .setOption('title', 'Order Status Distribution (All Sources)')
     .setOption('pieHole', 0.4)
