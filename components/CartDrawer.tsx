@@ -8,8 +8,8 @@ type Props = {
   cart: CartItem[];
   closeCart: () => void;
   setCartEmpty: () => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
+  updateQuantity: (cartItemId: string, quantity: number) => void;
+  removeFromCart: (cartItemId: string) => void;
   cartTotal: () => number;
   totalItems: () => number;
   checkoutForm: { name: string; email: string; location: string; message: string };
@@ -54,7 +54,7 @@ const CartDrawer: React.FC<Props> = ({
           <h3 className="text-xl font-bold">Your Cart ({totalItems()})</h3>
           <div className="flex items-center gap-2">
             <button onClick={setCartEmpty} className="text-sm px-3 py-1 border rounded">Clear</button>
-            <button onClick={closeCart} className="p-2 rounded hover:bg-slate-200">
+            <button onClick={closeCart} className="p-2 rounded hover:bg-slate-200 hover:text-slate-900">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -62,41 +62,56 @@ const CartDrawer: React.FC<Props> = ({
 
         <div className="space-y-4">
           {cart.length === 0 && (
-            <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-slate-50'} text-center`}>Your cart is empty.</div>
+            <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-slate-50'} text-center`}>Your cart is empty.</div>
           )}
 
-          {cart.map(ci => (
-            <div key={ci.product.id} className={`flex gap-3 items-center p-3 rounded-lg border ${isDark ? 'border-slate-900' : 'border-slate-100'}`}>
-              {ci.product.image && (
-                <img src={ci.product.image} onError={handleImageError} className="w-16 h-16 object-cover rounded" alt="" />
-              )}
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-bold">{ci.product.name}</div>
-                    <div className="text-sm text-muted">{ci.product.description?.substring(0, 60)}</div>
+          {cart.map(ci => {
+            const basePrice = parseCurrency(ci.product.price);
+            const optionsPrice = ci.selectedOptions?.reduce((sum, opt) => sum + opt.price, 0) || 0;
+            const unitPrice = basePrice + optionsPrice;
+
+            return (
+              <div key={ci.id} className={`flex gap-3 items-center p-3 rounded-lg border ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-100 bg-white'}`}>
+                {ci.product.image && (
+                  <img src={ci.product.image} onError={handleImageError} className="w-16 h-16 object-cover rounded" alt="" />
+                )}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-bold">{ci.product.name}</div>
+                      {/* Display Options */}
+                      {ci.selectedOptions && ci.selectedOptions.length > 0 && (
+                        <div className={`text-xs mt-1 space-y-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                          {ci.selectedOptions.map((opt, idx) => (
+                            <div key={idx}>
+                              {opt.optionName}: {opt.choiceName} {opt.price > 0 && `(+${formatCurrency(opt.price)})`}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="font-bold" style={{ color: theme.primary }}>{formatCurrency(unitPrice)}</div>
                   </div>
-                  <div className="font-bold" style={{ color: theme.primary }}>{formatCurrency(parseCurrency(ci.product.price))}</div>
+                  <div className="flex items-center gap-2 mt-3">
+                    <button onClick={() => updateQuantity(ci.id, Math.max(0, ci.quantity - 1))} className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <div className="px-3 font-bold">{ci.quantity}</div>
+                    <button onClick={() => updateQuantity(ci.id, ci.quantity + 1)} className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => removeFromCart(ci.id)} className="ml-auto text-sm text-red-500 hover:underline">Remove</button>
+                  </div>
+                  <div className={`text-sm mt-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Subtotal: <span className="font-bold">{formatCurrency(unitPrice * ci.quantity)}</span></div>
                 </div>
-                <div className="flex items-center gap-2 mt-3">
-                  <button onClick={() => updateQuantity(ci.product.id, Math.max(0, ci.quantity - 1))} className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center">
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <div className="px-3 font-bold">{ci.quantity}</div>
-                  <button onClick={() => updateQuantity(ci.product.id, ci.quantity + 1)} className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center">
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => removeFromCart(ci.product.id)} className="ml-auto text-sm text-red-500">Remove</button>
-                </div>
-                <div className="text-sm mt-2">Subtotal: <span className="font-bold">{formatCurrency(parseCurrency(ci.product.price) * ci.quantity)}</span></div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="mt-6 border-t pt-4">
+        <div className="mt-6 border-t pt-4 border-slate-200">
           <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-muted">Total</div>
+            <div className="text-sm opacity-70">Total</div>
             <div className="text-lg font-bold" style={{ color: theme.primary }}>{formatCurrency(cartTotal())}</div>
           </div>
 

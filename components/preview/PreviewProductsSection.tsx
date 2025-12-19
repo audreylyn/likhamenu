@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Plus, X, Eye, Info } from 'lucide-react';
-import { Website, Product } from '../../types';
+import React, { useState, useEffect } from 'react';
+import { Plus, X, Eye, Info, Check } from 'lucide-react';
+import { Website, Product, ProductOption, ProductOptionChoice } from '../../types';
+import { SelectedOption } from '../../hooks/useCart';
 
 interface PreviewProductsSectionProps {
   website: Website;
@@ -8,7 +9,7 @@ interface PreviewProductsSectionProps {
   isDark: boolean;
   textMuted: string;
   handleImageError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, qty?: number, selectedOptions?: SelectedOption[]) => void;
   openCart: () => void;
 }
 
@@ -24,6 +25,12 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
   const { content, theme } = website;
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([]);
+
+  // Reset options when product changes
+  useEffect(() => {
+    setSelectedOptions([]);
+  }, [quickViewProduct]);
 
   // Get unique categories from products, defaulting to 'All' if no category is set
   const categories = ['All', ...Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')))];
@@ -38,6 +45,48 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
   const lightCream = theme.colors?.brand50 || theme.secondary || '#fbf8f3';
   const brand200 = theme.colors?.brand200 || '#ebdcc4';
   const darkGray = isDark ? 'rgba(107, 114, 128, 0.8)' : 'rgb(75, 85, 99)';
+
+  const handleOptionChange = (option: ProductOption, choice: ProductOptionChoice, isChecked: boolean) => {
+    if (option.type === 'single') {
+      // Replace existing selection for this option
+      setSelectedOptions(prev => [
+        ...prev.filter(o => o.optionId !== option.id),
+        {
+          optionId: option.id,
+          optionName: option.name,
+          choiceId: choice.id,
+          choiceName: choice.name,
+          price: choice.price
+        }
+      ]);
+    } else {
+      // Multiple select
+      if (isChecked) {
+        setSelectedOptions(prev => [
+          ...prev,
+          {
+            optionId: option.id,
+            optionName: option.name,
+            choiceId: choice.id,
+            choiceName: choice.name,
+            price: choice.price
+          }
+        ]);
+      } else {
+        setSelectedOptions(prev => prev.filter(o => o.choiceId !== choice.id));
+      }
+    }
+  };
+
+  const calculateTotalPrice = (product: Product) => {
+    const basePrice = parseFloat(product.price.replace(/[^0-9.-]+/g, '')) || 0;
+    const optionsPrice = selectedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    return basePrice + optionsPrice;
+  };
+
+  const formatPrice = (price: number) => {
+    return `₱${price.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   // Use white background for Products (Menu) section
   return (
@@ -242,6 +291,7 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
             // Stock Logic
             const isOutOfStock = product.trackStock && (product.stock === undefined || product.stock <= 0);
             const isLowStock = product.trackStock && product.stock && product.stock > 0 && product.stock <= 5;
+            const hasOptions = product.options && product.options.length > 0;
 
             return (
               <div 
@@ -335,19 +385,25 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                         className={`add-to-order-btn px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => {
                           if (!isOutOfStock) {
-                            addToCart(product);
-                            openCart();
+                            if (hasOptions) {
+                              setQuickViewProduct(product);
+                            } else {
+                              addToCart(product);
+                              openCart();
+                            }
                           }
                         }}
                         disabled={isOutOfStock}
                         style={{ fontFamily: 'var(--body-font)' }}
                       >
-                        <span>{isOutOfStock ? 'Sold Out' : 'Add to Order'}</span>
+                        <span>{isOutOfStock ? 'Sold Out' : (hasOptions ? 'Select Options' : 'Add to Order')}</span>
                         {!isOutOfStock && <Plus className="w-4 h-4" />}
                       </button>
-                      {isLowStock && (
-                        <span className="text-[10px] text-amber-600 font-medium mt-1">
-                          Only {product.stock} left!
+                      
+                      {/* Stock Indicator */}
+                      {product.trackStock && product.stock !== undefined && !isOutOfStock && (
+                        <span className={`text-[10px] font-medium mt-1 ${isLowStock ? 'text-red-600' : 'text-slate-500'}`}>
+                          {isLowStock ? `Only ${product.stock} left!` : `${product.stock} available`}
                         </span>
                       )}
                     </div>
@@ -396,7 +452,7 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                 </div>
 
                 {/* Product Details */}
-                <div className="p-8 flex flex-col">
+                <div className="p-8 flex flex-col h-full overflow-y-auto">
                   <div className="mb-4">
                     {quickViewProduct.price && (
                       <div 
@@ -418,28 +474,75 @@ export const PreviewProductsSection: React.FC<PreviewProductsSectionProps> = ({
                     )}
                   </div>
 
-                  <p className={`text-base leading-relaxed mb-6 flex-1 ${textMuted}`}>
+                  <p className={`text-base leading-relaxed mb-6 ${textMuted}`}>
                     {quickViewProduct.description}
                   </p>
 
-                  <div className="flex gap-3">
-                    <button
-                      className="btn-primary flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                      onClick={() => {
-                        addToCart(quickViewProduct);
-                        setQuickViewProduct(null);
-                        openCart();
-                      }}
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span>Add to Cart</span>
-                    </button>
-                    <button
-                      className="btn-secondary px-6 py-3.5 rounded-xl font-semibold text-sm transition-all"
-                      onClick={() => setQuickViewProduct(null)}
-                    >
-                      Close
-                    </button>
+                  {/* Options Section */}
+                  {quickViewProduct.options && quickViewProduct.options.length > 0 && (
+                    <div className="mb-6 space-y-4 border-t border-slate-100 pt-4">
+                      {quickViewProduct.options.map(option => (
+                        <div key={option.id}>
+                          <h4 className={`font-semibold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                            {option.name}
+                            {option.type === 'multiple' && <span className="text-xs font-normal text-slate-500 ml-2">(Select multiple)</span>}
+                          </h4>
+                          <div className="space-y-2">
+                            {option.choices.map(choice => {
+                              const isSelected = selectedOptions.some(o => o.choiceId === choice.id);
+                              return (
+                                <label key={choice.id} className="flex items-center justify-between cursor-pointer p-2 rounded hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-colors">
+                                  <div className="flex items-center gap-3">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? 'bg-amber-600 border-amber-600' : 'border-slate-300'}`}>
+                                      {isSelected && <Check className="w-3 h-3 text-white" />}
+                                    </div>
+                                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{choice.name}</span>
+                                  </div>
+                                  {choice.price > 0 && (
+                                    <span className="text-sm font-medium text-amber-600">
+                                      +{formatPrice(choice.price)}
+                                    </span>
+                                  )}
+                                  <input
+                                    type={option.type === 'single' ? 'radio' : 'checkbox'}
+                                    name={option.id}
+                                    className="hidden"
+                                    checked={isSelected}
+                                    onChange={(e) => handleOptionChange(option, choice, e.target.checked)}
+                                  />
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-auto pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className={`font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Total:</span>
+                      <span className="text-xl font-bold text-amber-600">{formatPrice(calculateTotalPrice(quickViewProduct))}</span>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        className="btn-primary flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                        onClick={() => {
+                          addToCart(quickViewProduct, 1, selectedOptions);
+                          setQuickViewProduct(null);
+                          openCart();
+                        }}
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span>Add to Cart</span>
+                      </button>
+                      <button
+                        className="btn-secondary px-6 py-3.5 rounded-xl font-semibold text-sm transition-all"
+                        onClick={() => setQuickViewProduct(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

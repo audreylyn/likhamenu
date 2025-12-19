@@ -49,6 +49,19 @@ export interface MessengerConfig {
   googleScriptUrl?: string; // Google Apps Script URL for order tracking
 }
 
+export interface ProductOptionChoice {
+  id: string;
+  name: string;
+  price: number;
+}
+
+export interface ProductOption {
+  id: string;
+  name: string; // e.g. "Size", "Sugar Level"
+  type: 'single' | 'multiple';
+  choices: ProductOptionChoice[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -58,6 +71,7 @@ export interface Product {
   category?: string;
   trackStock?: boolean; // Optional: Enable stock tracking
   stock?: number;       // Optional: Number of items available
+  options?: ProductOption[]; // Variants and Add-ons
 }
 
 export interface FeaturedItem {

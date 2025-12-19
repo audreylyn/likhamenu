@@ -2,7 +2,20 @@ import { useState } from 'react';
 import { Product, Website } from '../types';
 import { useToast } from '../components/Toast';
 
-export type CartItem = { product: Product; quantity: number };
+export type SelectedOption = {
+  optionId: string;
+  optionName: string;
+  choiceId: string;
+  choiceName: string;
+  price: number;
+};
+
+export type CartItem = { 
+  id: string; // Unique ID for cart item (productID + options hash)
+  product: Product; 
+  quantity: number;
+  selectedOptions: SelectedOption[];
+};
 
 export function useCart(website?: Website | null) {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -30,15 +43,27 @@ export function useCart(website?: Website | null) {
     }
   };
 
-  const addToCart = (product: Product, qty = 1) => {
+  const generateCartItemId = (product: Product, options: SelectedOption[]) => {
+    const sortedOptions = [...options].sort((a, b) => a.optionId.localeCompare(b.optionId));
+    const optionsKey = sortedOptions.map(o => `${o.optionId}:${o.choiceId}`).join('|');
+    return optionsKey ? `${product.id}|${optionsKey}` : product.id;
+  };
+
+  const addToCart = (product: Product, qty = 1, selectedOptions: SelectedOption[] = []) => {
     if (!product || !product.id) {
       console.error('Cannot add product to cart: product is missing or has no id', product);
       return;
     }
 
+    const cartItemId = generateCartItemId(product, selectedOptions);
+
     // Stock Check
     if (product.trackStock && product.stock !== undefined) {
-      const currentInCart = cart.find(ci => ci.product.id === product.id)?.quantity || 0;
+      // Calculate total quantity of this product across all variants in cart
+      const currentInCart = cart
+        .filter(ci => ci.product.id === product.id)
+        .reduce((sum, ci) => sum + ci.quantity, 0);
+      
       if (currentInCart + qty > product.stock) {
         addToast(`Sorry, only ${product.stock} available in stock.`, 'error');
         return;
@@ -46,39 +71,50 @@ export function useCart(website?: Website | null) {
     }
 
     setCart(prev => {
-      const idx = prev.findIndex(ci => ci.product.id === product.id);
+      const idx = prev.findIndex(ci => ci.id === cartItemId);
       if (idx >= 0) {
         const copy = [...prev];
         copy[idx] = { ...copy[idx], quantity: copy[idx].quantity + qty };
         return copy;
       }
-      return [...prev, { product, quantity: qty }];
+      return [...prev, { id: cartItemId, product, quantity: qty, selectedOptions }];
     });
     addToast('Added to cart', 'success');
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (cartItemId: string, quantity: number) => {
     setCart(prev => {
-      // Find product to check stock
-      const item = prev.find(ci => ci.product.id === productId);
-      if (item && item.product.trackStock && item.product.stock !== undefined) {
-        if (quantity > item.product.stock) {
+      const item = prev.find(ci => ci.id === cartItemId);
+      if (!item) return prev;
+
+      // Stock Check
+      if (item.product.trackStock && item.product.stock !== undefined) {
+        // Calculate total quantity of this product across all variants in cart, EXCLUDING current item's old quantity
+        const otherVariantsQuantity = prev
+          .filter(ci => ci.product.id === item.product.id && ci.id !== cartItemId)
+          .reduce((sum, ci) => sum + ci.quantity, 0);
+        
+        if (otherVariantsQuantity + quantity > item.product.stock) {
           addToast(`Sorry, cannot add more. Only ${item.product.stock} in stock.`, 'error');
           return prev; // Return unchanged state
         }
       }
 
-      const mapped = prev.map(ci => ci.product.id === productId ? { ...ci, quantity } : ci);
+      const mapped = prev.map(ci => ci.id === cartItemId ? { ...ci, quantity } : ci);
       return mapped.filter(ci => ci.quantity > 0);
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart(prev => prev.filter(ci => ci.product.id !== productId));
+  const removeFromCart = (cartItemId: string) => {
+    setCart(prev => prev.filter(ci => ci.id !== cartItemId));
   };
 
   const cartTotal = () => {
-    return cart.reduce((sum, ci) => sum + parseCurrency(ci.product.price) * ci.quantity, 0);
+    return cart.reduce((sum, ci) => {
+      const basePrice = parseCurrency(ci.product.price);
+      const optionsPrice = ci.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
+      return sum + (basePrice + optionsPrice) * ci.quantity;
+    }, 0);
   };
 
   const totalItems = () => cart.reduce((s, c) => s + c.quantity, 0);
@@ -93,10 +129,17 @@ export function useCart(website?: Website | null) {
     
     // Prepare order data for spreadsheet
     const orderItems = cart.map(ci => {
-      const unit = parseCurrency(ci.product.price);
+      const basePrice = parseCurrency(ci.product.price);
+      const optionsPrice = ci.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
+      const unit = basePrice + optionsPrice;
       const subtotal = unit * ci.quantity;
+      
+      const optionsString = ci.selectedOptions.length > 0 
+        ? ` (${ci.selectedOptions.map(o => `${o.optionName}: ${o.choiceName}`).join(', ')})`
+        : '';
+
       return {
-        name: ci.product.name,
+        name: ci.product.name + optionsString,
         quantity: ci.quantity,
         unitPrice: unit.toFixed(2),
         subtotal: subtotal
@@ -125,9 +168,17 @@ export function useCart(website?: Website | null) {
     lines.push('------------------');
     lines.push('Items:');
     cart.forEach(ci => {
-      const unit = parseCurrency(ci.product.price);
+      const basePrice = parseCurrency(ci.product.price);
+      const optionsPrice = ci.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
+      const unit = basePrice + optionsPrice;
       const subtotal = unit * ci.quantity;
+      
       lines.push(`- ${ci.product.name} x${ci.quantity} @ ${formatCurrency(unit)} = ${formatCurrency(subtotal)}`);
+      if (ci.selectedOptions.length > 0) {
+        ci.selectedOptions.forEach(opt => {
+           lines.push(`  + ${opt.optionName}: ${opt.choiceName} (+${formatCurrency(opt.price)})`);
+        });
+      }
     });
     lines.push('------------------');
     lines.push(`Total: ${formatCurrency(cartTotal())}`);

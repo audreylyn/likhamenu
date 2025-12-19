@@ -1,12 +1,13 @@
 import React from 'react';
 import { Plus, Trash, Upload, Loader2 } from 'lucide-react';
 import { Website, Product } from '../../types';
+import { ProductOptionsEditor } from './ProductOptionsEditor';
 
 interface ProductListProps {
   website: Website;
-  addItem: <T extends keyof Website['content']>(section: T, item: Website['content'][T][number]) => void;
-  removeItem: <T extends keyof Website['content']>(section: T, id: string) => void;
-  updateItem: <T extends keyof Website['content'], K extends keyof Website['content'][T][number]>(section: T, id: string, key: K, value: Website['content'][T][number][K]) => void;
+  addItem: (section: 'products', item: Product) => void;
+  removeItem: (section: 'products', id: string) => void;
+  updateItem: (section: 'products', id: string, key: keyof Product, value: any) => void;
   handleFileUpload: (file: File, callback: (url: string) => void, oldImageUrl?: string) => void;
   isUploadingImage: boolean; // New prop
 }
@@ -24,7 +25,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-slate-900">Products / Services</h3>
         <button
-          onClick={() => addItem<Product>('products', { id: Math.random().toString(), name: 'New Product', description: 'Desc', image: 'https://placehold.co/400x300?text=Product', price: '₱0.00', category: 'All' })}
+          onClick={() => addItem('products', { id: Math.random().toString(), name: 'New Product', description: 'Desc', image: 'https://placehold.co/400x300?text=Product', price: '₱0.00', category: 'All', options: [] })}
           className="text-sm flex items-center gap-1 text-amber-600 hover:underline"
         >
           <Plus className="w-4 h-4" /> Add Item
@@ -41,14 +42,14 @@ export const ProductList: React.FC<ProductListProps> = ({
                 type="text"
                 value={p.name}
                 placeholder="Product Name"
-                onChange={(e) => updateItem<Product>('products', p.id, 'name', e.target.value)}
+                onChange={(e) => updateItem('products', p.id, 'name', e.target.value)}
                 className="flex-1 bg-transparent font-bold border-b border-transparent focus:border-amber-400 outline-none"
               />
               <input
                 type="text"
                 value={p.price}
                 placeholder="Price"
-                onChange={(e) => updateItem<Product>('products', p.id, 'price', e.target.value)}
+                onChange={(e) => updateItem('products', p.id, 'price', e.target.value)}
                 className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-amber-400 outline-none"
               />
             </div>
@@ -56,12 +57,12 @@ export const ProductList: React.FC<ProductListProps> = ({
               type="text"
               value={p.category || 'All'}
               placeholder="Category (e.g., Breads, Pastries, Drinks)"
-              onChange={(e) => updateItem<Product>('products', p.id, 'category', e.target.value)}
+              onChange={(e) => updateItem('products', p.id, 'category', e.target.value)}
               className="w-full bg-transparent text-sm text-slate-500 mb-2 border-b border-transparent focus:border-amber-400 outline-none"
             />
             <textarea
               value={p.description}
-              onChange={(e) => updateItem<Product>('products', p.id, 'description', e.target.value)}
+              onChange={(e) => updateItem('products', p.id, 'description', e.target.value)}
               className="w-full bg-transparent text-sm text-slate-600 border-transparent focus:border-amber-400 rounded outline-none h-16 resize-none"
             />
             
@@ -71,7 +72,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                 <input
                   type="checkbox"
                   checked={p.trackStock || false}
-                  onChange={(e) => updateItem<Product>('products', p.id, 'trackStock', e.target.checked)}
+                  onChange={(e) => updateItem('products', p.id, 'trackStock', e.target.checked)}
                   className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
                 />
                 Track Stock
@@ -84,7 +85,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                     type="number"
                     min="0"
                     value={p.stock || 0}
-                    onChange={(e) => updateItem<Product>('products', p.id, 'stock', parseInt(e.target.value) || 0)}
+                    onChange={(e) => updateItem('products', p.id, 'stock', parseInt(e.target.value) || 0)}
                     className="w-16 text-xs border border-slate-200 rounded px-2 py-1 outline-none focus:border-amber-400"
                   />
                 </div>
@@ -95,7 +96,7 @@ export const ProductList: React.FC<ProductListProps> = ({
               <input
                 type="text"
                 value={p.image}
-                onChange={(e) => updateItem<Product>('products', p.id, 'image', e.target.value)}
+                onChange={(e) => updateItem('products', p.id, 'image', e.target.value)}
                 className="flex-1 text-xs text-slate-400 bg-white border border-slate-200 rounded px-2 py-1"
                 placeholder="Image URL"
               />
@@ -108,13 +109,18 @@ export const ProductList: React.FC<ProductListProps> = ({
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      handleFileUpload(file, (url) => updateItem<Product>('products', p.id, 'image', url), p.image);
+                      handleFileUpload(file, (url) => updateItem('products', p.id, 'image', url), p.image);
                     }
                   }}
                   disabled={isUploadingImage}
                 />
               </label>
             </div>
+
+            <ProductOptionsEditor 
+              options={p.options || []} 
+              onChange={(newOptions) => updateItem('products', p.id, 'options', newOptions)} 
+            />
           </div>
         ))}
       </div>
