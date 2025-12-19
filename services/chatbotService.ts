@@ -177,7 +177,12 @@ async function handleGroq(
 
     console.log('[Chatbot] Sending message to Groq:', message.substring(0, 50) + '...');
 
-    const model = config.config?.model || 'llama3-8b-8192';
+    // Ensure we don't use a Gemini model name with Groq
+    let model = config.config?.model || 'llama3-8b-8192';
+    if (model.includes('gemini')) {
+      model = 'llama3-8b-8192';
+    }
+    
     const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     
     const headers = {
