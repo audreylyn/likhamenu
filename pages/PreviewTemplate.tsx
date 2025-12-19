@@ -348,7 +348,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
       <ScrollToTopButton showScrollTop={showScrollTop} scrollToTop={scrollToTop} />
 
       {/* Chat Support */}
-      <ChatSupport websiteId={website.id} />
+      {!isPosMode && <ChatSupport websiteId={website.id} />}
 
       <CartDrawer
         isOpen={isCartOpen}

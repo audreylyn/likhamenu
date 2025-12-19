@@ -491,6 +491,7 @@ function sendOrderStatusEmail(e) {
     try {
       MailApp.sendEmail({
         to: customerEmail,
+        bcc: BUSINESS_EMAIL,          // Send copy to business email
         subject: subject,
         htmlBody: htmlBody,           // Use HTML body
         name: BUSINESS_NAME,          // Display Name (Masking)

@@ -64,6 +64,9 @@ function doPost(e) {
     
     // Add the order to the spreadsheet
     addOrderToSheet(sheet, orderData, source);
+
+    // Send New Order Notification to Admin
+    sendNewOrderEmail(orderData, source, websiteTitle);
     
     // Update Dashboard (Aggregated)
     createOrUpdateDashboardSheet(spreadsheet, websiteTitle);
@@ -418,6 +421,33 @@ function calculateAggregatedStats(spreadsheet) {
 // ============================================
 // 5. EMAIL NOTIFICATIONS (Email.gs)
 // ============================================
+
+function sendNewOrderEmail(orderData, source, websiteTitle) {
+  if (!CONFIG.ADMIN_EMAIL) return;
+  
+  const subject = `New Order: ${websiteTitle} (${source})`;
+  const itemsList = orderData.items.map(i => `- ${i.name} x${i.quantity} (${i.unitPrice})`).join('\n');
+  
+  const body = `New Order Received!\n\n` +
+               `Source: ${source}\n` +
+               `Customer: ${orderData.customerName}\n` +
+               `Email: ${orderData.email || "N/A"}\n` +
+               `Location: ${orderData.location || "N/A"}\n\n` +
+               `Items:\n${itemsList}\n\n` +
+               `Total: ${orderData.totalFormatted || orderData.total}\n` +
+               `Note: ${orderData.note || "None"}`;
+  
+  try {
+    MailApp.sendEmail({
+      to: CONFIG.ADMIN_EMAIL,
+      subject: subject,
+      body: body
+    });
+  } catch (e) {
+    console.error("Failed to send admin email", e);
+  }
+}
+
 /**
  * TRIGGER: Set up an "On Edit" trigger for this function manually.
  */

@@ -164,7 +164,7 @@ async function handleGemini(
     console.log('[Chatbot] Sending message to Gemini:', message.substring(0, 50) + '...');
 
     // Use Gemini API via server proxy or direct API call
-    const model = config.config?.model || 'gemini-2.0-flash';
+    const model = config.config?.model || 'gemini-1.5-flash';
     
     // Direct API call (for development)
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${config.apiKey}`;
