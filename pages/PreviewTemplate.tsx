@@ -23,7 +23,6 @@ import { PreviewFooter } from '../components/preview/PreviewFooter';
 import { ScrollToTopButton } from '../components/preview/ScrollToTopButton';
 import { ChatSupport } from '../components/ChatSupport';
 import { generateThemeCSS } from '../utils/themeColors';
-import { MessengerModal } from '../components/MessengerModal';
 
 export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain }) => {
   const { id } = useParams<{ id: string }>();
@@ -34,12 +33,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
 
   // Cart hook (moved to a separate module for clarity)
   const cartHook = useCart(website);
-  const { 
-    cart, addToCart, updateQuantity, removeFromCart, cartTotal, totalItems, 
-    isCartOpen, openCart, closeCart, checkoutForm, setCheckoutForm, handleCheckout, 
-    parseCurrency, formatCurrency, clearCart, isCheckingOut,
-    showMessengerModal, closeMessengerModal, messengerUrl
-  } = cartHook;
+  const { cart, addToCart, updateQuantity, removeFromCart, cartTotal, totalItems, isCartOpen, openCart, closeCart, checkoutForm, setCheckoutForm, handleCheckout, parseCurrency, formatCurrency, clearCart, isCheckingOut } = cartHook;
 
   useEffect(() => {
     const fetchWebsite = async () => {
@@ -354,13 +348,6 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
         handleImageError={handleImageError}
         website={website}
         isCheckingOut={isCheckingOut}
-      />
-
-      <MessengerModal
-        isOpen={showMessengerModal}
-        onClose={closeMessengerModal}
-        messengerUrl={messengerUrl}
-        pageId={website.messenger.pageId}
       />
     </div>
   );
