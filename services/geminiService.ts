@@ -114,8 +114,8 @@ export const generateWebsiteContent = async (businessName: string, businessType:
              responseText = (result as any).text();
         } else if (result && (result as any).text) {
              responseText = (result as any).text;
-        } else if (result && result.response && typeof result.response.text === 'function') {
-             responseText = result.response.text();
+        } else if (result && (result as any).response && typeof (result as any).response.text === 'function') {
+             responseText = (result as any).response.text();
         }
 
         if (!responseText) {
