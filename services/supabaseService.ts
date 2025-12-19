@@ -584,33 +584,45 @@ export const deleteWebsite = async (id: string) => {
   if (error) throw error;
 };
 
+// Editor Management
+export const addEditorToRegistry = async (email: string) => {
+  const { error } = await supabase.from('editors').insert({ email });
+  if (error) {
+    // Ignore duplicate key error
+    if (error.code === '23505') return;
+    throw error;
+  }
+};
+
+export const checkEditorExists = async (email: string): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('editors')
+    .select('email')
+    .eq('email', email)
+    .maybeSingle();
+  
+  if (error) {
+    console.warn('Error checking editor existence:', error);
+    return false;
+  }
+  return !!data;
+};
+
 // Get all editors (users with role 'editor')
-// Note: This requires a Supabase function or admin access
-// Alternative: Create a 'users' table that syncs with auth.users
 export const getEditors = async () => {
   try {
-    // Try using admin API if available (requires service role key)
-    // For client-side, we'll need to create a Supabase Edge Function or use a users table
-    // For now, return empty array and show message to create editors first
-    // TODO: Implement proper editor fetching via Edge Function or users table
+    // Try fetching from our custom 'editors' table first
+    const { data: editors, error } = await supabase.from('editors').select('*');
     
-    // Check if we have admin access
-    if (typeof (supabase as any).auth?.admin?.listUsers === 'function') {
-      const { data: { users }, error } = await (supabase as any).auth.admin.listUsers();
-      if (!error && users) {
-        return users.filter((u: any) => {
-          const role = u.user_metadata?.role || (import.meta.env.VITE_ADMIN_EMAIL === u.email ? 'admin' : 'editor');
-          return role === 'editor';
-        }).map((u: any) => ({
-          id: u.id,
-          email: u.email || '',
-          name: u.email || 'Editor'
-        }));
-      }
+    if (!error && editors) {
+      return editors.map((e: any) => ({
+        id: e.email, // Use email as ID since we don't have UUID in this table
+        email: e.email,
+        name: e.email
+      }));
     }
-    
-    // Fallback: Return empty array (editors will need to be fetched via Edge Function or users table)
-    console.warn('Editor fetching requires admin API or Edge Function. Returning empty list.');
+
+    // Fallback: Return empty array
     return [];
   } catch (err) {
     console.warn('Could not fetch editors:', err);

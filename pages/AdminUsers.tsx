@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Layout } from '../components/Layout';
-import { cleanAllWebsitesImages, getStorageStats, deleteOrphanedImages } from '../services/supabaseService';
+import { cleanAllWebsitesImages, getStorageStats, deleteOrphanedImages, addEditorToRegistry } from '../services/supabaseService';
 import { Loader2, Database, Trash2, HardDrive } from 'lucide-react';
+import { useToast } from '../components/Toast';
 
 const AdminUsers: React.FC = () => {
   const { user, signUpEditor } = useAuth();
+  const { addToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,10 +25,12 @@ const AdminUsers: React.FC = () => {
     setLoading(true);
     try {
       await signUpEditor(email, password);
-      alert('Editor registered. They should confirm their email if required.');
+      // Add to public registry for validation
+      await addEditorToRegistry(email);
+      addToast('Editor registered successfully! They can now be assigned to websites.', 'success');
       setEmail(''); setPassword('');
     } catch (err) {
-      alert('Failed to register editor: ' + ((err as any)?.message || String(err)));
+      addToast('Failed to register editor: ' + ((err as any)?.message || String(err)), 'error');
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { User, X, Check, Plus, Trash2 } from 'lucide-react';
 import { Website } from '../../types';
-import { saveWebsite } from '../../services/supabaseService';
+import { saveWebsite, checkEditorExists } from '../../services/supabaseService';
+import { useToast } from '../Toast';
 
 interface EditorAssignmentProps {
   website: Website;
@@ -9,6 +10,7 @@ interface EditorAssignmentProps {
 }
 
 export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onUpdate }) => {
+  const { addToast } = useToast();
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [newEditorEmail, setNewEditorEmail] = useState('');
@@ -20,12 +22,20 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
     
     const email = newEditorEmail.trim().toLowerCase();
     if (assignedEditors.includes(email)) {
-      alert('This editor is already assigned.');
+      addToast('This editor is already assigned.', 'warning');
       return;
     }
 
     setSaving(true);
     try {
+      // Validate if editor exists
+      const exists = await checkEditorExists(email);
+      if (!exists) {
+        addToast('User not found. Please create the editor account first in Admin > Users.', 'error');
+        setSaving(false);
+        return;
+      }
+
       const updatedWebsite = {
         ...website,
         assignedEditors: [...assignedEditors, email]
@@ -34,9 +44,10 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
       await saveWebsite(updatedWebsite);
       onUpdate(updatedWebsite);
       setNewEditorEmail('');
+      addToast('Editor assigned successfully.', 'success');
     } catch (error) {
       console.error('Failed to add editor:', error);
-      alert('Failed to add editor. Please try again.');
+      addToast('Failed to add editor. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -52,9 +63,10 @@ export const EditorAssignment: React.FC<EditorAssignmentProps> = ({ website, onU
 
       await saveWebsite(updatedWebsite);
       onUpdate(updatedWebsite);
+      addToast('Editor removed.', 'info');
     } catch (error) {
       console.error('Failed to remove editor:', error);
-      alert('Failed to remove editor. Please try again.');
+      addToast('Failed to remove editor. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
