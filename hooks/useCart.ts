@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Product, Website } from '../types';
+import { useToast } from '../components/Toast';
 
 export type CartItem = { product: Product; quantity: number };
 
@@ -8,6 +9,7 @@ export function useCart(website?: Website | null) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [checkoutForm, setCheckoutForm] = useState({ name: '', email: '', location: '', message: '' });
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { addToast } = useToast();
 
   const parseCurrency = (s?: string) => {
     if (!s) return 0;
@@ -116,7 +118,18 @@ export function useCart(website?: Website | null) {
 
     const fullMessage = lines.join('\n');
     const encodedMessage = encodeURIComponent(fullMessage);
+    // Note: m.me links with ?text= are often blocked or ignored by Meta now.
+    // We keep it as a best-effort attempt, but rely on clipboard copy.
     const messengerUrl = `https://m.me/${website.messenger.pageId}?text=${encodedMessage}`;
+
+    // Copy to clipboard as fallback for Messenger not supporting prefilled text
+    try {
+      await navigator.clipboard.writeText(fullMessage);
+      addToast('Order details copied! Paste in Messenger to send.', 'success');
+    } catch (err) {
+      console.error('Failed to copy to clipboard', err);
+      addToast('Please copy order details manually if needed.', 'info');
+    }
 
     // Send to Google Spreadsheet in background (fire and forget)
     // Don't wait for it - open Messenger immediately for better UX
