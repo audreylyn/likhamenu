@@ -65,4 +65,21 @@ VITE_ADMIN_EMAIL=admin@example.com
 ```
 
 ### 5. Row Level Security (RLS)
-Enable RLS on the `websites` table and add policies to allow users to manage their own websites.
+Enable RLS on the `websites` table and add the following policies:
+
+1.  **Enable RLS**: Go to **Table Editor** > `websites` > Click **"RLS policies"** > **"Enable RLS"**.
+
+2.  **Policy 1: Users can manage their own websites**
+    *   **Name**: "Enable all for users based on user_id"
+    *   **Allowed operations**: ALL (SELECT, INSERT, UPDATE, DELETE)
+    *   **Target roles**: `authenticated`
+    *   **USING expression**: `auth.uid() = owner`
+    *   **WITH CHECK expression**: `auth.uid() = owner`
+
+3.  **Policy 2: Public Read Access (Crucial for Subdomains)**
+    *   **Name**: "Enable read access for all"
+    *   **Allowed operations**: SELECT
+    *   **Target roles**: `anon` (and `authenticated` if you want to be explicit, or just leave default which usually implies public)
+    *   **USING expression**: `true` (or `status = 'published'` to restrict to published sites only)
+
+    > **Important**: Without Policy 2, your published websites will not be visible on their subdomains because unauthenticated visitors (the public) won't have permission to read the data.

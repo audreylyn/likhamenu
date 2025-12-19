@@ -30,11 +30,19 @@ ALTER TABLE public.websites
 ### 5. "Preview Not Available"
 **Error**: `Website [subdomain].likhamenu.com not found or not published.`
 **Cause**:
--   The website status is set to `draft` (default) instead of `published`.
--   The subdomain in the URL does not match the subdomain saved in the website settings.
+1.  **Status is Draft**: The website status is set to `draft` instead of `published`.
+2.  **RLS Policy Missing**: Row Level Security is enabled, but there is no policy allowing public (`anon`) read access. This is the most common cause if the site is published but still not visible.
+3.  **Subdomain Mismatch**: The subdomain in the URL does not match the subdomain saved in the website settings.
+
 **Fix**:
-1.  Go to the **Website Builder** dashboard.
-2.  Open the website you want to preview.
-3.  Click the **"Publish"** button in the top right corner.
-4.  Ensure the status changes to **"Published"**.
-5.  Verify the subdomain in **Settings > General** matches the URL you are trying to access.
+1.  **Check Status**: Ensure the website is **Published** in the builder.
+2.  **Check RLS Policies (Supabase)**:
+    *   Go to your Supabase Dashboard > **Table Editor** > `websites`.
+    *   Click **"RLS policies"**.
+    *   Ensure there is a policy that allows **SELECT** for the **anon** role.
+    *   If missing, create a new policy:
+        *   Name: "Public Read Access"
+        *   Allowed operations: **SELECT**
+        *   Target roles: **anon**
+        *   USING expression: `true` (or `status = 'published'`)
+3.  **Verify Subdomain**: Ensure the URL matches the settings.
