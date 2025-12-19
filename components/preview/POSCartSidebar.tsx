@@ -143,8 +143,11 @@ export const POSCartSidebar: React.FC<POSCartSidebarProps> = ({
                         type="number" 
                         className="w-full bg-transparent border-none outline-none text-right font-bold text-slate-800"
                         placeholder="0.00"
-                    handleCheckout('POS');
-                    setAmountTendered('');
+                        value={amountTendered}
+                        onChange={(e) => setAmountTendered(e.target.value)}
+                    />
+                </div>
+            </div>
             <div className="flex justify-between items-center pt-2 border-t border-slate-100">
                 <span className="text-sm font-medium text-slate-600">Change</span>
                 <span className={`font-bold ${change < 0 ? 'text-red-500' : 'text-green-600'}`}>
