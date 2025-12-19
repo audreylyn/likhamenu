@@ -43,7 +43,7 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
           if (data) {
             setWebsite(data);
           } else {
-            setError(`Website ${subdomain}.likhasiteworks.dev not found or not published.`);
+            setError(`Website ${subdomain}.likhamenu.com not found or not published.`);
           }
         } catch (e) {
           setError('Failed to load website configuration by subdomain.');

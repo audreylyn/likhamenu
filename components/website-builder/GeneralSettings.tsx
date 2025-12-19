@@ -66,7 +66,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             className="flex-1 px-4 py-2 border border-slate-300 rounded-l-lg focus:ring-2 focus:ring-amber-400 outline-none"
           />
           <span className="bg-slate-100 border border-l-0 border-slate-300 text-slate-500 px-4 py-2 rounded-r-lg">
-            .likhasiteworks.dev
+            .likhamenu.com
           </span>
         </div>
         </div>

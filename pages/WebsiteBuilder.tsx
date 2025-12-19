@@ -365,7 +365,7 @@ export const WebsiteBuilder: React.FC = () => {
 
     let targetUrl = '';
     if (website.status === 'published' && website.subdomain) {
-      targetUrl = `https://${website.subdomain}.likhasiteworks.dev`;
+      targetUrl = `https://${website.subdomain}.likhamenu.com`;
     } else {
       // For drafts or sites without a subdomain, use the regular preview route
       targetUrl = `${window.location.origin}/preview/${website.id}`;

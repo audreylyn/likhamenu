@@ -77,7 +77,7 @@ export const Dashboard: React.FC = () => {
   const handleViewSite = (site: Website) => {
     let targetUrl = '';
     if (site.status === 'published' && site.subdomain) {
-      targetUrl = `https://${site.subdomain}.likhasiteworks.dev`;
+      targetUrl = `https://${site.subdomain}.likhamenu.com`;
     } else {
       targetUrl = `${window.location.origin}/preview/${site.id}`;
     }
@@ -194,7 +194,7 @@ export const Dashboard: React.FC = () => {
                 filteredWebsites.map((site) => (
                   <tr key={site.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-900">{site.title}</td>
-                    <td className="px-6 py-4 text-amber-600">{site.subdomain ? `${site.subdomain}.likhasiteworks.dev` : 'No subdomain'}</td>
+                    <td className="px-6 py-4 text-amber-600">{site.subdomain ? `${site.subdomain}.likhamenu.com` : 'No subdomain'}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
                         site.status === 'published' || site.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-900'

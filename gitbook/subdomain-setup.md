@@ -1,11 +1,11 @@
 # Subdomain Setup
 
-This guide will walk you through the process of configuring your WebGen application to serve published websites on custom subdomains of your primary domain (`likhasiteworks.dev`).
+This guide will walk you through the process of configuring your WebGen application to serve published websites on custom subdomains of your primary domain (`likhamenu.com`).
 
 The goal is to have:
 
-* **`my-cool-site.likhasiteworks.dev`** -> Renders the published website.
-* **`likhasiteworks.dev`** -> Renders the main WebGen dashboard and editor.
+* **`my-cool-site.likhamenu.com`** -> Renders the published website.
+* **`likhamenu.com`** -> Renders the main WebGen dashboard and editor.
 
 This process involves three main parts:
 
@@ -21,7 +21,7 @@ Based on your Vercel dashboard, the recommended and most reliable method is to *
 
 ### Recommended Method: Use Vercel's Nameservers
 
-1. **Log in to your domain registrar's dashboard** (where you purchased `likhasiteworks.dev`).
+1. **Log in to your domain registrar's dashboard** (where you purchased `likhamenu.com`).
 2. Find the section for managing **"Nameservers"** or "DNS Servers".
 3. **Delete your existing nameservers** (they are usually default ones from your registrar).
 4. Add Vercel's two nameservers:
@@ -38,14 +38,14 @@ Only use this method if you cannot change your nameservers. Vercel may still sho
 2. Navigate to the **DNS management** section for your domain.
 3.  Add/Update the following two records, using the IP address Vercel provides:
 
-    **A. Root Domain (`likhasiteworks.dev`)**
+    **A. Root Domain (`likhamenu.com`)**
 
     * **Type**: `A`
-    * **Name / Host**: `@` (or `likhasiteworks.dev`)
+    * **Name / Host**: `@` (or `likhamenu.com`)
     * **Value / Points to**: `216.198.79.1` (Use the value shown in your Vercel dashboard)
     * **TTL**: Leave as default.
 
-    **B. Wildcard Subdomain (`*.likhasiteworks.dev`)**
+    **B. Wildcard Subdomain (`*.likhamenu.com`)**
 
     * **Type**: `A`
     * **Name / Host**: `*`
@@ -61,11 +61,11 @@ Now, tell Vercel to associate your domain with your `webgen-xi` project.
 
 1. Go to your project on the **Vercel Dashboard**.
 2. Navigate to **Settings** -> **Domains**.
-3. Add your root domain: `likhasiteworks.dev`. Vercel will check the DNS configuration and should show "Valid Configuration" once it propagates.
-4. Add your wildcard domain: `*.likhasiteworks.dev`. This will handle all subdomains.
+3. Add your root domain: `likhamenu.com`. Vercel will check the DNS configuration and should show "Valid Configuration" once it propagates.
+4. Add your wildcard domain: `*.likhamenu.com`. This will handle all subdomains.
 5. Vercel will automatically provision SSL certificates for both domains.
 
-Once this step is done, visiting `any-subdomain.likhasiteworks.dev` should show your deployed Vercel app (it will show the dashboard for now, we'll fix this in the next step).
+Once this step is done, visiting `any-subdomain.likhamenu.com` should show your deployed Vercel app (it will show the dashboard for now, we'll fix this in the next step).
 
 ***
 
@@ -83,7 +83,7 @@ _I can implement this change for you. The logic would look something like this:_
 // In App.tsx
 
 const SubdomainRouter: React.FC = () => {
-  const host = window.location.host; // e.g., "my-site.likhasiteworks.dev"
+  const host = window.location.host; // e.g., "my-site.likhamenu.com"
   const parts = host.split('.');
   
   // Check if it's a custom subdomain
@@ -157,7 +157,7 @@ _I can modify the UI to include an input field like this:_
       value={website.subdomain || ''}
       onChange={(e) => updateWebsite({ ...website, subdomain: e.target.value })}
     />
-    <span>.likhasiteworks.dev</span>
+    <span>.likhamenu.com</span>
   </div>
 </div>
 ```
