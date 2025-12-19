@@ -63,15 +63,17 @@ function doPost(e) {
     // Create or update Dashboard sheet with formulas and charts
     createOrUpdateDashboardSheet(spreadsheet, sheet, websiteTitle);
     
-    // Return success response with CORS headers
+    // Return success response
+    // Note: Google Apps Script handles CORS automatically for Web Apps.
+    // We do NOT need to set Access-Control-Allow-Origin headers manually on the TextOutput object,
+    // as it does not support .setHeaders().
     return ContentService.createTextOutput(
       JSON.stringify({ 
         result: "success",
         message: "Order saved successfully",
         spreadsheetUrl: spreadsheet.getUrl()
       })
-    ).setMimeType(ContentService.MimeType.JSON)
-    .setHeaders({ "Access-Control-Allow-Origin": "*" });
+    ).setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
     // Log error for debugging
@@ -93,8 +95,7 @@ function doPost(e) {
         result: "error", 
         error: error.toString() 
       })
-    ).setMimeType(ContentService.MimeType.JSON)
-    .setHeaders({ "Access-Control-Allow-Origin": "*" });
+    ).setMimeType(ContentService.MimeType.JSON);
   } finally {
     lock.releaseLock();
   }
