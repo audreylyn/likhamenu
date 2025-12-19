@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, Navigate } from 'react-router-dom';
 import { getWebsiteById, getWebsiteBySubdomain } from '../services/supabaseService';
 import { Website, Product } from '../types';
 // Added User to imports from lucide-react
@@ -26,6 +26,7 @@ import { generateThemeCSS } from '../utils/themeColors';
 
 export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain }) => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [website, setWebsite] = useState<Website | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,9 +149,14 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
       </div>
     );
   }
-
-  const { theme, content, messenger, enabledSections } = website;
+  const { theme, content, messenger, enabledSections, siteMode = 'MARKETING_ONLY' } = website;
   const isDark = theme.background === 'dark';
+  const isPosRoute = location.pathname === '/pos';
+  const isPosMode = siteMode === 'POS_ONLY' || (siteMode === 'HYBRID' && isPosRoute);
+
+  if (siteMode === 'MARKETING_ONLY' && isPosRoute) {
+    return <Navigate to="/" replace />;
+  }
 
   // Styles derived from theme configuration
   const headingFont = website?.theme?.headingFont || 'Playfair Display';
@@ -291,30 +297,47 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
       {/* Navigation */}
       <PreviewNavbar website={website} isDark={isDark} totalItems={totalItems} openCart={openCart} />
 
-      {/* Hero Section - Always first, fixed position */}
-      {enabledSections.hero && (
-        <PreviewHeroSection
-          website={website}
-          textMuted={textMuted}
-          handleImageError={handleImageError}
-        />
+      {isPosMode ? (
+        <div className="pt-20 min-h-screen">
+          <PreviewProductsSection
+            key="products"
+            website={website}
+            bgSecondary={bgSecondary}
+            isDark={isDark}
+            textMuted={textMuted}
+            handleImageError={handleImageError}
+            addToCart={addToCart}
+            openCart={openCart}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Hero Section - Always first, fixed position */}
+          {enabledSections.hero && (
+            <PreviewHeroSection
+              website={website}
+              textMuted={textMuted}
+              handleImageError={handleImageError}
+            />
+          )}
+
+          {/* Render sections in the order specified by navLinkOrder */}
+          {sectionOrder.map(sectionKey => renderSection(sectionKey))}
+
+          {/* CTA Section - Fixed position before Contact */}
+          {enabledSections.callToAction && content.callToAction && (
+            <PreviewCallToActionSection
+              website={website}
+            />
+          )}
+
+          {/* Contact Section - Always last, fixed position */}
+          <PreviewContactSection
+            website={website}
+            isDark={isDark}
+          />
+        </>
       )}
-
-      {/* Render sections in the order specified by navLinkOrder */}
-      {sectionOrder.map(sectionKey => renderSection(sectionKey))}
-
-      {/* CTA Section - Fixed position before Contact */}
-      {enabledSections.callToAction && content.callToAction && (
-        <PreviewCallToActionSection
-          website={website}
-        />
-      )}
-
-      {/* Contact Section - Always last, fixed position */}
-      <PreviewContactSection
-        website={website}
-        isDark={isDark}
-      />
 
       {/* Footer */}
       <PreviewFooter

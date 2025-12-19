@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Website } from '../../types';
 import { Menu, X, ShoppingBag } from 'lucide-react';
 
@@ -15,7 +16,9 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
   totalItems,
   openCart
 }) => {
-  const { theme, enabledSections } = website;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { theme, enabledSections, siteMode = 'MARKETING_ONLY' } = website;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const cartItemCount = totalItems();
@@ -46,6 +49,14 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
   };
 
   // Handle Order Online button click
+
+    // In Hybrid mode, if we are on the marketing page, go to POS page
+    if (siteMode === 'HYBRID' && location.pathname !== '/pos') {
+      navigate('/pos');
+      setMobileMenuOpen(false);
+      return;
+    }
+
   const handleOrderOnline = (e: React.MouseEvent) => {
     e.preventDefault();
     if (hasCartItems) {
@@ -67,7 +78,17 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
     { id: 'gallery', name: 'GALLERY', href: '#gallery' },
     { id: 'contact', name: 'VISIT US', href: '#contact' },
   ].filter(link => {
-    // Only show links for enabled sections
+    // POS ONLY Mode: Hide all navigation links
+    if (siteMode === 'POS_ONLY') return false;
+
+    // HYBRID Mode on POS Page:
+    if (siteMode === 'HYBRID' && location.pathname === '/pos') {
+       // Only show Home link to go back
+       if (link.id === 'hero') return true;
+       return false;
+    }
+
+    // Standard Marketing Mode (or Hybrid on Marketing Page)
     if (link.id === 'hero') return true; // Always show Home
     if (link.id === 'contact') return enabledSections.contact; // Show if contact is enabled
     return enabledSections[link.id as keyof typeof enabledSections];
@@ -77,6 +98,18 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
   const uniqueNavLinks = navLinks.filter((link, index, self) => 
     index === self.findIndex(l => l.id === link.id)
   );
+
+  const handleNavClick = (e: React.MouseEvent, link: { href: string }) => {
+    e.preventDefault();
+    
+    if (siteMode === 'HYBRID' && location.pathname === '/pos' && link.href === '#hero') {
+       navigate('/');
+       setMobileMenuOpen(false);
+       return;
+    }
+    
+    scrollToSection(link.href);
+  };
 
   const darkBrown = theme.colors?.brand900 || '#67392b';
   const brand600 = theme.colors?.brand600 || theme.primary || '#b96b40';
@@ -143,10 +176,7 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
                 href={link.href} 
                 className="text-white text-sm font-medium uppercase tracking-wide hover:opacity-80 transition-opacity"
                 style={{ fontFamily: 'var(--body-font)' }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection(link.href);
-                }}
+                onClick={(e) => handleNavClick(e, link)}
               >
                 {link.name}
               </a>
@@ -238,10 +268,7 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
                 href={link.href}
                 className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium uppercase tracking-wide transition-colors"
                 style={{ fontFamily: 'var(--body-font)' }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection(link.href);
-                }}
+                onClick={(e) => handleNavClick(e, link)}
               >
                 {link.name}
               </a>

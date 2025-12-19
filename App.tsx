@@ -24,7 +24,13 @@ const SubdomainRouter: React.FC = () => {
 
   if (!isMainAppHost) {
     const subdomain = parts[0];
-    return <PreviewTemplate subdomain={subdomain} />;
+    return (
+      <Router>
+        <Routes>
+          <Route path="*" element={<PreviewTemplate subdomain={subdomain} />} />
+        </Routes>
+      </Router>
+    );
   }
 
   // Otherwise, render the main application with all its routes

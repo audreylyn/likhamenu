@@ -71,6 +71,24 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         </div>
         </div>
         <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Site Mode</label>
+          <select
+            value={website.siteMode || 'MARKETING_ONLY'}
+            onChange={(e) => setWebsite({ ...website, siteMode: e.target.value as any })}
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+          >
+            <option value="MARKETING_ONLY">Marketing Only (Standard Website)</option>
+            <option value="POS_ONLY">POS Only (Digital Menu / Kiosk)</option>
+            <option value="HYBRID">Hybrid (Website + POS)</option>
+          </select>
+          <p className="text-xs text-slate-500 mt-1">
+            Controls how your website behaves. 
+            <br/>• <b>Marketing Only:</b> Standard website with Hero, About, etc.
+            <br/>• <b>POS Only:</b> Immediately loads the menu/ordering system.
+            <br/>• <b>Hybrid:</b> Standard website with a link to /pos for ordering.
+          </p>
+        </div>
+        <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
           <select
             value={website.status || 'draft'}

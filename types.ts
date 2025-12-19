@@ -2,6 +2,7 @@
 export type WebsiteStatus = 'active' | 'inactive' | 'draft' | 'published';
 export type ThemeMode = 'light' | 'dark';
 export type UserRole = 'admin' | 'editor';
+export type SiteMode = 'MARKETING_ONLY' | 'POS_ONLY' | 'HYBRID';
 
 export enum WebsiteType {
   Custom = 'Custom',
@@ -244,6 +245,7 @@ export interface Website {
   createdAt: string;
   theme: ThemeConfig;
   messenger: MessengerConfig;
+  siteMode?: SiteMode; // Configuration for site behavior (Marketing, POS, or Hybrid)
   contactFormConfig?: ContactFormConfig; // Contact form backend configuration
   assignedEditors?: string[]; // Array of editor user IDs or emails
   enabledSections: {

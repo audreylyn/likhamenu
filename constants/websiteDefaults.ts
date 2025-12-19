@@ -8,6 +8,7 @@ export const DEFAULT_WEBSITE: Website = {
   favicon: '',
   titleFont: 'serif',
   status: 'active',
+  siteMode: 'MARKETING_ONLY',
   createdAt: '',
   theme: {
     primary: '#b96b40', // brand-600 (Terracotta)
