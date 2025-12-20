@@ -30,36 +30,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
         Visual Style
       </h3>
 
-      {/* AI Theme Generator */}
-      <div className="mb-6 bg-white p-4 rounded-lg border border-amber-100 shadow-sm">
-        <label className="text-sm font-semibold text-slate-900 mb-2 block flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-500" />
-          AI Theme Generator
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="e.g. 'Cyberpunk Neon', 'Pastel Bakery', 'Corporate Blue'"
-            value={themePrompt}
-            onChange={(e) => setThemePrompt(e.target.value)}
-            className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-amber-400"
-          />
-          <button
-            onClick={handleThemeGenerate}
-            disabled={isGeneratingTheme || !themePrompt}
-            className="bg-amber-400 text-slate-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-500 disabled:opacity-50 flex items-center gap-2"
-          >
-            {isGeneratingTheme ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              'Generate'
-            )}
-          </button>
-        </div>
-      </div>
+      {/* Theme generator removed */}
 
       <div className="space-y-6">
         {/* Theme Presets */}
@@ -121,34 +92,7 @@ export const VisualStyle: React.FC<VisualStyleProps> = ({
             })}
           </div>
         </div>
-
-        <div>
-          <label className="text-sm font-medium text-slate-700 block mb-3">Color Theme (Recommended: Light Mode)</label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => website && setTheme({ ...website.theme, background: 'light' })}
-              className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                website.theme.background === 'light'
-                  ? 'border-amber-600 bg-white text-amber-600'
-                  : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-              }`}
-            >
-              <Sun className="w-4 h-4" />
-              <span className="font-medium text-sm">Light Mode</span>
-            </button>
-            <button
-              onClick={() => website && setTheme({ ...website.theme, background: 'dark' })}
-              className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                website.theme.background === 'dark'
-                  ? 'border-amber-600 bg-slate-900 text-white'
-                  : 'border-slate-200 bg-slate-100 text-slate-500 hover:border-slate-300'
-              }`}
-            >
-              <Moon className="w-4 h-4" />
-              <span className="font-medium text-sm">Dark Mode</span>
-            </button>
-          </div>
-        </div>
+        
         <div>
           <label className="text-sm font-medium text-slate-700 block mb-3">Brand Colors</label>
           <div className="bg-white p-4 rounded-lg border border-slate-200 space-y-4">
