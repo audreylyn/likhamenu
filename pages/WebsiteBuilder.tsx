@@ -31,7 +31,6 @@ import { ContactDetails } from '../components/website-builder/ContactDetails';
 import { ContactFormConfig } from '../components/website-builder/ContactFormConfig';
 import { FooterConfig } from '../components/website-builder/FooterConfig';
 import { AiMarketingKit } from '../components/website-builder/AiMarketingKit';
-import { ChatSupportConfig } from '../components/website-builder/ChatSupportConfig';
 
 
 const WEBSITE_PRESETS: Record<WebsiteType, Partial<Website['enabledSections']>> = {
@@ -677,9 +676,6 @@ export const WebsiteBuilder: React.FC = () => {
 
                 {/* Integrations */}
                 <Integrations website={website} setWebsite={setWebsite} />
-
-                {/* Chat Support Config */}
-                <ChatSupportConfig websiteId={website.id} />
 
               </div>
             </div>

@@ -419,54 +419,55 @@ function calculateAggregatedStats(spreadsheet) {
 }
 
 // ============================================
-// 5. EMAIL NOTIFICATIONS (Email.gs)
+// EMAIL NOTIFICATION SYSTEM
 // ============================================
 
-function sendNewOrderEmail(orderData, source, websiteTitle) {
-  if (!CONFIG.ADMIN_EMAIL) return;
-  
-  const subject = `New Order: ${websiteTitle} (${source})`;
-  const itemsList = orderData.items.map(i => `- ${i.name} x${i.quantity} (${i.unitPrice})`).join('\n');
-  
-  const body = `New Order Received!\n\n` +
-               `Source: ${source}\n` +
-               `Customer: ${orderData.customerName}\n` +
-               `Email: ${orderData.email || "N/A"}\n` +
-               `Location: ${orderData.location || "N/A"}\n\n` +
-               `Items:\n${itemsList}\n\n` +
-               `Total: ${orderData.totalFormatted || orderData.total}\n` +
-               `Note: ${orderData.note || "None"}`;
-  
-  try {
-    MailApp.sendEmail({
-      to: CONFIG.ADMIN_EMAIL,
-      subject: subject,
-      body: body
-    });
-  } catch (e) {
-    console.error("Failed to send admin email", e);
-  }
-}
-
 /**
- * TRIGGER: Set up an "On Edit" trigger for this function manually.
+ * TRIGGER FUNCTION: Send email when order status changes
+ * 
+ * INSTRUCTIONS TO SET UP TRIGGER:
+ * 1. In Apps Script editor, click on "Triggers" (alarm clock icon) on the left.
+ * 2. Click "+ Add Trigger" (bottom right).
+ * 3. Choose function to run: "onEditTrigger"
+ * 4. Select event source: "From spreadsheet"
+ * 5. Select event type: "On edit"
+ * 6. Click "Save".
+ * 
+ * NOTE: You must set this up manually for each spreadsheet, OR use a bound script.
+ * Since this is a standalone script managing multiple sheets, we need a different approach.
+ * 
+ * ALTERNATIVE: Since this script manages multiple spreadsheets in a folder, 
+ * we cannot easily attach an "onEdit" trigger to all of them automatically.
+ * 
+ * SOLUTION: We will use a time-driven trigger to check for changes, OR
+ * we accept that this feature requires the script to be bound to the sheet.
+ * 
+ * FOR THIS SPECIFIC REQUEST:
+ * The user wants "if i change the dropdown status, automatically sent the order track".
+ * This implies an "onEdit" trigger.
+ * 
+ * Below is the function that SHOULD be triggered.
+ * You can manually attach this to your specific spreadsheet if you copy the script there.
  */
 function sendOrderStatusEmail(e) {
+  // Ensure the event object exists (it comes from the trigger)
   if (!e || !e.range) return;
-  
+
   const sheet = e.range.getSheet();
-  const sheetName = sheet.getName();
-  
-  // Check if it's one of our order sheets
-  if (sheetName !== CONFIG.SHEET_NAMES.WEBSITE && sheetName !== CONFIG.SHEET_NAMES.POS) return;
-  
+  if (sheet.getName() !== "Orders") return;
+
   const range = e.range;
   const column = range.getColumn();
   const row = range.getRow();
   
-  // Status Column is J (10)
+  // Check if the edited cell is the "Status" column (Column 10 / J)
+  // And ensure it's not the header row
   if (column === 10 && row > 1) {
     const newStatus = e.value;
+    
+    // Get order details from the row
+    // Columns: 
+    // 1: ID, 2: Date, 3: Name, 4: Email, 5: Location, 6: Items, 7: Details, 8: Total, 9: Note, 10: Status
     const rowData = sheet.getRange(row, 1, 1, 10).getValues()[0];
     
     const orderId = rowData[0];
@@ -475,15 +476,52 @@ function sendOrderStatusEmail(e) {
     const items = rowData[5];
     const total = rowData[7];
     
-    if (!customerEmail || !customerEmail.includes("@")) return;
+    // Validate email
+    if (!customerEmail || !customerEmail.includes("@")) {
+      console.log("No valid email found for order " + orderId);
+      return;
+    }
     
+    // Prepare email subject and body
     const subject = `Order Update: ${orderId} is ${newStatus}`;
-    let body = `Hi ${customerName},\n\nYour order status has been updated!\n\nOrder ID: ${orderId}\nStatus: ${newStatus}\n\nItems:\n${items}\n\nTotal: ${total}\n\nThank you!`;
+    let body = `
+      Hi ${customerName},
+      
+      Your order status has been updated!
+      
+      Order ID: ${orderId}
+      Status: ${newStatus}
+      
+      Order Details:
+      ${items}
+      
+      Total: ${total}
+      
+      Thank you for your business!
+    `;
     
+    // Customize message based on status
+    if (newStatus === "Out for Delivery") {
+      body += "\n\nYour order is on the way! Please be ready to receive it.";
+    } else if (newStatus === "Delivered") {
+      body += "\n\nWe hope you enjoy your purchase! Please let us know if you have any feedback.";
+    } else if (newStatus === "Cancelled") {
+      body += "\n\nYour order has been cancelled. If this was a mistake, please contact us.";
+    }
+    
+    // Send the email
     try {
-      MailApp.sendEmail({ to: customerEmail, subject: subject, body: body });
-    } catch (err) {
-      console.error("Email failed", err);
+      MailApp.sendEmail({
+        to: customerEmail,
+        subject: subject,
+        body: body
+      });
+      
+      // Optional: Log that email was sent (e.g., in a comment or log sheet)
+      // e.range.setNote("Email sent to " + customerEmail + " at " + new Date());
+      
+    } catch (error) {
+      console.error("Failed to send email: " + error.toString());
     }
   }
 }

@@ -21,7 +21,6 @@ import { PreviewPricingSection } from '../components/preview/PreviewPricingSecti
 import { PreviewCallToActionSection } from '../components/preview/PreviewCallToActionSection';
 import { PreviewFooter } from '../components/preview/PreviewFooter';
 import { ScrollToTopButton } from '../components/preview/ScrollToTopButton';
-import { ChatSupport } from '../components/ChatSupport';
 import { generateThemeCSS } from '../utils/themeColors';
 import { POSLayout } from '../components/preview/POSLayout';
 
@@ -346,9 +345,6 @@ export const PreviewTemplate: React.FC<{ subdomain?: string }> = ({ subdomain })
 
       {/* Scroll To Top */}
       <ScrollToTopButton showScrollTop={showScrollTop} scrollToTop={scrollToTop} />
-
-      {/* Chat Support */}
-      {!isPosMode && <ChatSupport websiteId={website.id} />}
 
       <CartDrawer
         isOpen={isCartOpen}
