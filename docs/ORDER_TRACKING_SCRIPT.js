@@ -62,6 +62,9 @@ function doPost(e) {
     // Get or create the specific Orders sheet
     const sheet = getOrCreateOrdersSheet(spreadsheet, targetSheetName);
     
+    // Remove default Sheet1 if it exists
+    deleteDefaultSheet(spreadsheet);
+    
     // Add the order to the spreadsheet
     addOrderToSheet(sheet, orderData, source);
 
@@ -259,6 +262,46 @@ function addOrderToSheet(sheet, orderData, source) {
   statusCell.setDataValidation(rule);
 }
 
+function deleteDefaultSheet(spreadsheet) {
+  const sheet1 = spreadsheet.getSheetByName("Sheet1");
+  if (sheet1 && spreadsheet.getSheets().length > 1) {
+    try {
+      spreadsheet.deleteSheet(sheet1);
+    } catch (e) {
+      console.warn("Could not delete Sheet1: " + e.toString());
+    }
+  }
+}
+
+function sendNewOrderEmail(orderData, source, websiteTitle) {
+  try {
+    const subject = `New Order: ${websiteTitle} (${source})`;
+    const body = `
+      New Order Received!
+      
+      Website: ${websiteTitle}
+      Source: ${source}
+      Customer: ${orderData.customerName}
+      Email: ${orderData.email || "N/A"}
+      Total: ${orderData.totalFormatted || orderData.total}
+      
+      Items:
+      ${orderData.items.map(i => `- ${i.name} x${i.quantity}`).join("\n")}
+      
+      Please check the spreadsheet for full details.
+    `;
+    
+    MailApp.sendEmail({
+      to: CONFIG.ADMIN_EMAIL,
+      subject: subject,
+      body: body
+    });
+    console.log("New order email sent to admin.");
+  } catch (e) {
+    console.error("Failed to send new order email:", e);
+  }
+}
+
 // ============================================
 // 4. DASHBOARD (Dashboard.gs)
 // ============================================
@@ -291,17 +334,19 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   
   // Helper for safe range reference (handles if sheet doesn't exist yet)
   const getSumFormula = (col) => {
-    return `SUM(IFERROR(ARRAYFORMULA(VALUE(SUBSTITUTE(SUBSTITUTE('${webSheet}'!${col}2:${col},"₱",""),",",""))), 0)) + ` +
-           `SUM(IFERROR(ARRAYFORMULA(VALUE(SUBSTITUTE(SUBSTITUTE('${posSheet}'!${col}2:${col},"₱",""),",",""))), 0))`;
+      return `SUM(IFERROR(ARRAYFORMULA(VALUE(SUBSTITUTE(SUBSTITUTE(INDIRECT("'${webSheet}'!${col}2:${col}"),"₱",""),",",""))), 0)) + ` +
+        `SUM(IFERROR(ARRAYFORMULA(VALUE(SUBSTITUTE(SUBSTITUTE(INDIRECT("'${posSheet}'!${col}2:${col}"),"₱",""),",",""))), 0))`;
   };
   
   const getCountFormula = (col) => {
-    return `COUNTA(IFERROR('${webSheet}'!${col}2:${col})) + COUNTA(IFERROR('${posSheet}'!${col}2:${col}))`;
+    // Use INDIRECT to lock to the A2:A-style ranges so deletions don't shift references
+    return `COUNTA(IFERROR(INDIRECT("'${webSheet}'!${col}2:${col}"),"")) + COUNTA(IFERROR(INDIRECT("'${posSheet}'!${col}2:${col}"),""))`;
   };
   
   const getPendingFormula = () => {
-    return `(COUNTIF(IFERROR('${webSheet}'!J:J), "Pending") + COUNTIF(IFERROR('${webSheet}'!J:J), "Processing")) + ` +
-           `(COUNTIF(IFERROR('${posSheet}'!J:J), "Pending") + COUNTIF(IFERROR('${posSheet}'!J:J), "Processing"))`;
+    // Use INDIRECT on the J2:J ranges for stable COUNTIF targets
+    return `(COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "Pending") + COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "Processing")) + ` +
+           `(COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "Pending") + COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "Processing"))`;
   };
 
   // KPI Cards
@@ -319,8 +364,8 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   CONFIG.ORDER_STATUS_OPTIONS.forEach((status, index) => {
     const row = 2 + index;
     dashboardSheet.getRange(row, 15).setValue(status); // Col O
-    // Formula: COUNTIF(Web!J:J, status) + COUNTIF(POS!J:J, status)
-    const formula = `=COUNTIF(IFERROR('${webSheet}'!J:J), "${status}") + COUNTIF(IFERROR('${posSheet}'!J:J), "${status}")`;
+    // Formula: COUNTIF(Web!J2:J, status) + COUNTIF(POS!J2:J, status) using INDIRECT for stable references
+    const formula = `=COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "${status}") + COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "${status}")`;
     dashboardSheet.getRange(row, 16).setFormula(formula); // Col P
   });
   
@@ -355,6 +400,49 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
     .setOption('height', 350)
     .build();
   dashboardSheet.insertChart(barChart);
+
+  // Hide the raw data columns (O through T) so the dashboard stays clean
+  try {
+    dashboardSheet.hideColumns(15, 6); // O (15) through T (20)
+  } catch (err) {
+    // Some environments may not support hideColumns; ignore failures
+    console.warn('Unable to hide columns O-T on dashboard:', err);
+  }
+
+  // Remove leftover image named "pic1" if present (some templates include an embedded picture)
+  try {
+    // Try to remove over-grid images (newer API)
+    if (dashboardSheet.getImages) {
+      const images = dashboardSheet.getImages();
+      images.forEach(img => {
+        try {
+          const title = (img.getAltTextTitle && img.getAltTextTitle()) || (img.getAltTextDescription && img.getAltTextDescription());
+          if (title === 'pic1') {
+            img.remove();
+            console.log('Removed image pic1 from dashboard');
+          }
+        } catch (e) {}
+      });
+    }
+
+    // Try to remove drawings/legacy images
+    if (dashboardSheet.getDrawings) {
+      const draws = dashboardSheet.getDrawings();
+      draws.forEach(d => {
+        try {
+          if (d.getAltTextTitle && d.getAltTextTitle() === 'pic1') {
+            d.remove();
+            console.log('Removed drawing pic1 from dashboard');
+          }
+        } catch (e) {}
+      });
+    }
+  } catch (err) {
+    console.warn('Unable to remove image pic1:', err);
+  }
+
+  // Write recent orders (Top 8 newest) at the bottom of the dashboard
+  writeRecentOrders(spreadsheet, dashboardSheet, webSheet, posSheet);
 }
 
 function createModernCard(sheet, rangeStr, title, formula, numFormat, accentColor) {
@@ -418,110 +506,108 @@ function calculateAggregatedStats(spreadsheet) {
   return { statusData, productData };
 }
 
+/**
+ * Write top 8 recent orders aggregated from Website and POS sheets
+ * Writes a small table starting at row 26, columns B:E on the dashboard
+ */
+function writeRecentOrders(spreadsheet, dashboardSheet, webSheetName, posSheetName) {
+  const sheets = [spreadsheet.getSheetByName(webSheetName), spreadsheet.getSheetByName(posSheetName)];
+  const orders = [];
+
+  sheets.forEach((sheet, idx) => {
+    if (!sheet || sheet.getLastRow() < 2) return;
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 11).getValues();
+    values.forEach(row => {
+      const id = row[0];
+      const dateCell = row[1];
+      let dateObj = null;
+      if (dateCell instanceof Date) dateObj = dateCell;
+      else if (typeof dateCell === 'string' && dateCell.trim()) {
+        // try parse ISO-like string yyyy-MM-dd HH:mm:ss
+        const parsed = new Date(dateCell);
+        if (!isNaN(parsed.getTime())) dateObj = parsed;
+      }
+      // fallback: use today's date if parsing fails
+      if (!dateObj) dateObj = new Date(0);
+
+      const customer = row[2] || '';
+      const items = row[5] || '';
+      const total = row[7] || '';
+      const status = row[9] || '';
+      const source = (idx === 0) ? 'Website' : 'POS';
+
+      orders.push({ id, date: dateObj, customer, items, total, source, status });
+    });
+  });
+
+  // Sort by date desc
+  orders.sort((a, b) => b.date - a.date);
+  const top = orders.slice(0, 8);
+
+  // We will write columns B:H as:
+  // B: Order ID, C: Date/Time, D: Customer, E: Source, F: Items, G: Total, H: Status
+  const startRow = 26;
+  const numCols = 7;
+
+  // Clear previous area (header + 8 rows)
+  dashboardSheet.getRange(startRow, 2, 9, numCols).clear({contentsOnly: true, skipFilteredRows: true});
+
+  // Merge header across the full width
+  dashboardSheet.getRange(startRow, 2, 1, numCols).merge();
+  dashboardSheet.getRange(startRow, 2).setValue('Recent Orders').setFontWeight('bold');
+
+  // Prepare data rows with the chosen columns
+  const dataRows = top.map(o => {
+    // Items: use first line or full items text
+    let itemsText = '';
+    if (o.items) {
+      if (typeof o.items === 'string') {
+        itemsText = o.items.split('\n')[0];
+      } else {
+        itemsText = String(o.items);
+      }
+    }
+
+    // Total: normalize to number when possible
+    let totalVal = o.total;
+    if (typeof totalVal === 'string') {
+      const cleaned = totalVal.replace(/[^0-9.\-]+/g, '');
+      totalVal = cleaned ? parseFloat(cleaned) : '';
+    }
+
+    return [
+      o.id || '',
+      Utilities.formatDate(o.date, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
+      o.customer || '',
+      o.source || '',
+      itemsText || '',
+      (totalVal === '' ? '' : totalVal),
+      o.status || ''
+    ];
+  });
+
+  if (dataRows.length) {
+    dashboardSheet.getRange(startRow + 1, 2, dataRows.length, numCols).setValues(dataRows);
+
+    // Format the Total column (G) as currency if values are numeric
+    try {
+      const totalCol = 2 + 5; // startCol (B=2) + 5 => G (7)
+      dashboardSheet.getRange(startRow + 1, totalCol, dataRows.length, 1).setNumberFormat('₱#,##0.00');
+    } catch (e) {
+      // Ignore if formatting fails
+    }
+  }
+}
+
 // ============================================
 // EMAIL NOTIFICATION SYSTEM
 // ============================================
 
 /**
- * TRIGGER FUNCTION: Send email when order status changes
+ * NOTE:
+ * To enable automatic email notifications when you change the Order Status in the spreadsheet,
+ * you must install the "CLIENT_SHEET_SCRIPT.js" directly into the generated spreadsheet.
  * 
- * INSTRUCTIONS TO SET UP TRIGGER:
- * 1. In Apps Script editor, click on "Triggers" (alarm clock icon) on the left.
- * 2. Click "+ Add Trigger" (bottom right).
- * 3. Choose function to run: "onEditTrigger"
- * 4. Select event source: "From spreadsheet"
- * 5. Select event type: "On edit"
- * 6. Click "Save".
- * 
- * NOTE: You must set this up manually for each spreadsheet, OR use a bound script.
- * Since this is a standalone script managing multiple sheets, we need a different approach.
- * 
- * ALTERNATIVE: Since this script manages multiple spreadsheets in a folder, 
- * we cannot easily attach an "onEdit" trigger to all of them automatically.
- * 
- * SOLUTION: We will use a time-driven trigger to check for changes, OR
- * we accept that this feature requires the script to be bound to the sheet.
- * 
- * FOR THIS SPECIFIC REQUEST:
- * The user wants "if i change the dropdown status, automatically sent the order track".
- * This implies an "onEdit" trigger.
- * 
- * Below is the function that SHOULD be triggered.
- * You can manually attach this to your specific spreadsheet if you copy the script there.
+ * This script (ORDER_TRACKING_SCRIPT.js) runs as a standalone Web App and cannot 
+ * detect edits made inside the spreadsheets it creates.
  */
-function sendOrderStatusEmail(e) {
-  // Ensure the event object exists (it comes from the trigger)
-  if (!e || !e.range) return;
-
-  const sheet = e.range.getSheet();
-  if (sheet.getName() !== "Orders") return;
-
-  const range = e.range;
-  const column = range.getColumn();
-  const row = range.getRow();
-  
-  // Check if the edited cell is the "Status" column (Column 10 / J)
-  // And ensure it's not the header row
-  if (column === 10 && row > 1) {
-    const newStatus = e.value;
-    
-    // Get order details from the row
-    // Columns: 
-    // 1: ID, 2: Date, 3: Name, 4: Email, 5: Location, 6: Items, 7: Details, 8: Total, 9: Note, 10: Status
-    const rowData = sheet.getRange(row, 1, 1, 10).getValues()[0];
-    
-    const orderId = rowData[0];
-    const customerName = rowData[2];
-    const customerEmail = rowData[3];
-    const items = rowData[5];
-    const total = rowData[7];
-    
-    // Validate email
-    if (!customerEmail || !customerEmail.includes("@")) {
-      console.log("No valid email found for order " + orderId);
-      return;
-    }
-    
-    // Prepare email subject and body
-    const subject = `Order Update: ${orderId} is ${newStatus}`;
-    let body = `
-      Hi ${customerName},
-      
-      Your order status has been updated!
-      
-      Order ID: ${orderId}
-      Status: ${newStatus}
-      
-      Order Details:
-      ${items}
-      
-      Total: ${total}
-      
-      Thank you for your business!
-    `;
-    
-    // Customize message based on status
-    if (newStatus === "Out for Delivery") {
-      body += "\n\nYour order is on the way! Please be ready to receive it.";
-    } else if (newStatus === "Delivered") {
-      body += "\n\nWe hope you enjoy your purchase! Please let us know if you have any feedback.";
-    } else if (newStatus === "Cancelled") {
-      body += "\n\nYour order has been cancelled. If this was a mistake, please contact us.";
-    }
-    
-    // Send the email
-    try {
-      MailApp.sendEmail({
-        to: customerEmail,
-        subject: subject,
-        body: body
-      });
-      
-      // Optional: Log that email was sent (e.g., in a comment or log sheet)
-      // e.range.setNote("Email sent to " + customerEmail + " at " + new Date());
-      
-    } catch (error) {
-      console.error("Failed to send email: " + error.toString());
-    }
-  }
-}
