@@ -85,8 +85,9 @@ function sendOrderStatusEmail(e) {
   const sheet = e.range.getSheet();
   const sheetName = sheet.getName();
   
-  // Check if it's an Orders sheet (supports "Orders", "Orders Website", "Orders POS")
-  if (!sheetName.includes("Orders")) return;
+  // Only send updates for WEBSITE orders.
+  // Never trigger for "Orders POS" even if an email exists.
+  if (sheetName !== "Orders Website") return;
 
   const range = e.range;
   const column = range.getColumn();
@@ -186,7 +187,6 @@ function sendOrderStatusEmail(e) {
     try {
       MailApp.sendEmail({
         to: customerEmail,
-        bcc: BUSINESS_EMAIL,          // Send copy to business email
         subject: subject,
         htmlBody: htmlBody,           // Use HTML body
         name: BUSINESS_NAME,          // Display Name (Masking)

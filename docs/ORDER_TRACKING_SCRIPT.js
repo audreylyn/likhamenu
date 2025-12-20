@@ -56,11 +56,12 @@ function doPost(e) {
     // Get or create spreadsheet for this website
     const spreadsheet = getOrCreateSpreadsheet(folder, websiteId, websiteTitle);
     
+    // Ensure BOTH order sheets exist so dashboard formulas can safely reference them
+    const websiteOrdersSheet = getOrCreateOrdersSheet(spreadsheet, CONFIG.SHEET_NAMES.WEBSITE);
+    const posOrdersSheet = getOrCreateOrdersSheet(spreadsheet, CONFIG.SHEET_NAMES.POS);
+
     // Determine which sheet to use based on source
-    const targetSheetName = (source === "POS") ? CONFIG.SHEET_NAMES.POS : CONFIG.SHEET_NAMES.WEBSITE;
-    
-    // Get or create the specific Orders sheet
-    const sheet = getOrCreateOrdersSheet(spreadsheet, targetSheetName);
+    const sheet = (source === "POS") ? posOrdersSheet : websiteOrdersSheet;
     
     // Remove default Sheet1 if it exists
     deleteDefaultSheet(spreadsheet);
@@ -196,6 +197,18 @@ function getOrCreateOrdersSheet(spreadsheet, sheetName) {
     
     sheet.setFrozenRows(1);
     setupStatusColorCoding(sheet);
+  }
+
+  // POS sheet UX: hide unused columns but keep the same schema for dashboard formulas
+  if (sheetName === CONFIG.SHEET_NAMES.POS) {
+    try {
+      // D: Customer Email, E: Location, I: Note
+      sheet.hideColumns(4);
+      sheet.hideColumns(5);
+      sheet.hideColumns(9);
+    } catch (e) {
+      console.warn('Unable to hide POS columns (D,E,I): ' + e.toString());
+    }
   }
   
   return sheet;
@@ -505,40 +518,10 @@ function calculateAggregatedStats(spreadsheet) {
  * Writes a styled table starting at row 26, columns B:H on the dashboard
  */
 function writeRecentOrders(spreadsheet, dashboardSheet, webSheetName, posSheetName) {
-  const sheets = [spreadsheet.getSheetByName(webSheetName), spreadsheet.getSheetByName(posSheetName)];
-  const orders = [];
+  // We intentionally use a spreadsheet formula (QUERY over a stacked array)
+  // so Status stays synchronized when you edit the dropdown later.
 
-  sheets.forEach((sheet, idx) => {
-    if (!sheet || sheet.getLastRow() < 2) return;
-    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 11).getValues();
-    values.forEach(row => {
-      const id = row[0];
-      const dateCell = row[1];
-      let dateObj = null;
-      if (dateCell instanceof Date) dateObj = dateCell;
-      else if (typeof dateCell === 'string' && dateCell.trim()) {
-        // try parse ISO-like string yyyy-MM-dd HH:mm:ss
-        const parsed = new Date(dateCell);
-        if (!isNaN(parsed.getTime())) dateObj = parsed;
-      }
-      // fallback: use today's date if parsing fails
-      if (!dateObj) dateObj = new Date(0);
-
-      const customer = row[2] || '';
-      const items = row[5] || '';
-      const total = row[7] || '';
-      const status = row[9] || '';
-      const source = (idx === 0) ? 'Website' : 'POS';
-
-      orders.push({ id, date: dateObj, customer, items, total, source, status });
-    });
-  });
-
-  // Sort by date desc
-  orders.sort((a, b) => b.date - a.date);
-  const top = orders.slice(0, 8);
-
-  // We will write columns B:H as:
+  // We will render columns B:H as:
   // B: Order ID, C: Date/Time, D: Customer, E: Source, F: Items, G: Total, H: Status
   const startRow = 29;
   const numCols = 7;
@@ -557,65 +540,42 @@ function writeRecentOrders(spreadsheet, dashboardSheet, webSheetName, posSheetNa
   headerRange.setVerticalAlignment("middle");
   headerRange.setBorder(true, true, true, true, true, true, "#000000", SpreadsheetApp.BorderStyle.SOLID);
 
-  // 2. DATA
-  if (top.length > 0) {
-    const dataRows = top.map(o => {
-      // Items: use first line or full items text
-      let itemsText = '';
-      if (o.items) {
-        if (typeof o.items === 'string') {
-          itemsText = o.items.split('\n')[0];
-        } else {
-          itemsText = String(o.items);
-        }
-      }
+  // 2. DATA (Formula-driven, always up-to-date)
+  const dataRowCount = 8;
+  const dataRange = dashboardSheet.getRange(startRow + 1, 2, dataRowCount, numCols); // B30:H37
+  dataRange.clear({ contentsOnly: true });
 
-      // Total: normalize to number when possible
-      let totalVal = o.total;
-      if (typeof totalVal === 'string') {
-        const cleaned = totalVal.replace(/[^0-9.\-]+/g, '');
-        totalVal = cleaned ? parseFloat(cleaned) : '';
-      }
+  // QUERY columns (A:K):
+  // Col1=Order ID, Col2=Date/Time, Col3=Customer Name, Col11=Source, Col6=Items, Col8=Total, Col10=Status
+  const queryFormula = `=IFERROR(QUERY({ '${webSheetName}'!A2:K ; '${posSheetName}'!A2:K }, ` +
+    `"select Col1,Col2,Col3,Col11,Col6,Col8,Col10 where Col1 is not null order by Col2 desc limit 8", 0), "")`;
+  dashboardSheet.getRange(startRow + 1, 2).setFormula(queryFormula);
 
-      return [
-        o.id || '',
-        Utilities.formatDate(o.date, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
-        o.customer || '',
-        o.source || '',
-        itemsText || '',
-        (totalVal === '' ? '' : totalVal),
-        o.status || ''
-      ];
-    });
+  // Styling for the fixed 8-row area (keeps a consistent "pro" look)
+  dataRange.setVerticalAlignment("middle");
+  dataRange.setBorder(true, true, true, true, true, true, "#dadce0", SpreadsheetApp.BorderStyle.SOLID);
+  dataRange.setFontSize(10);
 
-    const dataRange = dashboardSheet.getRange(startRow + 1, 2, dataRows.length, numCols);
-    dataRange.setValues(dataRows);
-
-    // Styling
-    dataRange.setVerticalAlignment("middle");
-    dataRange.setBorder(true, true, true, true, true, true, "#dadce0", SpreadsheetApp.BorderStyle.SOLID);
-    dataRange.setFontSize(10);
-
-    // Alternating Row Colors (Zebra Striping)
-    for (let i = 0; i < dataRows.length; i++) {
-      if (i % 2 === 1) {
-        dashboardSheet.getRange(startRow + 1 + i, 2, 1, numCols).setBackground("#f8f9fa");
-      }
+  // Zebra striping
+  for (let i = 0; i < dataRowCount; i++) {
+    if (i % 2 === 1) {
+      dashboardSheet.getRange(startRow + 1 + i, 2, 1, numCols).setBackground("#f8f9fa");
+    } else {
+      dashboardSheet.getRange(startRow + 1 + i, 2, 1, numCols).setBackground("#ffffff");
     }
+  }
 
-    // Center specific columns: Date(Col 3), Source(Col 4), Status(Col 7) relative to range start
-    // Range starts at Col 2 (B).
-    // Date is C (3). Source is E (5). Status is H (8).
-    dashboardSheet.getRange(startRow + 1, 3, dataRows.length, 1).setHorizontalAlignment("center"); // Date
-    dashboardSheet.getRange(startRow + 1, 5, dataRows.length, 1).setHorizontalAlignment("center"); // Source
-    dashboardSheet.getRange(startRow + 1, 8, dataRows.length, 1).setHorizontalAlignment("center"); // Status
+  // Alignment
+  dashboardSheet.getRange(startRow + 1, 3, dataRowCount, 1).setHorizontalAlignment("center"); // Date/Time
+  dashboardSheet.getRange(startRow + 1, 5, dataRowCount, 1).setHorizontalAlignment("center"); // Source
+  dashboardSheet.getRange(startRow + 1, 7, dataRowCount, 1).setHorizontalAlignment("right");  // Total
+  dashboardSheet.getRange(startRow + 1, 8, dataRowCount, 1).setHorizontalAlignment("center"); // Status
 
-    // Format the Total column (G / 7) as currency if values are numeric
-    try {
-      dashboardSheet.getRange(startRow + 1, 7, dataRows.length, 1).setNumberFormat('₱#,##0.00');
-    } catch (e) {
-      // Ignore if formatting fails
-    }
+  // Currency format for Total column (G)
+  try {
+    dashboardSheet.getRange(startRow + 1, 7, dataRowCount, 1).setNumberFormat('₱#,##0.00');
+  } catch (e) {
+    // Ignore if formatting fails
   }
 }
 
