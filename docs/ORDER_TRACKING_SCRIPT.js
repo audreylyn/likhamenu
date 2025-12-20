@@ -194,6 +194,13 @@ function getOrCreateOrdersSheet(spreadsheet, sheetName) {
     sheet.setColumnWidth(3, 150); // Name
     sheet.setColumnWidth(6, 300); // Items
     sheet.setColumnWidth(7, 400); // Details
+
+    // Make Date/Time readable (Column B)
+    try {
+      sheet.getRange(2, 2, 1000, 1).setNumberFormat("yyyy-mm-dd hh:mm:ss");
+    } catch (e) {
+      console.warn('Unable to set Date/Time format on orders sheet: ' + e.toString());
+    }
     
     sheet.setFrozenRows(1);
     setupStatusColorCoding(sheet);
@@ -239,7 +246,6 @@ function setupStatusColorCoding(sheet) {
 function addOrderToSheet(sheet, orderData, source) {
   const orderId = "ORD-" + new Date().getTime() + "-" + Math.floor(Math.random() * 1000);
   const now = new Date();
-  const dateTime = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
   
   const itemsList = orderData.items.map(item => `${item.name} x${item.quantity}`).join("\n");
   
@@ -251,7 +257,7 @@ function addOrderToSheet(sheet, orderData, source) {
   
   const rowData = [
     orderId,
-    dateTime,
+    now,
     orderData.customerName || "",
     orderData.email || "",
     orderData.location || "",
@@ -265,6 +271,13 @@ function addOrderToSheet(sheet, orderData, source) {
   
   sheet.insertRowBefore(2);
   sheet.getRange(2, 1, 1, rowData.length).setValues([rowData]);
+
+  // Ensure Date/Time stays readable for the new row
+  try {
+    sheet.getRange(2, 2).setNumberFormat("yyyy-mm-dd hh:mm:ss");
+  } catch (e) {
+    // ignore
+  }
   
   // Re-apply validation to new row
   const statusCell = sheet.getRange(2, 10);
@@ -566,7 +579,9 @@ function writeRecentOrders(spreadsheet, dashboardSheet, webSheetName, posSheetNa
   }
 
   // Alignment
-  dashboardSheet.getRange(startRow + 1, 3, dataRowCount, 1).setHorizontalAlignment("center"); // Date/Time
+  dashboardSheet.getRange(startRow + 1, 3, dataRowCount, 1)
+    .setHorizontalAlignment("center")
+    .setNumberFormat("yyyy-mm-dd hh:mm:ss"); // Date/Time
   dashboardSheet.getRange(startRow + 1, 5, dataRowCount, 1).setHorizontalAlignment("center"); // Source
   dashboardSheet.getRange(startRow + 1, 7, dataRowCount, 1).setHorizontalAlignment("right");  // Total
   dashboardSheet.getRange(startRow + 1, 8, dataRowCount, 1).setHorizontalAlignment("center"); // Status
