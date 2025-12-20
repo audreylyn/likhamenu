@@ -339,14 +339,15 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   };
   
   const getCountFormula = (col) => {
-    // Use INDIRECT to lock to the A2:A-style ranges so deletions don't shift references
-    return `COUNTA(IFERROR(INDIRECT("'${webSheet}'!${col}2:${col}"),"")) + COUNTA(IFERROR(INDIRECT("'${posSheet}'!${col}2:${col}"),""))`;
+    // Use SUM + IFERROR + LEN check to avoid counting missing sheets as 1 (which COUNTA does with IFERROR("", ""))
+    return `SUM(IFERROR(ARRAYFORMULA(N(LEN(INDIRECT("'${webSheet}'!${col}2:${col}"))>0)), 0)) + ` +
+           `SUM(IFERROR(ARRAYFORMULA(N(LEN(INDIRECT("'${posSheet}'!${col}2:${col}"))>0)), 0))`;
   };
   
   const getPendingFormula = () => {
-    // Use INDIRECT on the J2:J ranges for stable COUNTIF targets
-    return `(COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "Pending") + COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "Processing")) + ` +
-           `(COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "Pending") + COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "Processing"))`;
+    // Wrap each COUNTIF in IFERROR to handle missing sheets
+    return `(IFERROR(COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "Pending"), 0) + IFERROR(COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "Processing"), 0)) + ` +
+           `(IFERROR(COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "Pending"), 0) + IFERROR(COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "Processing"), 0))`;
   };
 
   // KPI Cards
@@ -359,14 +360,15 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   
   // Write Status Data Headers
   dashboardSheet.getRange("O1:P1").setValues([["Status", "Count"]]);
+  dashboardSheet.getRange("O1:P1").setFontWeight("bold").setBackground("#f1f3f4");
   
   // Write Status Data Formulas
   CONFIG.ORDER_STATUS_OPTIONS.forEach((status, index) => {
     const row = 2 + index;
-    dashboardSheet.getRange(row, 15).setValue(status); // Col O
+    dashboardSheet.getRange(row, 15).setValue(status); // Col O (15)
     // Formula: COUNTIF(Web!J2:J, status) + COUNTIF(POS!J2:J, status) using INDIRECT for stable references
-    const formula = `=COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "${status}") + COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "${status}")`;
-    dashboardSheet.getRange(row, 16).setFormula(formula); // Col P
+    const formula = `=IFERROR(COUNTIF(INDIRECT("'${webSheet}'!J2:J"), "${status}"), 0) + IFERROR(COUNTIF(INDIRECT("'${posSheet}'!J2:J"), "${status}"), 0)`;
+    dashboardSheet.getRange(row, 16).setFormula(formula); // Col P (16)
   });
   
   // For Top Products, we still need static calculation because parsing is complex
@@ -381,7 +383,7 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
   // Charts
   const pieChart = dashboardSheet.newChart()
     .setChartType(Charts.ChartType.PIE)
-    .addRange(dashboardSheet.getRange(1, 15, CONFIG.ORDER_STATUS_OPTIONS.length + 1, 2))
+    .addRange(dashboardSheet.getRange(1, 15, CONFIG.ORDER_STATUS_OPTIONS.length + 1, 2)) // O1:P8
     .setPosition(10, 2, 0, 0)
     .setOption('title', 'Order Status Distribution (All Sources)')
     .setOption('pieHole', 0.4)
@@ -400,14 +402,6 @@ function createOrUpdateDashboardSheet(spreadsheet, websiteTitle) {
     .setOption('height', 350)
     .build();
   dashboardSheet.insertChart(barChart);
-
-  // Hide the raw data columns (O through T) so the dashboard stays clean
-  try {
-    dashboardSheet.hideColumns(15, 6); // O (15) through T (20)
-  } catch (err) {
-    // Some environments may not support hideColumns; ignore failures
-    console.warn('Unable to hide columns O-T on dashboard:', err);
-  }
 
   // Remove leftover image named "pic1" if present (some templates include an embedded picture)
   try {
@@ -508,7 +502,7 @@ function calculateAggregatedStats(spreadsheet) {
 
 /**
  * Write top 8 recent orders aggregated from Website and POS sheets
- * Writes a small table starting at row 26, columns B:E on the dashboard
+ * Writes a styled table starting at row 26, columns B:H on the dashboard
  */
 function writeRecentOrders(spreadsheet, dashboardSheet, webSheetName, posSheetName) {
   const sheets = [spreadsheet.getSheetByName(webSheetName), spreadsheet.getSheetByName(posSheetName)];
@@ -546,53 +540,79 @@ function writeRecentOrders(spreadsheet, dashboardSheet, webSheetName, posSheetNa
 
   // We will write columns B:H as:
   // B: Order ID, C: Date/Time, D: Customer, E: Source, F: Items, G: Total, H: Status
-  const startRow = 26;
+  const startRow = 29;
   const numCols = 7;
+  const headers = ["Order ID", "Date/Time", "Customer", "Source", "Items", "Total", "Status"];
 
-  // Clear previous area (header + 8 rows)
-  dashboardSheet.getRange(startRow, 2, 9, numCols).clear({contentsOnly: true, skipFilteredRows: true});
+  // Clear previous area (header + 20 rows to be safe)
+  dashboardSheet.getRange(startRow, 2, 20, numCols).clear();
 
-  // Merge header across the full width
-  dashboardSheet.getRange(startRow, 2, 1, numCols).merge();
-  dashboardSheet.getRange(startRow, 2).setValue('Recent Orders').setFontWeight('bold');
+  // 1. HEADER
+  const headerRange = dashboardSheet.getRange(startRow, 2, 1, numCols);
+  headerRange.setValues([headers]);
+  headerRange.setBackground("#202124");
+  headerRange.setFontColor("#ffffff");
+  headerRange.setFontWeight("bold");
+  headerRange.setHorizontalAlignment("center");
+  headerRange.setVerticalAlignment("middle");
+  headerRange.setBorder(true, true, true, true, true, true, "#000000", SpreadsheetApp.BorderStyle.SOLID);
 
-  // Prepare data rows with the chosen columns
-  const dataRows = top.map(o => {
-    // Items: use first line or full items text
-    let itemsText = '';
-    if (o.items) {
-      if (typeof o.items === 'string') {
-        itemsText = o.items.split('\n')[0];
-      } else {
-        itemsText = String(o.items);
+  // 2. DATA
+  if (top.length > 0) {
+    const dataRows = top.map(o => {
+      // Items: use first line or full items text
+      let itemsText = '';
+      if (o.items) {
+        if (typeof o.items === 'string') {
+          itemsText = o.items.split('\n')[0];
+        } else {
+          itemsText = String(o.items);
+        }
+      }
+
+      // Total: normalize to number when possible
+      let totalVal = o.total;
+      if (typeof totalVal === 'string') {
+        const cleaned = totalVal.replace(/[^0-9.\-]+/g, '');
+        totalVal = cleaned ? parseFloat(cleaned) : '';
+      }
+
+      return [
+        o.id || '',
+        Utilities.formatDate(o.date, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
+        o.customer || '',
+        o.source || '',
+        itemsText || '',
+        (totalVal === '' ? '' : totalVal),
+        o.status || ''
+      ];
+    });
+
+    const dataRange = dashboardSheet.getRange(startRow + 1, 2, dataRows.length, numCols);
+    dataRange.setValues(dataRows);
+
+    // Styling
+    dataRange.setVerticalAlignment("middle");
+    dataRange.setBorder(true, true, true, true, true, true, "#dadce0", SpreadsheetApp.BorderStyle.SOLID);
+    dataRange.setFontSize(10);
+
+    // Alternating Row Colors (Zebra Striping)
+    for (let i = 0; i < dataRows.length; i++) {
+      if (i % 2 === 1) {
+        dashboardSheet.getRange(startRow + 1 + i, 2, 1, numCols).setBackground("#f8f9fa");
       }
     }
 
-    // Total: normalize to number when possible
-    let totalVal = o.total;
-    if (typeof totalVal === 'string') {
-      const cleaned = totalVal.replace(/[^0-9.\-]+/g, '');
-      totalVal = cleaned ? parseFloat(cleaned) : '';
-    }
+    // Center specific columns: Date(Col 3), Source(Col 4), Status(Col 7) relative to range start
+    // Range starts at Col 2 (B).
+    // Date is C (3). Source is E (5). Status is H (8).
+    dashboardSheet.getRange(startRow + 1, 3, dataRows.length, 1).setHorizontalAlignment("center"); // Date
+    dashboardSheet.getRange(startRow + 1, 5, dataRows.length, 1).setHorizontalAlignment("center"); // Source
+    dashboardSheet.getRange(startRow + 1, 8, dataRows.length, 1).setHorizontalAlignment("center"); // Status
 
-    return [
-      o.id || '',
-      Utilities.formatDate(o.date, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
-      o.customer || '',
-      o.source || '',
-      itemsText || '',
-      (totalVal === '' ? '' : totalVal),
-      o.status || ''
-    ];
-  });
-
-  if (dataRows.length) {
-    dashboardSheet.getRange(startRow + 1, 2, dataRows.length, numCols).setValues(dataRows);
-
-    // Format the Total column (G) as currency if values are numeric
+    // Format the Total column (G / 7) as currency if values are numeric
     try {
-      const totalCol = 2 + 5; // startCol (B=2) + 5 => G (7)
-      dashboardSheet.getRange(startRow + 1, totalCol, dataRows.length, 1).setNumberFormat('₱#,##0.00');
+      dashboardSheet.getRange(startRow + 1, 7, dataRows.length, 1).setNumberFormat('₱#,##0.00');
     } catch (e) {
       // Ignore if formatting fails
     }
