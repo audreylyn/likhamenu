@@ -1,7 +1,12 @@
-import React from 'react';
-import { Plus, Trash, Upload, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash, Upload, Loader2, Smile } from 'lucide-react';
 import { Website, Product } from '../../types';
 import { ProductOptionsEditor } from './ProductOptionsEditor';
+
+const FOOD_EMOJIS = [
+  '🍔', '🍕', '🌭', '🍟', '🌮', '🌯', '🥗', '🥘', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🍢', '🍡', '🍧', '🍨', '🍦', '🍰', '🎂', '🧁', '🥧', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕', '🍵', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🍾', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢',
+  '⭐', '🔥', '🆕', '🥬', '🥩', '🍗', '🍖', '🧀', '🥚', '🥓', '🥞', '🧇', '🍞', '🥐', '🥖', '🥨', '🥯'
+];
 
 interface ProductListProps {
   website: Website;
@@ -20,6 +25,13 @@ export const ProductList: React.FC<ProductListProps> = ({
   handleFileUpload,
   isUploadingImage, // Destructure new prop
 }) => {
+  const [openEmojiPicker, setOpenEmojiPicker] = useState<string | null>(null);
+
+  const handleEmojiClick = (productId: string, emoji: string, currentCategory: string) => {
+    updateItem('products', productId, 'category', (currentCategory || '') + emoji);
+    setOpenEmojiPicker(null);
+  };
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -53,13 +65,40 @@ export const ProductList: React.FC<ProductListProps> = ({
                 className="w-20 bg-transparent text-right font-medium text-slate-700 border-b border-transparent focus:border-amber-400 outline-none"
               />
             </div>
-            <input
-              type="text"
-              value={p.category || 'All'}
-              placeholder="Category (e.g., Breads, Pastries, Drinks)"
-              onChange={(e) => updateItem('products', p.id, 'category', e.target.value)}
-              className="w-full bg-transparent text-sm text-slate-500 mb-2 border-b border-transparent focus:border-amber-400 outline-none"
-            />
+            
+            <div className="relative mb-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={p.category || 'All'}
+                  placeholder="Category (e.g., Breads, Pastries, Drinks)"
+                  onChange={(e) => updateItem('products', p.id, 'category', e.target.value)}
+                  className="flex-1 bg-transparent text-sm text-slate-500 border-b border-transparent focus:border-amber-400 outline-none"
+                />
+                <button
+                  onClick={() => setOpenEmojiPicker(openEmojiPicker === p.id ? null : p.id)}
+                  className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
+                  title="Add Emoji"
+                >
+                  <Smile className="w-4 h-4" />
+                </button>
+              </div>
+              
+              {openEmojiPicker === p.id && (
+                <div className="absolute right-0 top-full mt-1 z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-2 w-64 max-h-48 overflow-y-auto grid grid-cols-8 gap-1">
+                  {FOOD_EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => handleEmojiClick(p.id, emoji, p.category || '')}
+                      className="hover:bg-slate-100 rounded p-1 text-lg leading-none"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <textarea
               value={p.description}
               onChange={(e) => updateItem('products', p.id, 'description', e.target.value)}

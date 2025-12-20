@@ -83,7 +83,10 @@ function sendOrderStatusEmail(e) {
   if (!e || !e.range) return;
 
   const sheet = e.range.getSheet();
-  if (sheet.getName() !== "Orders") return;
+  const sheetName = sheet.getName();
+  
+  // Check if it's an Orders sheet (supports "Orders", "Orders Website", "Orders POS")
+  if (!sheetName.includes("Orders")) return;
 
   const range = e.range;
   const column = range.getColumn();
