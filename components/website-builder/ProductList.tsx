@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import * as LucideIcons from 'lucide-react';
 import { Plus, Trash, Upload, Loader2, Smile } from 'lucide-react';
 import { Website, Product } from '../../types';
 import { ProductOptionsEditor } from './ProductOptionsEditor';
 
-const FOOD_EMOJIS = [
-  '🍔', '🍕', '🌭', '🍟', '🌮', '🌯', '🥗', '🥘', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🍢', '🍡', '🍧', '🍨', '🍦', '🍰', '🎂', '🧁', '🥧', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕', '🍵', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🍾', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢',
-  '⭐', '🔥', '🆕', '🥬', '🥩', '🍗', '🍖', '🧀', '🥚', '🥓', '🥞', '🧇', '🍞', '🥐', '🥖', '🥨', '🥯'
+const ICON_NAMES = [
+  'Utensils', 'Sandwich', 'Pizza', 'Coffee', 'Cake', 'Star', 'Fire', 'Gift', 'ShoppingBag', 'Leaf', 'Heart', 'IceCream', 'Soup', 'Drumstick', 'Fish', 'Apple', 'CupSoda', 'Beer', 'Wine', 'Salad', 'Cookie', 'Candy', 'Egg', 'Cheese', 'Bread', 'Croissant', 'Bowl', 'Carrot', 'Burger', 'Fries', 'Hotdog', 'Taco', 'Sushi', 'Shrimp', 'Steak', 'Bottle', 'Milk', 'Mug', 'GlassWater', 'Cup', 'Doughnut', 'Grape', 'Lemon', 'Orange', 'Pepper', 'Cherry', 'Banana', 'Avocado', 'Corn', 'Mushroom', 'Onion', 'Pepper', 'Apple', 'IceCream2', 'Cupcake', 'Cookie', 'Pie', 'Waffle', 'Honey', 'Tea', 'Soup', 'BentoBox', 'Baguette', 'Sausage', 'Meat', 'Chicken', 'Fish', 'Crab', 'Lobster', 'Shrimp', 'Egg', 'Cheese', 'Bread', 'Croissant', 'Bowl', 'Carrot', 'Burger', 'Fries', 'Hotdog', 'Taco', 'Sushi', 'Steak', 'Bottle', 'Milk', 'Mug', 'GlassWater', 'Cup', 'Doughnut', 'Grape', 'Lemon', 'Orange', 'Pepper', 'Cherry', 'Banana', 'Avocado', 'Corn', 'Mushroom', 'Onion', 'Pepper', 'Apple', 'IceCream2', 'Cupcake', 'Cookie', 'Pie', 'Waffle', 'Honey', 'Tea', 'Soup', 'BentoBox', 'Baguette', 'Sausage', 'Meat', 'Chicken', 'Fish', 'Crab', 'Lobster', 'Shrimp'
 ];
 
 interface ProductListProps {
@@ -25,11 +25,13 @@ export const ProductList: React.FC<ProductListProps> = ({
   handleFileUpload,
   isUploadingImage, // Destructure new prop
 }) => {
-  const [openEmojiPicker, setOpenEmojiPicker] = useState<string | null>(null);
+  const [openIconPicker, setOpenIconPicker] = useState<string | null>(null);
+  const [iconSearch, setIconSearch] = useState('');
 
-  const handleEmojiClick = (productId: string, emoji: string, currentCategory: string) => {
-    updateItem('products', productId, 'category', (currentCategory || '') + emoji);
-    setOpenEmojiPicker(null);
+  const handleIconClick = (productId: string, iconName: string) => {
+    updateItem('products', productId, 'categoryIcon', iconName);
+    setOpenIconPicker(null);
+    setIconSearch('');
   };
 
   return (
@@ -76,25 +78,43 @@ export const ProductList: React.FC<ProductListProps> = ({
                   className="flex-1 bg-transparent text-sm text-slate-500 border-b border-transparent focus:border-amber-400 outline-none"
                 />
                 <button
-                  onClick={() => setOpenEmojiPicker(openEmojiPicker === p.id ? null : p.id)}
+                  onClick={() => setOpenIconPicker(openIconPicker === p.id ? null : p.id)}
                   className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
-                  title="Add Emoji"
+                  title="Select Icon"
                 >
-                  <Smile className="w-4 h-4" />
+                  {p.categoryIcon && LucideIcons[p.categoryIcon] ? (
+                    React.createElement(LucideIcons[p.categoryIcon], { className: 'w-5 h-5' })
+                  ) : (
+                    <Smile className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              
-              {openEmojiPicker === p.id && (
-                <div className="absolute right-0 top-full mt-1 z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-2 w-64 max-h-48 overflow-y-auto grid grid-cols-8 gap-1">
-                  {FOOD_EMOJIS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      onClick={() => handleEmojiClick(p.id, emoji, p.category || '')}
-                      className="hover:bg-slate-100 rounded p-1 text-lg leading-none"
-                    >
-                      {emoji}
-                    </button>
-                  ))}
+              {openIconPicker === p.id && (
+                <div className="absolute right-0 top-full mt-1 z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-2 w-72 max-h-64 overflow-y-auto">
+                  <input
+                    type="text"
+                    value={iconSearch}
+                    onChange={e => setIconSearch(e.target.value)}
+                    placeholder="Search icons..."
+                    className="w-full mb-2 px-2 py-1 border border-slate-200 rounded text-sm"
+                    autoFocus
+                  />
+                  <div className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto">
+                    {ICON_NAMES.filter(name => name.toLowerCase().includes(iconSearch.toLowerCase())).map(iconName => {
+                      const IconComp = LucideIcons[iconName];
+                      if (!IconComp) return null;
+                      return (
+                        <button
+                          key={iconName}
+                          onClick={() => handleIconClick(p.id, iconName)}
+                          className="hover:bg-slate-100 rounded p-1 flex items-center justify-center"
+                          title={iconName}
+                        >
+                          <IconComp className="w-5 h-5" />
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
