@@ -20,6 +20,10 @@
 const CONFIG = {
   ADMIN_EMAIL: "likhasiteworks@gmail.com", // Change this to your email
   DRIVE_FOLDER_NAME: "Messenger/Order Tracking",
+  // Admin notifications
+  // Set to [] to disable new-order emails completely (recommended).
+  // If you ever want them back, you can set this to ["Website"], ["POS"], or both.
+  ADMIN_NEW_ORDER_NOTIFY_SOURCES: [],
   SHEET_NAMES: {
     WEBSITE: "Orders Website",
     POS: "Orders POS",
@@ -69,8 +73,8 @@ function doPost(e) {
     // Add the order to the spreadsheet
     addOrderToSheet(sheet, orderData, source);
 
-    // Send New Order Notification to Admin
-    sendNewOrderEmail(orderData, source, websiteTitle);
+    // Admin new-order emails are disabled by default.
+    // Customer status-update emails are handled by the sheet-bound CLIENT_SHEET_SCRIPT.js.
     
     // Update Dashboard (Aggregated)
     createOrUpdateDashboardSheet(spreadsheet, websiteTitle);
@@ -301,6 +305,12 @@ function deleteDefaultSheet(spreadsheet) {
 
 function sendNewOrderEmail(orderData, source, websiteTitle) {
   try {
+    // Skip admin new-order email if this source is not enabled
+    const notifySources = Array.isArray(CONFIG.ADMIN_NEW_ORDER_NOTIFY_SOURCES)
+      ? CONFIG.ADMIN_NEW_ORDER_NOTIFY_SOURCES
+      : ["Website"];
+    if (!notifySources.includes(source)) return;
+
     const subject = `New Order: ${websiteTitle} (${source})`;
     const body = `
       New Order Received!
