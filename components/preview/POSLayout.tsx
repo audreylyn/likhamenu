@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Website, Product, ProductOption, ProductOptionChoice } from '../../types';
 import { SelectedOption, useCart } from '../../hooks/useCart';
+import * as LucideIcons from 'lucide-react';
 import { Search, Grid, List, Plus, Minus, Trash2, X, ChevronRight, ChevronLeft, ShoppingBag, ArrowLeft, Utensils, Coffee, IceCream, Sandwich, Pizza, Beer } from 'lucide-react';
 import { POSProductCard } from './POSProductCard';
 import { POSCartSidebar } from './POSCartSidebar';
@@ -30,8 +31,12 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
     setSelectedOptions([]);
   }, [quickViewProduct]);
 
-  // Get unique categories
-  const categories = ['All', ...Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')))] as string[];
+  // Get unique categories with optional icon from first product that has `categoryIcon`
+  const uniqueNames = Array.from(new Set(content.products.map(p => p.category || 'All').filter(cat => cat !== 'All')));
+  const categories = ['All', ...uniqueNames].map(name => {
+    const productWithIcon = content.products.find(p => (p.category || 'All') === name && (p as any).categoryIcon);
+    return { name, iconName: productWithIcon ? (productWithIcon as any).categoryIcon : undefined };
+  });
 
   // Filter products
   const filteredProducts = content.products.filter(product => {
@@ -121,20 +126,25 @@ export const POSLayout: React.FC<POSLayoutProps> = ({
              </button>
         )}
         
-        {categories.map(category => (
-            <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl gap-1 md:gap-2 transition-all shrink-0 ${
-                    selectedCategory === category
-                    ? 'bg-amber-600 text-white shadow-md scale-105'
-                    : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-                }`}
-            >
-                {getCategoryIcon(category)}
-                <span className="text-[10px] font-bold text-center leading-tight px-1 line-clamp-2 uppercase tracking-wide">{category}</span>
-            </button>
-        ))}
+        {categories.map(categoryObj => {
+          const category = categoryObj.name;
+          const iconName = categoryObj.iconName;
+          const IconComp = iconName && (LucideIcons as any)[iconName] ? (LucideIcons as any)[iconName] : null;
+          return (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl gap-1 md:gap-2 transition-all shrink-0 ${
+              selectedCategory === category
+              ? 'bg-amber-600 text-white shadow-md scale-105'
+              : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+            }`}
+          >
+            {IconComp ? <IconComp className="w-6 h-6" /> : getCategoryIcon(category)}
+            <span className="text-[10px] font-bold text-center leading-tight px-1 line-clamp-2 uppercase tracking-wide">{category}</span>
+          </button>
+          );
+        })}
       </div>
 
       {/* Main Content */}

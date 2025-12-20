@@ -70,6 +70,7 @@ export interface Product {
   image: string;
   price: string;
   category?: string;
+  categoryIcon?: string; // optional Lucide icon name for category
   trackStock?: boolean; // Optional: Enable stock tracking
   stock?: number;       // Optional: Number of items available
   options?: ProductOption[]; // Variants and Add-ons
